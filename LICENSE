@@ -1,0 +1,22 @@
+Maatilan hybridienergialaskuri
+Copyright (c) 2026 EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke
+
+The calculator (laskuri/), documentation (docs/, README.md) and example data
+(data/esimerkkiprofiilit.csv) are licensed under the Creative Commons
+Attribution 4.0 International License (CC BY 4.0).
+
+You are free to share and adapt the material for any purpose, including
+commercially, provided you give appropriate credit, provide a link to the
+license, and indicate if changes were made.
+
+Summary: https://creativecommons.org/licenses/by/4.0/
+Legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Third-party data in data/fingrid_*.csv: Fingrid Oyj, open data (CC BY 4.0),
+https://data.fingrid.fi
+
+Source code in malli/ and scripts/ is licensed separately under the MIT
+License, see LICENSE-CODE.
+
+The calculator is an indicative planning tool provided "as is", without
+warranty of any kind. It is not investment, financing or tax advice.

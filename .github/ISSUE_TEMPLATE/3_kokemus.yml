@@ -1,0 +1,25 @@
+name: Käyttökokemus
+description: Kerro, miten käytit laskuria ja vastasiko tulos todellisuutta
+title: "[Kokemus] "
+labels: ["käyttökokemus"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Kokemukset oikeista investoinneista ovat erityisen arvokkaita laskurin kehittämiselle. Älä kirjoita tilasi nimeä tai muita tunnistetietoja.
+  - type: textarea
+    id: kaytto
+    attributes:
+      label: Mihin käytit laskuria?
+      description: Esim. aurinkosähkön mitoitus, akun kannattavuus, lämpöpumpun vertailu
+    validations:
+      required: true
+  - type: textarea
+    id: vertailu
+    attributes:
+      label: Vastasiko tulos todellisuutta?
+      description: Jos investointi on tehty, miten toteutuneet säästöt tai tuotto vertautuvat laskurin arvioon?
+  - type: textarea
+    id: selkeys
+    attributes:
+      label: Mikä oli epäselvää tai hankalaa?

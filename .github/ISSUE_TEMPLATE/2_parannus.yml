@@ -1,0 +1,36 @@
+name: Parannusehdotus
+description: Uusi ominaisuus, laite, tilatyyppi tai selkeämpi ohje
+title: "[Ehdotus] "
+labels: ["parannus"]
+body:
+  - type: textarea
+    id: ehdotus
+    attributes:
+      label: Mitä laskuriin pitäisi lisätä tai muuttaa?
+    validations:
+      required: true
+  - type: textarea
+    id: miksi
+    attributes:
+      label: Miksi? Millaisessa tilanteessa tarvitset sitä?
+  - type: dropdown
+    id: tila
+    attributes:
+      label: Tilan tuotantosuunta
+      options:
+        - Lihasikala
+        - Emakko- tai porsastuotanto
+        - Broileri tai muu siipikarja
+        - Nauta tai maito
+        - Kasvihuone
+        - Muu / en halua kertoa
+  - type: dropdown
+    id: rooli
+    attributes:
+      label: Olen
+      options:
+        - Viljelijä tai tilan omistaja
+        - Neuvoja tai konsultti
+        - Laitetoimittaja
+        - Tutkija tai opiskelija
+        - Muu

@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1170" viewBox="0 0 1800 1170" role="img" aria-labelledby="title desc">
+<title id="title">Hinnat ja ohjaus</title>
+<desc id="desc">Miten hinnat ja käyttötavat ohjaavat tuntitasetta? Sähkön hinnat. Lämmön hinta. Laitteiden ohjaus</desc>
+<rect width="1800" height="1170" fill="#FAF9FC"/>
+<text x="55" y="59.68" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#6D637C">MAATILAN HYBRIDIENERGIAMALLI</text>
+<rect x="500" y="105" width="800" height="140" rx="20" fill="#542583"/>
+<text x="540" y="162.44" font-family="DejaVu Sans,sans-serif" font-size="42" font-weight="700" fill="#FFFFFF">Hinnat ja ohjaus</text>
+<text x="540" y="211.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#FFFFFF">Miten hinnat ja käyttötavat ohjaavat tuntitasetta?</text>
+<polyline points="900,245 900,290" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,290 1485,290" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,290 315,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="900,290 900,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="1485,290 1485,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="50" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="76" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Sähkön hinnat</text>
+<text x="76" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Kiinteä hinta tai pörssisarja</text>
+<text x="76" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Osto ja myynti: eri hinnat</text>
+<text x="76" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Pörssihinta: €/MWh, alv 0 %</text>
+<text x="76" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Siirto, vero, marginaali: c/kWh</text>
+<text x="76" y="614.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Tehomaksu: €/kW/kk</text>
+<text x="76" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Älä sisällytä samaa maksua</text>
+<text x="76" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">kahteen kertaan.</text>
+<polyline points="315,760 315,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="635" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="661" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Lämmön hinta</text>
+<text x="661" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Hake- tai biokaasulämpö</text>
+<text x="661" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Polttoaine vai toimitettu lämpö?</text>
+<text x="661" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Hyötysuhde vain polttoaineelle</text>
+<text x="661" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Vertailu LP:n lämpökustannukseen</text>
+<text x="661" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">LP:n kustannukseen vaikuttavat</text>
+<text x="661" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">sähkön hinta ja COP.</text>
+<polyline points="900,760 900,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="1220" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="1246" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Laitteiden ohjaus</text>
+<text x="1246" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Akku: PV- tai pörssiohjaus</text>
+<text x="1246" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">LP: taloudellinen tai etusija</text>
+<text x="1246" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Sähkökattila: PV / sallittu verkko</text>
+<text x="1246" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Reservi: rinnakkain / reservi ensin</text>
+<text x="1246" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Pörssiohjattu akku tarvitsee</text>
+<text x="1246" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">täyden pörssihintasarjan.</text>
+<polyline points="1485,760 1485,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,808 1485,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="900,808 900,845" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="285" y="845" width="1230" height="188" rx="20" fill="#EDE7F4"/>
+<text x="320" y="898.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Hinnat ja säännöt ohjaavat tuntikohtaista käyttöä</text>
+<text x="320" y="945.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Teho, varaustaso, häviöt ja lämmöntarve rajaavat toimintaa.</text>
+<text x="320" y="981.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Tuntitaseista syntyvät energiaostot, myynnit ja käyttökustannukset.</text>
+<text x="55" y="1088.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Ohjaus on sääntöpohjainen. Puuttuva pörssihintasarja estää kannattavuusvertailun.</text>
+<text x="55" y="1138.04" font-family="DejaVu Sans,sans-serif" font-size="22" font-weight="400" fill="#5D6170">Lähde: mallin 0.9.1 käyttö- ja menetelmäkuvaus · 22.10.2026 · EIP CHP / SeAMK · CC BY 4.0</text>
+</svg>

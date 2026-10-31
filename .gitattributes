@@ -1,0 +1,5 @@
+*.xlsx binary
+*.xlsm binary
+*.docx binary
+*.bas -text
+*.csv text eol=lf

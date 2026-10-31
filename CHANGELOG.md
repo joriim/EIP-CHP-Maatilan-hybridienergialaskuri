@@ -1,0 +1,156 @@
+# Muutosloki
+
+## 0.9.3 (2026-10-23): reservimarkkinan uudistus
+
+**Uutta**
+- FCR-D alas: akun latausteho tarjotaan alas-reserviin ylös-reservin rinnalla (Reservimarkkina C36–C37). Tarjontaa rajaavat vapaa varastotila, latausteho ja energianhallinnan purkutehoreservi. Alas-aktivointi ostetaan verkosta ja lisää varausta (Tuntitase BH–BI, Q, Z).
+- Skenaariot: *Kyllästynyt markkina* (Fingridin vuosimarkkina 2026: ylös 3,50, alas 6,00 €/MW,h; vuosimuutos −10 %/v), *Viimeiset 12 kk* (oletus) ja ylös/alas-hinnat jokaiselle vuodelle. *Heikoin vuosi* poistettu.
+- Aggregaattorin kiinteä vähimmäispalkkio (C39, 12 €/kk): tilan tuotto = max(0, brutto − max(brutto × (1 − osuus), 12 × palkkio)).
+- Reservituotetaulukko: miksi FCR-N, aFRR, mFRR ja FFR eivät ole laskennassa.
+- FCR-D alas -tuntihinnat (Fingrid 283, 21.4.2021–30.10.2026) mukana: Tuntitase BJ–BO ja data/fingrid_fcr_d_alas_tuntihinnat.csv. Muunnos `scripts/muunna_fingrid_reservi.py` (CSV ja Excel) ja testit.
+- Selainversio web/index.html: sama tuntitase, talous, CHP, FCR-D-reservi ja kokoonpanon optimointi JavaScriptinä (web/malli.js). `node web/testi.js` vertaa tuloksia työkirjan testitapauksiin. Sivu kootaan `scripts/rakenna_web.py`.
+- K14: *Reservihinta puuttuu*, jos valitulle skenaariolle ei ole alas-hintoja.
+
+**Muutettua**
+- Tilan osuuden oletus 70 % → 50 %. NPV ja Vuosikassavirta käyttävät valitun skenaarion vuosimuutosta (C43).
+- Reservi on oletuksena edelleen pois; oletusesimerkin tulokset eivät muutu.
+- sim.py: `reserve_down`, `reserve_up`, `reserve_revenue`. lp2.py:n osuuden oletus 50 % (vain ylös-suunta).
+- calcChain poistettu työkirjasta; Excel muodostaa sen uudelleen.
+
+## 0.9.2 (2026-10-22): CHP, kokoonpanon optimointi ja hintahistoria
+
+**Uutta**
+- CHP-sähkö päälämmityksen yhteydessä (Ohjauspaneelin rivi 15, oletuksena pois). Sähkö = osuus D15 × päälämmön tuotto; ensin tilan sähköntarpeeseen, ylijäämä myyntiin. Lisäpolttoaine kattilan hyötysuhteella, ylläpito €/MWh (K65), käyttöikä ja uusiminen (K66–K67, Vuosikassavirta T2:U7), tukiosuus (Vuosikassavirta rivi 8). Tuntitase BD–BG, Kuukausikoonti W–X.
+- Optimointi-välilehti ja makro AjaOptimointi (.xlsm): koordinaattihaku käyttäjän ehdokasarvoista mittarilla NPV, takaisinmaksuaika tai vuotuinen säästö. Paras kokoonpano asetetaan Ohjauspaneeliin ja jokainen kokoonpano kirjataan hakulokiin.
+- Hintahistoria-välilehti: vuodet 2023–2026 rinnakkain ja tuntikohtainen keskiarvo. Vuosi tai keskiarvo valitaan solusta K49. Valitun vuoden puuttuvat tunnit täytetään keskiarvolla.
+- Makroton .xlsx-versio samoilla kaavoilla. Makron lähdekoodi laskuri/Optimointi.bas. Skripti scripts/tee_xlsx.py.
+
+**Korjattua**
+- Ilman pörssihintoja täysi uudelleenlaskenta antoi #ARVO!-virheen akun verkkolataussarakkeesta (Tuntitase AH) kaikkiin tuloksiin. Excelin AND() laskee kaikki argumentit, joten hintaero laskettiin tyhjästä hinnasta. Virhe koski myös 0.9.1-tiedostoa. Hintaero lasketaan nyt vain numeerisesta hinnasta; tulokset hintojen kanssa eivät muutu.
+- Makron korjattu versio tiedostossa laskuri/Optimointi.bas: laskenta odotetaan valmiiksi jokaisen kokoonpanon jälkeen, laskenta on haun ajan manuaalinen (nopeampi, ei 12 uudelleenlaskentaa kokoonpanoa kohti), Esc ja virhe palauttavat alkuperäisen kokoonpanon, tyhjä ehdokaslista ei kaada hakua, lokin täyttyminen pysäyttää haun hallitusti ja samanlaisista tuloksista varoitetaan. Moduuli tuodaan työkirjaan Excelissä ennen julkaisua (docs/TESTAUS.md, Makron päivitys); VBA-koodia ei voi kääntää tässä ympäristössä.
+- CHP-investointia ei lasketa, kun päälämpö on Toimitettu lämpö (CHP ei silloin tuota). CHP-osuuden on oltava 0–1 (K14). Biogeenisen CO2:n muistiorivi sisältää CHP:n lisäpolttoaineen kuten toimitusketjurivi.
+- Tuotantosuunnan virheilmoitus mainitsee myös Oma data -valinnan.
+
+**Muutettua**
+- Ohjauspaneelin solut riviltä 16 alkaen siirtyivät yhden rivin alas (esim. NPV E53 → E54, kassasäästö E50 → E51, hinnoitteluperuste K21 → K22, akun kalenteri-ikä K49 → K50). Ohjeet päivitetty.
+- Pörssihinnat-välilehden sarake C on kaava; hinnat liitetään Hintahistoria-välilehdelle.
+- Excelin regressiotesti päivitetty uusiin soluihin, ja siihen on lisätty kolme CHP-tapausta ja CHP-osuuden virhetapaus. Python-sääntömalliin (sim.py, talous.py) lisätty CHP. Kaavatulkitsin tukee jaettuja kaavoja ja Excelin tyhjän merkkijonon #ARVO!-käytöstä.
+
+**Julkaisuversion tietosuoja**
+- Hintahistorian hintasarjat poistettu (käyttöehdot), samoin kommentit, Excel-lisäosien sidokset, luottamuksellisuusmerkinnät ja ylä-/alatunnisteet, henkilökohtainen tallennuspolku ja muokkaajan nimi. Optimoinnin hakuloki tyhjennetty.
+- Esimerkkioletukset palautettu 0.9.1:n mukaisiksi (Lihasikala, PV 200 kWp, akku 60 kWh, kattila 300 kW, hake 16 €/MWh, korko 8 %, kiinteä hinta, reservi pois). Oletusesimerkin tulokset ovat samat kuin 0.9.1:ssä.
+
+**Säilyvät rajat**
+- CHP:n arvot ovat omia oletuksia. Sähköhyötysuhdetta, minimikuormaa ja käynnistyksiä ei mallinneta.
+- Optimointi ei takaa globaalia optimia. Microsoft Excelin avaamista ja makron ajoa ei ole testattu tässä ympäristössä.
+
+## 0.9.1 tekijäjärjestys viitteissä (2026-10-22)
+
+- Päivitetty tekijä- ja viittaustietojen järjestykseksi Suvi Karirinne, Miiro Jääskeläinen README-tiedostoissa, esittelyoppaassa ja niiden Word-versioissa.
+- CITATION.cff-tiedostossa Suvi Karirinne on ensimmäinen kirjoittaja ja Miiro Jääskeläinen toinen.
+
+## 0.9.1 tekoälysuosituksen rajaus (2026-10-22)
+
+- Poistettu Geminiä tukevaa Excel-lisäosaa käsittelevä kappale erillisestä README-käyttöohjeesta ja sen Word-versiosta sekä vastaava suositus projektin etusivulta.
+- Poistettu kappaleen tarpeettomiksi jääneet lähteet 17–18. Copilot-, ChatGPT- ja Claude-ohjeet säilytetty.
+
+## 0.9.1 tekoälyn käytön kuvaus ja Excel-avustajat (2026-10-22)
+
+- Lisätty README- ja Excel-käyttöohjeeseen maininta tekoälyn hyödyntämisestä laskurin kehittämisessä.
+- Excel-käyttöohjeeseen lisätty Copilot-, ChatGPT for Excel-, Claude for Excel- ja Geminiä tukevan kolmannen osapuolen lisäosan käyttösuositukset, lähteet ja tilakohtaiset esimerkkikehotteet.
+- Täsmennetty Googlen oman Sheets-integraation ja Excel-lisäosien ero sekä lisäosien saatavuuden ja mallikohtaisen toimivuuden rajat.
+- Päivitetty erillisen Excel-käyttöohjeen Word-versio. Työkirjan laskentaa ei muutettu.
+
+## 0.9.1 hinnat ja talous käsitekarttoina (2026-10-22)
+
+- Lisätty Hinnat ja ohjaus- sekä Talous ja muut oletukset -käsitekartat PNG- ja SVG-muodoissa.
+- Kartat kuvaavat nykyversion hinnat, ohjausvalinnat, kassavirran, uusimiset ja oletusten vaikutuksen. Energiamyynnin sisältyminen energiasäästöön ja päästöarvioiden erillinen raportointi on merkitty näkyviin.
+- Laskentaan tai työkirjaan ei tehty muutoksia.
+
+## 0.9.1 Word-ohjeet ja osakokonaisuuksien käsitekartat (2026-10-22)
+
+- Lisätty erillisen Excel-käyttöohjeen ja esittely-, käyttö- ja kehitysoppaan DOCX-versiot. Taulukot, linkit ja lähteet säilytetty; sivut tarkistettu LibreOffice-renderöinnistä.
+- Lisätty omat Tilan energiantarve- sekä Sää ja tuotanto -käsitekartat PNG- ja SVG-muodoissa ja linkitetty ne konseptikuvan ohjeeseen.
+- Laskentaan ja työkirjaan ei tehty muutoksia.
+
+## 0.9.1 erillinen Excel-käyttöohje (2026-10-22)
+
+- Lisätty laskuri/README_EXCEL.md: itsenäinen Excel-mallin käyttöohje ilman julkaisualustaviittauksia tai ohjelmointiohjeita.
+- Ohje kattaa käyttöönoton, välilehdet, soluviitteet, kulutus- ja hintadatan kohdistamisen, tulosten tulkinnan ja tavallisten virheiden selvittämisen.
+- Lisätty 13 lähteen käyttötarkoituksen ja rajaukset selittävä lähdeluettelo. Omat oletukset ja puuttuvat alkuperätiedot erotettu ulkoisista lähteistä.
+- Excel-tiedostoon tai laskentaan ei tehty muutoksia.
+
+## 0.9.1 konseptikuva (2026-10-22)
+
+- Lisätty mallin käsitteellinen kokonaiskuva SVG- ja PNG-muodoissa: lähtötiedot, sähkön ja lämmön kytkentä, varastointi, reservi sekä energia-, talous- ja päästötulokset.
+- Lisätty docs/KONSEPTIKUVA.md ja linkki README-tiedostoon. Kuva perustuu nykyversion menetelmäkuvaukseen; laskentaan ei tehty muutoksia.
+
+## 0.9.1 esittely- ja kehitysopas (2026-10-21)
+
+- Lisätty docs/OPAS.md: laskurin tarkoitus, käyttöönotto, datan aikakanta ja yksiköt, vaihtoehtojen vertailu, tulosten tulkinta sekä nykyversion rajat.
+- Kuvattu nykyinen CC BY 4.0 / MIT -lisenssijako, lähteen mainitseminen ja ulkoisten aineistojen erilliset ehdot.
+- Lisätty priorisoitu jatkokehitysehdotus, hyväksymisperusteet, kehittäjän työnkulku, testikomennot ja julkaisuohje.
+- Linkitetty opas README- ja käyttöohjetiedostoista sekä täydennetty CONTRIBUTING.md. Täsmennetty englanninkielinen esittely: käyttäjä valitsee laitekoot, CHP-prosessia ei mallinneta ja päästöarviot ovat erillisiä.
+- Laskentakaavoihin, oletusarvoihin tai Excel-tiedostoon ei tehty muutoksia.
+
+## 0.9.1 latauslinkit (2026-10-21)
+
+- Lisätty viisi suoraa FI-pörssihintojen latauslinkkiä Pörssihinnat-välilehdelle, README-tiedostoon ja käyttöohjeeseen: Sähkötin 2023–2025, Elering 2025 ja Energy-Charts 2025.
+- Lisätty docs/PORSSIHINNAT.md: CSV/JSON-muunnos, EET-aikarajaus, varttihintojen käsittely, karkauspäivä ja lähdekohtaiset käyttöehdot.
+- Muunnosskripti lukee myös Eleringin puolipiste-/desimaalipilkku-CSV:n ja Energy-Chartsin JSONin. Korjattu vanhan latausohjeen UTC-rajaus vastaamaan kiinteää EET-vuotta.
+
+## 0.9.1 rakennekorjaus (2026-10-21)
+
+- Korjattu Excelin vioittumisilmoituksen aiheuttava tyylitiedoston elementtijärjestys: dxfs ennen colors-elementtiä.
+- Työkirja avattu, laskettu uudelleen ja tallennettu LibreOffice Calcissa (LibreOfficeDev 26.8.0.0.alpha0).
+- Kaikki 334 532 kaavaa säilyivät. Uudelleenlaskennan jälkeen ei soluvirheitä.
+- 21 tuntisarakkeen 8 760 tunnin tulokset verrattu aiempiin: suurin ero 4,98 × 10^-14. Nettonykyarvo täsmäsi alle 0,000001 euron poikkeamalla.
+- Microsoft Excelin omaa avaamista ei ole voitu testata tässä ympäristössä.
+
+
+## 0.9.1 (2026-10-21): laskentakorjaukset ja lähteet
+
+**Korjattua**
+- Reservi ensin ei enää saa tuottoa tyhjästä akusta. Varaustason lataus, odotettu aktivointienergia, häviöt ja aktivointienergian myynti sisältyvät taseeseen.
+- Rinnakkaisen reservin energiakate vähennetään omakäyttöpurun jälkeen. Tämän tunnin latausta ei lueta alkutunnin katteeksi. Energianhallinnan lataustehoreservi huomioidaan.
+- Lähtötilanteella ja hybridillä sama päälämmön tehoraja. Toimittamaton lämpö raportoidaan ja vajaus estää kannattavuusvertailun.
+- Pörssilataus vaatii pörssihinnoittelun. Tasahintojen järjestys on ajallinen; latausehto huomioi hyötysuhteen ja kulumisarvion. Puuttuvat hinnat estävät taloustuloksen.
+- Akun käyttöikä huomioi kalenteri- ja syklirajan. Kaikki uusimiset ja uusitun akun jäännösarvo huomioidaan NPV:ssä. Invertterivaihtoa ei vähennetä alle 12 vuoden tarkastelussa.
+- Vuotuinen kassasäästö ja yksinkertainen takaisinmaksu sisältävät ylläpidon. Kulumisproksia ei lisätä kassakuluksi uusimisten päälle.
+- Toimitetun lämmön hintaa ei tarvitse jakaa kattilan hyötysuhteella: uusi hinnan peruste -valinta.
+- Python-optimoinnissa PV-leikkaus rajattu tuotantoon. Binääriset lataus/purku- ja osto/myyntisuunnat estävät keinotekoiset negatiivisten hintojen kierrot. Tehomaksulla yksi huippumuuttuja per kuukausi horisontilla.
+
+**Lisättyä ja muutettua**
+- Varaajan seisontahäviö ja purkuteho, sähkökattilan valinnainen verkkolataus ja LP:n taloudellinen/etusijaohjaus.
+- Muokattavat COP-parametrit, pakkasraja ja lämpötehon kerroin, näkyvästi oletuksina.
+- Vuosikassavirta-välilehti: kassavirrat, uusimisaikataulu, laitekohtaiset hyväksyttävät kustannukset ja tukiosuudet.
+- Käyttövaiheen päästöt, valmistusarvio ja vain sähkön vaikutusskenaario erilleen. Eri rajauksia ei summata elinkaaritulokseksi.
+- Motivan lähdepisteet ja oma vuosittainen interpolointi näkyviin. Vuoden 2045 arvo korjattu 39:stä 35:een. 2026–2045 keskiarvo 116,642857 g/kWh.
+- docs/LAHTEET.md: tarkat viitteet, tarkistuspäivä, oletukset ja puuttuva alkuperätieto. Tukiehtojen blogi korvattu Ruokavirastolla. Forbes ei enää varmennus akkupäästökertoimelle.
+- Poistettu toistamaton väite sääntöohjauksen 55 % hyödystä. Optimoinnin ennakkotieto- ja horisonttirajat dokumentoitu.
+- Lisäinvestointivertailu ja regressiotestit. Tulokset ja validoinnin rajat: docs/TESTAUS.md.
+
+**Säilyvät rajat**
+- Sää/PV:n lähdevuosi, alkuperäinen lähde ja profiiligeneraattori puuttuvat toimitetusta paketista. CSV-aineistot säilytetty muuttumattomina.
+- COP, laitevalmistus, kalenteri-ikä ja reserviaktivointi sisältävät käyttäjän oletuksia. Ei täydellistä elinkaarivertailua tai reservin hyväksyntää.
+- Vuosienergia toistaa yhden tuntivuoden. Ei PV:n asteittaista ikääntymistä, sää-/hintaennustetta eikä vero-/rahoitusmallia.
+
+## 0.9.0 (2026-10-16): ensimmäinen julkinen versio
+
+Julkaistaan palautteen keräämiseksi.
+
+**Uutta alkuperäiseen laskuriin (220926) verrattuna**
+- Pörssihinta: käyttäjä liittää tuntihinnat välilehdelle *Pörssihinnat*; puuttuvat tunnit lasketaan kiinteällä hinnalla
+- Akun pörssiohjaus (verkkolataus halvimpina ja purku kalleimpina tunteina), PV-myynnin katkaisu negatiivisella hinnalla, tehomaksu
+- Oman tuntidatan syöttö ja esimerkkiprofiilin skaalaus vuosikulutukseen, datan tarkistukset
+- Reservimarkkinatuotto (FCR-D ylös) vuosien 2021–2026 hinnoilla
+- Hiilijalanjälki kolmella menetelmällä, biogeeninen CO₂ muistioeränä
+- NPV sisältää ylläpidon sekä invertterin ja akun uusimisen
+
+**Korjattua**
+- NPV-rivin teksti näyttää laskennassa käytetyn koron
+- Hakkeen kulutus -rivin otsikko, hakkeen energiatiheys parametriksi
+- PV-omakäyttöaste ei sisällä katkaistua tuotantoa
+
+**Esimerkkidata**
+- Synteettiset esimerkkiprofiilit lihasikalalle ja broilerille; broilerin lämpö riippuu nyt ulkolämpötilasta ja lintujen iästä

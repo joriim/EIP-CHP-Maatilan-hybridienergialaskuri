@@ -1,0 +1,37 @@
+name: Virhe laskurissa
+description: Laskuri antaa väärän tuloksen, virheilmoituksen tai toimii odottamattomasti
+title: "[Virhe] "
+labels: ["virhe"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Kiitos ilmoituksesta! Viestit ovat julkisia, joten älä kirjoita tilasi nimeä tai muita tunnistetietoja.
+  - type: textarea
+    id: kuvaus
+    attributes:
+      label: Mitä tapahtui?
+      description: Mikä tulos tai solu on väärin, ja mitä odotit?
+    validations:
+      required: true
+  - type: textarea
+    id: asetukset
+    attributes:
+      label: Asetukset
+      description: Tuotantosuunta, laitteet ja koot, hinnoitteluperuste, akun ohjaus. Kuvakaappaus Ohjauspaneelista riittää.
+  - type: dropdown
+    id: ohjelma
+    attributes:
+      label: Ohjelma
+      options:
+        - Excel (Microsoft 365 / 2021 / 2019)
+        - Excel (vanhempi)
+        - LibreOffice Calc
+        - Muu
+    validations:
+      required: true
+  - type: input
+    id: versio
+    attributes:
+      label: Laskurin versio
+      description: Näkyy välilehden Menetelmä ja lähteet muutoslokissa

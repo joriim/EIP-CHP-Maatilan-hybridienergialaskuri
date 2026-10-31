@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1170" viewBox="0 0 1800 1170" role="img" aria-labelledby="title desc">
+<title id="title">Talous ja muut oletukset</title>
+<desc id="desc">Mistä kannattavuus ja päästöarviot muodostuvat? Investointi ja tuki. Vuotuinen kassavirta. Aika ja muut oletukset</desc>
+<rect width="1800" height="1170" fill="#FAF9FC"/>
+<text x="55" y="59.68" font-family="DejaVu Sans,sans-serif" font-size="24" font-weight="700" fill="#6D637C">MAATILAN HYBRIDIENERGIAMALLI</text>
+<rect x="500" y="105" width="800" height="140" rx="20" fill="#542583"/>
+<text x="540" y="162.44" font-family="DejaVu Sans,sans-serif" font-size="42" font-weight="700" fill="#FFFFFF">Talous ja muut oletukset</text>
+<text x="540" y="211.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#FFFFFF">Mistä kannattavuus ja päästöarviot muodostuvat?</text>
+<polyline points="900,245 900,290" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,290 1485,290" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,290 315,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="900,290 900,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="1485,290 1485,340" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="50" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="76" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Investointi ja tuki</text>
+<text x="76" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Laitekoot ja tarjoushinnat</text>
+<text x="76" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Bruttoinvestointi − tuki</text>
+<text x="76" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Laitekohtaiset hyväksyttävät kulut</text>
+<text x="76" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Tukiosuus: Vuosikassavirta P3:Q7</text>
+<text x="76" y="614.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Nettoinvestointi lähtöhetkellä</text>
+<text x="76" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Tuki on kohdekohtainen oletus.</text>
+<text x="76" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Varmista ehdot ja tukipäätös.</text>
+<polyline points="315,760 315,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="635" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="661" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Vuotuinen kassavirta</text>
+<text x="661" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Energiakustannusten säästö</text>
+<text x="661" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">PV- ja reservienergian myynti</text>
+<text x="661" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Reservikapasiteetin tuotto</text>
+<text x="661" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Ylläpito vähennetään säästöstä</text>
+<text x="661" y="614.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Yksi tuntivuosi toistuu vuosittain</text>
+<text x="661" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Myynti sisältyy energiasäästöön.</text>
+<text x="661" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Sitä ei lisätä uudelleen.</text>
+<polyline points="900,760 900,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="1220" y="340" width="530" height="420" rx="20" fill="#FFFFFF" stroke="#DCD6E4" stroke-width="2"/>
+<text x="1246" y="397.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Aika ja muut oletukset</text>
+<text x="1246" y="458.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Laskentakorko ja tarkasteluaika</text>
+<text x="1246" y="497.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Akun kalenteri- ja syklikesto</text>
+<text x="1246" y="536.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Uusimiset ja akun jäännösarvo</text>
+<text x="1246" y="575.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Reservin saatavuus ja aktivointi</text>
+<text x="1246" y="614.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Päästö- ja valmistuskertoimet</text>
+<text x="1246" y="693.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Päästöt raportoidaan erikseen.</text>
+<text x="1246" y="727.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Oletukset eivät ole ennusteita.</text>
+<polyline points="1485,760 1485,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="315,808 1485,808" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<polyline points="900,808 900,845" fill="none" stroke="#B5A5C8" stroke-width="4"/>
+<rect x="285" y="845" width="1230" height="188" rx="20" fill="#EDE7F4"/>
+<text x="320" y="898.42" font-family="DejaVu Sans,sans-serif" font-size="31" font-weight="700" fill="#542583">Kannattavuus ja oletusten herkkyys</text>
+<text x="320" y="945.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">NPV: investointi, vuosikassavirrat, uusimiset ja akun jäännösarvo nykyarvoina.</text>
+<text x="320" y="981.5" font-family="DejaVu Sans,sans-serif" font-size="25" font-weight="400" fill="#273145">Vertaa vaihtoehtojen lisä-NPV:tä ja muuta oletuksia yksi kerrallaan.</text>
+<text x="55" y="1088.86" font-family="DejaVu Sans,sans-serif" font-size="23" font-weight="400" fill="#5D6170">Yksinkertainen takaisinmaksuaika ei huomioi uusimisten ajankohtia. Ei vero- tai rahoituskassavirtamallia.</text>
+<text x="55" y="1138.04" font-family="DejaVu Sans,sans-serif" font-size="22" font-weight="400" fill="#5D6170">Lähde: mallin 0.9.1 käyttö- ja menetelmäkuvaus · 22.10.2026 · EIP CHP / SeAMK · CC BY 4.0</text>
+</svg>
