@@ -1,4 +1,4 @@
-# Maatilan hybridienergialaskuri 0.9.3
+# Maatilan hybridienergialaskuri 0.10.0
 
 Excel-laskuri, jolla sika- tai siipikarjatila voi arvioida, kannattaako olemassa olevan hake- tai biokaasulämmityksen rinnalle hankkia aurinkosähköä, sähköakkua, lämpöpumppua, sähkökattilaa, lämpövaraajaa tai CHP-sähköntuotantoa.
 
@@ -11,11 +11,22 @@ Laskuri simuloi tilan sähkön ja lämmön tunti tunnilta koko vuoden (8 760 tun
 - käyttövaiheen päästöt, erillisen valmistuspäästöarvion ja sähköjärjestelmän vaikutusskenaarion
 - makroversiossa parhaan laitekokoonpanon annetuista vaihtoehdoista (NPV, takaisinmaksu tai vuotuinen säästö)
 
-Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkeessa. Se on suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus.
+Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkeessa Seinäjoen ammattikorkeakoulun (SEAMK) Maatalous ja energia -tutkimusryhmässä. Se on suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus.
 
 **Laskurin kehittämisessä on hyödynnetty tekoälyä** laskentakaavojen ja koodin tarkastelussa, dokumentoinnissa sekä vaihtoehtojen luonnostelussa. Tekoälyä voi käyttää myös oman tilan lähtötietojen jäsentämiseen ja syötön valmisteluun. Suosittelemme kokeilemaan Microsoft Copilotia Excelissä, OpenAI:n ChatGPT for Excel -lisäosaa tai Anthropicin Claude for Excel -lisäosaa. Asennuslähteet, käyttörajojen täsmennykset ja valmiit esimerkkikehotteet ovat [Excel-käyttöohjeen tekoälyosiossa](laskuri/README_EXCEL.md#13-tekoäly-laskurin-kehittämisessä-ja-käytössä). Saatavuus riippuu palvelusta, tilauksesta ja organisaation asetuksista.
 
 **[Lue esittely, käyttö- ja kehitysopas](docs/OPAS.md).** Opas kertoo, mitä laskuri laskee, miten oman tilan tiedot syötetään, miten vaihtoehtoja vertaillaan ja miten laskuria voi kehittää avoimilla lisensseillä. Käyttäjä valitsee laitteiden koot tai antaa makroversion etsiä parhaan kokoonpanon antamistaan vaihtoehdoista. CHP on yksinkertaistettu sähköosuusmalli; laitoksen prosessia tai biokaasuprosessia ei mallinneta.
+
+## Uutta versiossa 0.10.0
+
+Laskuri on nyt kahtena tasavertaisena toteutuksena: **selainversio** ja **Excel-työkirja** laskevat samat tulokset. Selainversion testi vertaa lähes 3 000 arvoa (energiatase, talous, kuukausikoonti, vuosikassavirta ja päästöt) työkirjaan kuudessa tapauksessa.
+
+- **Selainversio kokonaisena:** kaikki työkirjan parametrit ja tulokset, myös kuukausikoonti, vuosikassavirta, uusimiset, koko päästöosio, reservin skenaariot, optimointi sekä menetelmä ja lähteet.
+- **Rakennushaku-tuonti:** Rakennushaun `oma_kulutusdata_<vuosi>.csv` (sähkö, lämpö, ulkolämpötila, pörssihinta) ja `hintahistoria_2023-2026.csv` luetaan suoraan selaimeen; Excelissä ne liitetään Oma kulutusdata- ja Hintahistoria-välilehdille.
+- **Oma ulkolämpötila** ohjaa lämpöpumpun COP:ta ja pakkasrajaa molemmissa versioissa (Excel: Oma kulutusdata, sarake G).
+- **Monivuotiset pörssihinnat** selaimessa kuten Excelin Hintahistoria: vuosi tai keskiarvo, puuttuvat tunnit keskiarvolla.
+- **Tallennus ja jakaminen:** lähtötiedot JSON-tiedostoon ja jakolinkkiin, tulokset ja tuntitase CSV:nä, vaihtoehtojen vertailu rinnakkain.
+- **GitHub Pages:** selainversio julkaistaan repositoriosta automaattisesti.
 
 ## Uutta versiossa 0.9.3
 
@@ -75,7 +86,11 @@ Pörssihintoja ei jaeta laskurin mukana, koska niiden käyttöehdot määrää h
 
 ## Selainversio
 
-[web/index.html](web/index.html) on Excelin rinnalla toimiva selainlaskuri: sama 8 760 tunnin tase, talous, CHP, FCR-D-reservi ja kokoonpanon optimointi. Avaa tiedosto selaimessa (ei asennusta, toimii myös ilman verkkoyhteyttä fonttia lukuun ottamatta). Oman kulutuksen ja pörssihinnat voi ladata CSV-tiedostoina. Laskentamalli on tiedostossa [web/malli.js](web/malli.js), ja `node web/testi.js` tarkistaa, että tulokset täsmäävät Excel-työkirjan testitapauksiin. Sivu kootaan komennolla `python scripts/rakenna_web.py`.
+**Avaa laskuri selaimessa:** https://seamkedu.github.io/maatilan-hybridienergialaskuri/ (GitHub Pages; toimii myös avaamalla [web/index.html](web/index.html) omalta koneelta).
+
+Selainversiossa on sama laskenta ja samat tulokset kuin Excel-työkirjassa. Laskenta tehdään selaimessa, eivätkä ladatut tiedostot lähde koneelta. Lähtötiedot voi tallentaa JSON-tiedostoon tai jakaa linkkinä, ja tulokset saa CSV-tiedostoina.
+
+Kehittäjälle: laskentamalli on [web/malli.js](web/malli.js), käyttöliittymä [web/sovellus.js](web/sovellus.js) ja sivupohja [web/sovellus.html](web/sovellus.html). `python scripts/rakenna_web.py` kokoaa niistä ja `data/`-kansiosta `web/index.html`:n. `node web/testi.js` vertaa tuloksia työkirjaan (vertailuarvot `web/vertailu_excel.json`, päivitys `python malli/vie_vertailu.py laskuri/Maatilan_hybridienergialaskuri.xlsm`).
 
 ## Palaute ja parannusehdotukset
 
@@ -108,7 +123,7 @@ Viittausohje: [CITATION.cff](CITATION.cff) tai GitHubin *Cite this repository* -
 
 ## Tekijät
 
-Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu.
+Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä.
 
 ## Rahoitus
 

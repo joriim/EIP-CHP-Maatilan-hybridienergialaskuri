@@ -1,4 +1,4 @@
-# Python-mallit 0.9.3
+# Python-mallit 0.10.0
 
 - sim.py: korjattu Excelin sääntöohjaus, mukaan lukien pörssi, reservin odotusenergia (FCR-D ylös ja alas: `reserve_up`, `reserve_down`), CHP-sähkö (`chp_share`) ja aggregaattorin palkkio (`reserve_revenue`).
 - lp2.py: SciPy/HiGHS MILP-vertailu, fyysiset suuntarajoitteet ja kuukausihuiput.
@@ -6,6 +6,7 @@
 - vertaa.py: kiinteähintainen PV/akku/LP-lisäinvestointivertailu.
 - aja_esimerkki.py: vertailu käyttäjän täydellä pörssihintasarjalla.
 - test_regressiot.py: energia-, hinta-, reservi-, CHP- ja talousrajojen testit.
+- vie_vertailu.py: työkirjan tulokset selainversion vertailutestille (web/vertailu_excel.json).
 - excel_tarkistus.py ja test_excel.py: työkirjan tallennettujen kaavojen riippumaton tulkinta ja vertailu sim.py-malliin (`python malli/test_excel.py laskuri/Maatilan_hybridienergialaskuri.xlsm`).
 
 ```

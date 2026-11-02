@@ -1,0 +1,28 @@
+# Ajaa laskennan testit: Python-malli, tiedostomuunnokset, selainversion vastaavuus Excel-työkirjaan
+# ja työkirjan rakenteen. Excelin täysi kaavatarkistus (malli/test_excel.py, noin 6 min) ajetaan käsin.
+name: Testit
+on:
+  push:
+  pull_request:
+jobs:
+  testit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r malli/requirements.txt openpyxl
+      - run: python -m unittest discover -s malli -p test_regressiot.py -v
+      - run: python -m unittest discover -s scripts -p 'test_*.py' -v
+      - run: node web/testi.js
+      - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsx
+      - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsm
+      - name: web/index.html on ajan tasalla lähteisiin nähden
+        run: |
+          cp web/index.html /tmp/vanha.html
+          python scripts/rakenna_web.py
+          cmp web/index.html /tmp/vanha.html

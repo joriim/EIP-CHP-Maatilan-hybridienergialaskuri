@@ -1,5 +1,21 @@
 # Muutosloki
 
+## 0.10.0 (2026-11-02): selainversio tasavertaiseksi Excelin kanssa
+
+**Uutta**
+- Selainversio (web/index.html) sisältää kaikki työkirjan parametrit ja tulokset: energiatase, kustannukset, investoinnit ja uusimiset, kuukausikoonti, vuosikassavirta ja kertynyt kassavirta, koko päästöosio (kotimainen kerroin, tuntikerroin, vaikutusskenaario, lämmön toimitusketju, valmistus, biogeeninen muistio), FCR-D-skenaariot, optimointi sekä menetelmä ja lähteet. Jokaisen syötteen kohdalla näkyy vastaava Excel-solu.
+- Rakennushaku-tuonti: `oma_kulutusdata_<vuosi>.csv` (sähkö, lämpö, ulkolämpötila, pörssihinta) ja `hintahistoria_2023-2026.csv` luetaan selaimeen sellaisenaan.
+- Oma ulkolämpötila lämpöpumpun COP:hen ja pakkasrajaan molemmissa versioissa. Excel: Oma kulutusdata, sarake G (Rakennushaun vienti liitetään sarakkeisiin A–G); Tuntitase BR on laskennassa käytetty lämpötila.
+- Monivuotiset pörssihinnat selaimessa: vuosi tai keskiarvo, valitun vuoden puuttuvat tunnit keskiarvolla (kuten Hintahistoria).
+- Tallennus ja jakaminen: lähtötiedot JSON-tiedostoon ja jakolinkkiin, tulokset ja tuntitase CSV:nä, vertailu enintään kuudesta vaihtoehdosta.
+- GitHub Pages -julkaisu (.github/workflows/pages.yml) ja testit GitHub Actionsissa (.github/workflows/testit.yml).
+- Vertailutesti: `malli/vie_vertailu.py` vie työkirjan tulokset kuudesta tapauksesta, ja `node web/testi.js` vertaa niihin 2 932 selainversion arvoa.
+
+**Muutettua**
+- Selainversion lähdekoodi jaettu: web/malli.js (laskenta), web/sovellus.js (käyttöliittymä), web/sovellus.html (sivupohja); `scripts/rakenna_web.py` kokoaa yhden tiedoston.
+- Nimet: SEAMK ja Maatalous ja energia -tutkimusryhmä tekijätiedoissa; CITATION.cff:ssä ORCID-tunnisteet ja selainversion osoite.
+- Oletusesimerkin tulokset eivät muutu.
+
 ## 0.9.3 (2026-10-23): reservimarkkinan uudistus
 
 **Uutta**

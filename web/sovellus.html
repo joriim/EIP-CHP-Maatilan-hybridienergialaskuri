@@ -3,7 +3,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
 <style>
-/* Layout: syöttöpaneeli vasemmalla, tulokset oikealla; kapealla näytöllä pinottu. SeAMK + Maatalous ja energia -tiimin värit. */
+/* Layout: syöttöpaneeli vasemmalla, tulokset oikealla; kapealla näytöllä pinottu. SEAMK + Maatalous ja energia -tutkimusryhmän värit. */
 :root {
   --bg: #f6f7f4; --surface: #ffffff; --ink: #1d231f; --muted: #5b655e; --line: #d9ded8;
   --pelto: #2E6B3F; --pelto-soft: #D5E4D8; --lampo: #B24A28; --lampo-soft: #F0DBD4;
@@ -87,317 +87,144 @@ svg text { fill: var(--muted); font-size: 11px; font-family: var(--body) }
 footer { max-width: 1320px; margin: 24px auto 0; color: var(--muted); font-size: .85rem; display: grid; gap: 6px }
 footer a { color: var(--energia) }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
+
+.toolbar { max-width: 1320px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.toolbar .hint { margin-left: 4px }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid var(--line) }
+.tabs button { background: transparent; color: var(--muted); border: 0; border-bottom: 3px solid transparent; border-radius: 0; padding: 8px 12px; margin-bottom: -2px }
+.tabs button[aria-selected="true"] { color: var(--pelto); border-bottom-color: var(--pelto) }
+.panel[hidden] { display: none }
+.files { display: grid; gap: 4px; font-size: .88rem }
+.files li { margin-left: 1em }
+.ref { color: var(--muted); font-size: .72rem; margin-left: 4px; font-variant-numeric: tabular-nums }
+.cmp td:first-child { min-width: 14em }
+.method p, .method li { max-width: 75ch }
+.method h3 { font-family: var(--display); font-weight: 600; font-size: 1.05rem; margin: 14px 0 4px }
+.small { font-size: .82rem }
+.badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 999px; background: var(--energia-soft); color: var(--energia); margin-left: 6px }
 </style>
 
 <div class="stripe" aria-hidden="true"></div>
 <header class="top">
   <div>
     <h1>Maatilan hybridienergialaskuri</h1>
-    <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja ja CHP hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
+    <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja, CHP ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
   </div>
-  <div class="ver">Versio 0.9.3 · selainversio · EIP CHP Energiaälykäs eteläpohjalainen maatila</div>
+  <div class="ver">Versio 0.10.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
+<div class="toolbar" role="toolbar" aria-label="Tallennus ja jakaminen">
+  <button type="button" id="tSave">Tallenna lähtötiedot</button>
+  <label class="ghost-file"><button type="button" class="ghost" id="tOpenBtn">Avaa lähtötiedot</button><input type="file" id="tOpen" accept=".json" hidden></label>
+  <button type="button" class="ghost" id="tLink">Kopioi jakolinkki</button>
+  <button type="button" class="ghost" id="tCsv">Lataa tulokset (CSV)</button>
+  <button type="button" class="ghost" id="tHourly">Lataa tuntitase (CSV)</button>
+  <button type="button" class="ghost" id="tPin">Lisää vertailuun</button>
+  <span class="hint" id="tMsg" role="status"></span>
+</div>
 
 <main>
-<aside class="inputs" id="inputs">
-  <details class="grp" open><summary>1. Tila ja kulutus</summary><div class="fields">
-    <div class="row"><label for="tuotanto">Tuotantosuunta</label><select id="tuotanto"><option>Lihasikala</option><option>Broilerikasvattamo</option><option>Oma data</option></select></div>
-    <div class="row"><label for="lammitys">Päälämmitys</label><select id="lammitys"><option>Hakekattila</option><option>Biokaasu (lannanvaihto)</option></select></div>
-    <div class="row"><label for="kattila">Päälämmityksen teho<span class="u">kW</span></label><input type="number" id="kattila" min="0" step="10"></div>
-    <div class="row"><label for="skaalaSahko">Sähkö vuodessa (0 = profiili)<span class="u">kWh</span></label><input type="number" id="skaalaSahko" min="0" step="1000"></div>
-    <div class="row"><label for="skaalaLampo">Lämpö vuodessa (0 = profiili)<span class="u">kWh</span></label><input type="number" id="skaalaLampo" min="0" step="1000"></div>
-    <div class="file"><label for="omaData">Oma tuntidata (CSV: sähkö ja lämpö kWh/h, 8 760 riviä, EET)</label><input type="file" id="omaData" accept=".csv,.txt"><p class="hint" id="omaTila">Esimerkkiprofiilit ovat synteettisiä, eivät minkään tilan mittauksia.</p></div>
-  </div></details>
+<aside class="inputs" id="inputs"></aside>
 
-  <details class="grp" open><summary>2. Laitteet ja investoinnit</summary><div class="fields">
-    <div class="dev head"><span></span><span>Laite</span><span>Koko</span><span>€/yksikkö</span></div>
-    <div class="dev"><input type="checkbox" id="pvOn" aria-label="Aurinkosähkö mukana"><label for="pv">Aurinkosähkö, kWp</label><input type="number" id="pv" min="0" step="10"><input type="number" id="pvHinta" min="0" aria-label="Aurinkosähkön hinta €/kWp"></div>
-    <div class="dev"><input type="checkbox" id="akkuOn" aria-label="Akku mukana"><label for="akku">Akku, kWh</label><input type="number" id="akku" min="0" step="10"><input type="number" id="akkuHinta" min="0" aria-label="Akun hinta €/kWh"></div>
-    <div class="dev"><input type="checkbox" id="lpOn" aria-label="Lämpöpumppu mukana"><label for="lp">Lämpöpumppu, kW lämpöä</label><input type="number" id="lp" min="0" step="5"><input type="number" id="lpHinta" min="0" aria-label="Lämpöpumpun hinta €/kW"></div>
-    <div class="dev"><input type="checkbox" id="ekOn" aria-label="Sähkökattila mukana"><label for="ek">Sähkökattila, kW</label><input type="number" id="ek" min="0" step="5"><input type="number" id="ekHinta" min="0" aria-label="Sähkökattilan hinta €/kW"></div>
-    <div class="dev"><input type="checkbox" id="varOn" aria-label="Varaaja mukana"><label for="varaaja">Vesivaraaja, m³</label><input type="number" id="varaaja" min="0" step="1"><input type="number" id="varHinta" min="0" aria-label="Varaajan hinta €/m³"></div>
-    <div class="dev"><input type="checkbox" id="chpOn" aria-label="CHP mukana"><label for="chpOsuus">CHP, sähköosuus</label><input type="number" id="chpOsuus" min="0" max="1" step="0.05"><input type="number" id="chpHinta" min="0" aria-label="CHP:n hinta €/kWe"></div>
-    <p class="hint">Sähkökattila tarvitsee varaajan. CHP-sähkö = osuus × päälämmön tuotto; sähköteho = osuus × kattilan teho, hinta €/kWe.</p>
-    <div class="row"><label for="tuki">Investointituki<span class="u">osuus</span></label><input type="number" id="tuki" min="0" max="1" step="0.05"></div>
-  </div></details>
-
-  <details class="grp" open><summary>3. Hinnat ja talous</summary><div class="fields">
-    <div class="row"><label for="hinnoittelu">Sähkön hinnoittelu</label><select id="hinnoittelu"><option>Kiinteä</option><option>Pörssihinta</option></select></div>
-    <div class="row"><label for="ostoKiintea">Ostosähkö kokonaishinta<span class="u">c/kWh</span></label><input type="number" id="ostoKiintea" step="0.1"></div>
-    <div class="row"><label for="myyntiKiintea">Myyntihinta verkkoon<span class="u">c/kWh</span></label><input type="number" id="myyntiKiintea" step="0.1"></div>
-    <div class="file"><label for="porssi">Pörssihinnat (CSV, €/MWh alv 0, 8 760 tuntia)</label><input type="file" id="porssi" accept=".csv,.txt"><p class="hint" id="porssiTila">Ei ladattu. Muunna lataus skriptillä scripts/hae_porssihinnat.py.</p></div>
-    <div class="row"><label for="lisa">Siirto, vero ja marginaali pörssihinnan päälle<span class="u">c/kWh</span></label><input type="number" id="lisa" step="0.01"></div>
-    <div class="row"><label for="hake">Hakkeen hinta<span class="u">€/MWh</span></label><input type="number" id="hake" step="1"></div>
-    <div class="row"><label for="biokaasu">Biokaasulämmön hinta<span class="u">€/MWh</span></label><input type="number" id="biokaasu" step="1"></div>
-    <div class="row"><label for="hyotysuhde">Kattilan hyötysuhde</label><input type="number" id="hyotysuhde" min="0.1" max="1" step="0.01"></div>
-    <div class="row"><label for="korko">Laskentakorko</label><input type="number" id="korko" min="0" step="0.005"></div>
-    <div class="row"><label for="pitoaika">Pitoaika<span class="u">v</span></label><input type="number" id="pitoaika" min="1" max="100" step="1"></div>
-    <div class="row"><label for="tehomaksu">Tehomaksu<span class="u">€/kW/kk</span></label><input type="number" id="tehomaksu" min="0" step="0.5"></div>
-  </div></details>
-
-  <details class="grp"><summary>4. Akun ohjaus ja reservimarkkina</summary><div class="fields">
-    <div class="row"><label for="akunOhjaus">Akun ohjaus</label><select id="akunOhjaus"><option>Vain PV-ylijäämä</option><option>Pörssiohjattu</option></select></div>
-    <div class="row"><label for="halvat">Verkkolataus halvimpina tunteina<span class="u">h/vrk</span></label><input type="number" id="halvat" min="0" max="24" step="1"></div>
-    <div class="row"><label for="kalliit">Purku kalleimpina tunteina<span class="u">h/vrk</span></label><input type="number" id="kalliit" min="0" max="24" step="1"></div>
-    <div class="row"><label for="reservi">FCR-D-reservi</label><select id="reservi"><option>Ei</option><option>Kyllä</option></select></div>
-    <div class="row"><label for="reservitapa">Akun käyttötapa</label><select id="reservitapa"><option>Rinnakkain omakäytön kanssa</option><option>Reservi ensin</option></select></div>
-    <div class="row"><label for="skenaario">Hintaskenaario</label><select id="skenaario"></select></div>
-    <div class="row"><label for="ylos">FCR-D ylös (purkuteho)</label><select id="ylos"><option>Kyllä</option><option>Ei</option></select></div>
-    <div class="row"><label for="alas">FCR-D alas (latausteho)</label><select id="alas"><option>Kyllä</option><option>Ei</option></select></div>
-    <div class="row"><label for="osuus">Tilan osuus tuotosta</label><input type="number" id="osuus" min="0" max="1" step="0.05"></div>
-    <div class="row"><label for="palkkio">Aggregaattorin vähimmäispalkkio<span class="u">€/kk</span></label><input type="number" id="palkkio" min="0" step="1"></div>
-    <div class="row"><label for="omaYlos">Oma hinta ylös / alas<span class="u">€/MW,h</span></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px"><input type="number" id="omaYlos" step="0.5" aria-label="Oma hinta ylös"><input type="number" id="omaAlas" step="0.5" aria-label="Oma hinta alas"></div></div>
-    <p class="hint">Maatilan akku pääsee FCR-D-markkinalle vain aggregaattorin kautta (vähimmäistarjous 1 MW). FCR-N, aFRR, mFRR ja FFR on rajattu pois; perustelut Excelin Reservimarkkina-välilehdellä.</p>
-  </div></details>
-
-  <details class="grp"><summary>5. Lisäparametrit</summary><div class="fields">
-    <div class="row"><label for="lammonPeruste">Päälämmön hinnan peruste</label><select id="lammonPeruste"><option>Polttoaine</option><option>Toimitettu lämpö</option></select></div>
-    <div class="row"><label for="lpOhjaus">Lämpöpumpun ohjaus</label><select id="lpOhjaus"><option>Taloudellinen</option><option>Etusija</option></select></div>
-    <div class="row"><label for="ekVerkko">Sähkökattilan verkkolataus</label><select id="ekVerkko"><option>Ei</option><option>Kyllä</option></select></div>
-    <div class="row"><label for="katkaise">Katkaise myynti negatiivisella hinnalla</label><select id="katkaise"><option>Ei</option><option>Kyllä</option></select></div>
-    <div class="row"><label for="copA">COP = a + b·T, a</label><input type="number" id="copA" step="0.1"></div>
-    <div class="row"><label for="copB">COP-käyrän b<span class="u">1/K</span></label><input type="number" id="copB" step="0.01"></div>
-    <div class="row"><label for="kalenteriIka">Akun kalenteri-ikä<span class="u">v</span></label><input type="number" id="kalenteriIka" min="1" step="1"></div>
-    <div class="row"><label for="syklit">Akun syklikesto</label><input type="number" id="syklit" min="1" step="500"></div>
-    <div class="row"><label for="yllapito">Ylläpito<span class="u">osuus invest./v</span></label><input type="number" id="yllapito" min="0" step="0.005"></div>
-    <div class="row"><label for="invertteri">Invertterin vaihto v. 12<span class="u">€/kWp</span></label><input type="number" id="invertteri" min="0" step="5"></div>
-    <div class="row"><label for="chpYllapito">CHP:n ylläpito<span class="u">€/MWh</span></label><input type="number" id="chpYllapito" min="0" step="1"></div>
-    <div class="row"><label for="chpIka">CHP:n käyttöikä<span class="u">v</span></label><input type="number" id="chpIka" min="1" step="1"></div>
-    <button type="button" class="ghost" id="palauta">Palauta oletusarvot</button>
-  </div></details>
-</aside>
-
-<section class="results" aria-live="polite">
-  <div class="status"><span class="pill ok" id="tila">OK</span><span class="hint" id="tilaSelite"></span></div>
+<section class="results">
+  <div class="status" aria-live="polite"><span class="pill ok" id="tila">OK</span><span class="hint" id="tilaSelite"></span></div>
   <div class="kpis">
     <div class="kpi money"><div class="k">Kassasäästö ylläpidon jälkeen</div><div class="v" id="kCash">–</div><div class="s">€ vuodessa</div></div>
     <div class="kpi money"><div class="k">Nettonykyarvo (NPV)</div><div class="v" id="kNpv">–</div><div class="s" id="kNpvS">€</div></div>
     <div class="kpi"><div class="k">Takaisinmaksuaika</div><div class="v" id="kPb">–</div><div class="s" id="kPbS">vuotta nettoinvestoinnilla</div></div>
     <div class="kpi"><div class="k">Nettoinvestointi</div><div class="v" id="kNet">–</div><div class="s" id="kNetS">€ tuen jälkeen</div></div>
   </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
 
-  <div class="card"><h2>Sähkön osto kuukausittain</h2>
-    <div class="tw"><svg id="kaavio" viewBox="0 0 760 240" width="100%" role="img" aria-label="Verkko-osto ilman investointia ja investoinnin kanssa sekä aurinkosähkön tuotanto kuukausittain"></svg></div>
-    <div class="legend"><span><i style="background:var(--lila-soft);border:1px solid var(--lila)"></i>Osto ilman investointia</span><span><i style="background:var(--lila)"></i>Osto hybridillä</span><span><i style="background:var(--keltainen);border:1px solid var(--line)"></i>Aurinkosähkö</span></div>
-  </div>
-
-  <div class="two">
-    <div class="card"><h2>Energiatase</h2><div class="tw"><table id="tEnergia"></table></div></div>
-    <div class="card"><h2>Kustannukset ja säästö</h2><div class="tw"><table id="tTalous"></table></div></div>
-  </div>
-  <div class="two">
-    <div class="card"><h2>Investoinnit ja korvaukset</h2><div class="tw"><table id="tInv"></table></div></div>
-    <div class="card"><h2>Käytönaikaiset päästöt</h2><div class="tw"><table id="tCo2"></table></div>
-      <p class="hint">Ostosähkö Fingridin kulutetun sähkön tuntikertoimella 2025 (tuonti mukana); päälämmön toimitusketju ja CH4/N2O. Biogeeninen CO₂ ja laitteiden valmistus ovat Excel-versiossa.</p></div>
-  </div>
-
-  <div class="card"><h2>FCR-D-reservin skenaariot</h2>
-    <p class="hint" id="resInfo">Skenaariot lasketaan, kun reservi on valittu (kohta 4).</p>
-    <div class="tw"><table id="tRes"></table></div>
-  </div>
-
-  <div class="card"><h2>Kokoonpanon optimointi</h2>
-    <p class="hint">Koordinaattihaku käy läpi ehdokasarvot laite kerrallaan, kuten Excelin makro, ja ottaa parhaan voimaan. Arvo 0 = laite pois. Haku ei takaa parasta mahdollista yhdistelmää.</p>
-    <div class="opt-grid">
-      <label for="oMetric">Mittari</label><select id="oMetric"><option>NPV (suurin)</option><option>Takaisinmaksuaika (lyhin)</option><option>Vuotuinen säästö (suurin)</option></select>
-      <label for="oPv">Aurinkosähkö, kWp</label><input type="text" id="oPv" value="0, 25, 50, 75, 100, 150, 200, 300">
-      <label for="oLp">Lämpöpumppu, kW</label><input type="text" id="oLp" value="0, 10, 20, 30, 50">
-      <label for="oEk">Sähkökattila, kW</label><input type="text" id="oEk" value="0, 15, 30, 60">
-      <label for="oVar">Vesivaraaja, m³</label><input type="text" id="oVar" value="0, 2, 5, 10, 20">
-      <label for="oAkku">Akku, kWh</label><input type="text" id="oAkku" value="0, 15, 30, 60, 100, 150">
-      <label for="oChp">CHP-osuus</label><input type="text" id="oChp" value="0, 0.05, 0.1, 0.15, 0.2">
+  <div class="panel" id="p-yhteenveto">
+    <div class="card"><h2>Sähkön osto kuukausittain</h2>
+      <div class="tw"><svg id="kaavio" viewBox="0 0 760 240" width="100%" role="img" aria-label="Verkko-osto ilman investointia ja investoinnin kanssa sekä aurinkosähkön tuotanto kuukausittain"></svg></div>
+      <div class="legend"><span><i style="background:var(--lila-soft);border:1px solid var(--lila)"></i>Osto ilman investointia</span><span><i style="background:var(--lila)"></i>Osto hybridillä</span><span><i style="background:var(--keltainen);border:1px solid var(--line)"></i>Aurinkosähkö</span></div>
     </div>
-    <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button type="button" id="oRun">Etsi paras kokoonpano</button><span class="hint" id="oTila"></span></div>
-    <div class="tw" style="margin-top:8px"><table id="tOpt"></table></div>
+    <div class="two">
+      <div class="card"><h2>Energiatase</h2><div class="tw"><table id="tEnergia"></table></div></div>
+      <div class="card"><h2>Kustannukset ja säästö</h2><div class="tw"><table id="tTalous"></table></div></div>
+    </div>
+    <div class="card"><h2>Investoinnit ja korvaukset</h2><div class="tw"><table id="tInv"></table></div></div>
   </div>
 
-  <div class="note">Suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus. Esimerkkikulutus on synteettistä ja sää on Etelä-Pohjanmaan referenssivuosi. Tarkista hinnat, tuet ja tekniset ratkaisut toimittajilta ja neuvojalta.</div>
+  <div class="panel" id="p-kuukaudet" hidden>
+    <div class="card"><h2>Kuukausikoonti</h2><p class="hint">Vastaa Excelin Kuukausikoonti-välilehteä. kWh ja €, päästöt kg CO₂ Fingridin tuntikertoimella.</p><div class="tw"><table id="tKk"></table></div></div>
+  </div>
+
+  <div class="panel" id="p-kassavirta" hidden>
+    <div class="card"><h2>Kertynyt kassavirta</h2>
+      <div class="tw"><svg id="kaavio2" viewBox="0 0 760 220" width="100%" role="img" aria-label="Kertynyt kassavirta vuosittain nettoinvestoinnin jälkeen"></svg></div>
+      <p class="hint">Nettoinvestointi vuonna 0, sen jälkeen käyttökassavirrat ja uusimiset nimellisarvoina (ei diskontattu).</p></div>
+    <div class="card"><h2>Vuosikassavirta</h2><p class="hint">Vastaa Excelin Vuosikassavirta-välilehteä. NPV = −nettoinvestointi − uusimisten nykyarvo + käyttökassavirtojen nykyarvo.</p><div class="tw"><table id="tVuosi"></table></div></div>
+    <div class="card"><h2>Uusimiset</h2><div class="tw"><table id="tUus"></table></div></div>
+  </div>
+
+  <div class="panel" id="p-paastot" hidden>
+    <div class="card"><h2>Päästöt</h2><div class="tw"><table id="tCo2"></table></div>
+      <p class="hint">Rajaukset esitetään erikseen eikä niitä lasketa yhteen elinkaaritulokseksi. Vaikutusskenaario on Motiva/Sitowise 06/2025 -taulukon oma lineaarinen sovellus tarkastelujaksolle, ei havaittu marginaalikerroin. Valmistusarvio on skenaario-oletus.</p></div>
+  </div>
+
+  <div class="panel" id="p-reservi" hidden>
+    <div class="card"><h2>FCR-D-reservin skenaariot</h2><p class="hint" id="resInfo"></p><div class="tw"><table id="tRes"></table></div></div>
+    <div class="card"><h2>Miksi vain FCR-D?</h2><div class="tw"><table id="tProd"></table></div></div>
+  </div>
+
+  <div class="panel" id="p-optimointi" hidden>
+    <div class="card"><h2>Kokoonpanon optimointi</h2>
+      <p class="hint">Koordinaattihaku käy läpi ehdokasarvot laite kerrallaan, kuten Excelin makro, ja ottaa parhaan voimaan. Arvo 0 = laite pois. Haku ei takaa parasta mahdollista yhdistelmää.</p>
+      <div class="opt-grid">
+        <label for="oMetric">Mittari</label><select id="oMetric"><option>NPV (suurin)</option><option>Takaisinmaksuaika (lyhin)</option><option>Vuotuinen säästö (suurin)</option></select>
+        <label for="oPv">Aurinkosähkö, kWp</label><input type="text" id="oPv" value="0, 25, 50, 75, 100, 150, 200, 300">
+        <label for="oLp">Lämpöpumppu, kW</label><input type="text" id="oLp" value="0, 10, 20, 30, 50">
+        <label for="oEk">Sähkökattila, kW</label><input type="text" id="oEk" value="0, 15, 30, 60">
+        <label for="oVar">Vesivaraaja, m³</label><input type="text" id="oVar" value="0, 2, 5, 10, 20">
+        <label for="oAkku">Akku, kWh</label><input type="text" id="oAkku" value="0, 15, 30, 60, 100, 150">
+        <label for="oChp">CHP-osuus</label><input type="text" id="oChp" value="0, 0.05, 0.1, 0.15, 0.2">
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button type="button" id="oRun">Etsi paras kokoonpano</button><span class="hint" id="oTila"></span></div>
+      <div class="tw" style="margin-top:8px"><table id="tOpt"></table></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-vertailu" hidden>
+    <div class="card"><h2>Vaihtoehtojen vertailu</h2>
+      <p class="hint" id="cmpInfo">Lisää nykyinen laskelma vertailuun yläpalkin painikkeella. Vertailu säilyy tässä selaimessa.</p>
+      <div class="tw"><table id="tCmp" class="cmp"></table></div></div>
+  </div>
+
+  <div class="panel method" id="p-menetelma" hidden>
+    <div class="card"><h2>Menetelmä ja lähteet</h2>
+      <h3>Laskenta</h3>
+      <p>Laskuri käy vuoden läpi 8 760 tuntia kiinteässä EET-ajassa (UTC+2). Aurinkosähkö palvelee ensin kiinteistön sähkökuormaa, sitten akkua, lämpöpumppua, sähkökattilaa ja myyntiä. Akun lataushyötysuhde on 0,9 ja teho 0,5C. Lämpöpumpun COP = a + b·T rajattuna ala- ja ylärajaan; taloudellinen ohjaus vertaa sähkön hintaa/COP päälämmön muuttuvaan hintaan. Päälämpö kattaa jäljelle jäävän lämmöntarpeen kattilan tehoon asti; vajaus estää kannattavuusvertailun. CHP-sähkö on osuus päälämmön tuotosta, ja lisäpolttoaine lasketaan kattilan hyötysuhteella.</p>
+      <p>FCR-D ylös myy akun purkutehon ja FCR-D alas lataustehon aggregaattorin kautta. Tarjontaa rajaavat varaus, vapaa tila, teho ja energianhallinnan tehoreservi. Tilan tuotto vähentää aggregaattorin osuuden ja vähimmäispalkkion.</p>
+      <p>NPV sisältää ylläpidon sekä akun, invertterin ja CHP:n uusimiset; uusitun laitteen jäljellä oleva käyttöikä hyvitetään. Selainversion laskenta on sama kuin Excel-työkirjassa ja Python-mallissa; testi vertaa lähes 3 000 arvoa kuudessa tapauksessa.</p>
+      <h3>Oletukset ja rajat</h3>
+      <ul>
+        <li>Esimerkkikulutus on synteettistä. Sää ja aurinkosähkö ovat Etelä-Pohjanmaan referenssivuosi; oma ulkolämpötila (esim. Rakennushaun vienti) korvaa lämpöpumpun laskennan lämpötilan.</li>
+        <li>COP, akun ikä, reservin aktivointi, CHP-arvot ja valmistuspäästöt ovat omia oletuksia. Korvaa ne laite- ja sopimustiedoilla.</li>
+        <li>Yksi tuntivuosi toistetaan koko pitoajan. Hintoja tai säätä ei ennusteta.</li>
+      </ul>
+      <h3>Lähteet</h3>
+      <ul class="small">
+        <li>Fingrid Oyj, avoin data: FCR-D ylös (318) ja alas (283) tuntihinnat, kulutetun sähkön päästökerroin (396). CC BY 4.0. <a href="https://data.fingrid.fi/" target="_blank" rel="noopener">data.fingrid.fi</a></li>
+        <li>Fingrid: FCR-vuosimarkkinan hinnat 2024–2026. <a href="https://www.fingrid.fi/en/electricity-market-information/reserve-market-information/frequency-controlled-disturbance-reserve/" target="_blank" rel="noopener">fingrid.fi</a></li>
+        <li>Motiva: CO₂-päästökertoimet; Sitowise/Motiva 06/2025 Päästökerrointarkastelu, taulukko 5. <a href="https://www.motiva.fi/tietopankki/energiankaytto-suomessa/co2-paastokertoimet/" target="_blank" rel="noopener">motiva.fi</a></li>
+        <li>Ruokavirasto: maatalouden investointituet. <a href="https://www.ruokavirasto.fi/tuet/maatalous/investoinnit/maatalouden-investointituet/" target="_blank" rel="noopener">ruokavirasto.fi</a></li>
+        <li>Pörssihinnat: käyttäjä lataa itse (esim. Sähkötin); hintoja ei jaeta laskurin mukana.</li>
+        <li>Koko menetelmä, lähdeluettelo ja testit: <a href="https://github.com/SeAMKedu/maatilan-hybridienergialaskuri" target="_blank" rel="noopener">github.com/SeAMKedu/maatilan-hybridienergialaskuri</a> (docs/MENETELMA.md, docs/LAHTEET.md, docs/TESTAUS.md).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">Suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus. Tarkista hinnat, tuet ja tekniset ratkaisut toimittajilta ja neuvojalta. Laskenta tehdään selaimessa; tiedostot eivät lähde koneeltasi.</div>
 </section>
 </main>
 
 <footer>
-  <div>Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Euroopan unionin osarahoittama.</div>
-  <div>Laskuri ja dokumentaatio CC BY 4.0, koodi MIT. Fingridin avoin data (FCR-D 318 ja 283, päästökerroin 396) CC BY 4.0, lähde Fingrid Oyj. Menetelmä, lähteet ja Excel-versio: <a href="https://github.com/SeAMKedu/maatilan-hybridienergialaskuri" target="_blank" rel="noopener">github.com/SeAMKedu/maatilan-hybridienergialaskuri</a></div>
+  <div>Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Euroopan unionin osarahoittama.</div>
+  <div>Laskuri ja dokumentaatio CC BY 4.0, koodi MIT. Fingridin avoin data CC BY 4.0, lähde Fingrid Oyj. Excel-versio, menetelmä ja palaute: <a href="https://github.com/SeAMKedu/maatilan-hybridienergialaskuri" target="_blank" rel="noopener">github.com/SeAMKedu/maatilan-hybridienergialaskuri</a></div>
 </footer>
 
 <script>/*DATA*/</script>
 <script>/*MALLI*/</script>
-<script>
-(function () {
-  'use strict';
-  const L = window.Laskuri, D = window.LASKURI_DATA;
-  const decode = a => Float64Array.from(a, v => (v === null ? NaN : v));
-  const data = {
-    temp: decode(D.temp), pv: decode(D.pv), sikalaSahko: decode(D.sikalaSahko), sikalaLampo: decode(D.sikalaLampo),
-    broileriSahko: decode(D.broileriSahko), broileriLampo: decode(D.broileriLampo),
-    fcrUp: D.fcrUp.map(decode), fcrDown: D.fcrDown.map(decode), ef: decode(D.ef),
-  };
-  let own = null, spot = null, timer = null;
-  const $ = id => document.getElementById(id);
-  const ids = Object.keys(L.DEFAULTS).filter(k => $(k));
-  const sel = $('skenaario'); L.SCENARIOS.forEach(s => { const o = document.createElement('option'); o.textContent = s; sel.appendChild(o); });
-
-  function setInputs(p) { ids.forEach(k => { const el = $(k); if (el.type === 'checkbox') el.checked = !!p[k]; else el.value = p[k]; }); }
-  function readInputs() {
-    const p = {};
-    ids.forEach(k => { const el = $(k); if (el.type === 'checkbox') p[k] = el.checked ? 1 : 0;
-      else if (el.type === 'number') { const v = parseFloat(el.value); p[k] = Number.isFinite(v) ? v : L.DEFAULTS[k]; }
-      else p[k] = el.value; });
-    if (p.lammitys !== 'Hakekattila') p.lammitys = 'Biokaasu';
-    return p;
-  }
-  const nf0 = new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 });
-  const nf1 = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  const nf2 = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const f0 = v => (v == null || !Number.isFinite(v) ? '–' : nf0.format(v));
-  const f1 = v => (v == null || !Number.isFinite(v) ? '–' : nf1.format(v));
-  const f2 = v => (v == null || !Number.isFinite(v) ? '–' : nf2.format(v));
-  const pct = v => (Number.isFinite(v) ? nf0.format(v * 100) + ' %' : '–');
-  function table(id, head, rows, cls) {
-    const h = '<thead><tr>' + head.map(x => `<th>${x}</th>`).join('') + '</tr></thead>';
-    const b = rows.map((r, i) => `<tr class="${(cls && cls[i]) || ''}">` + r.map(x => `<td>${x}</td>`).join('') + '</tr>').join('');
-    $(id).innerHTML = h + '<tbody>' + b + '</tbody>';
-  }
-  const STATUS = {
-    'OK': 'Laskennan edellytykset täyttyvät.',
-    'Lämpövaje': 'Päälämmitys ei riitä huippuun: nosta kattilan tehoa tai lisää lämmönlähde. Kannattavuutta ei lasketa.',
-    'Kulutusdata puuttuu': 'Lataa oma tuntidata (8 760 riviä) tai valitse esimerkkiprofiili.',
-    'Hintadata puuttuu': 'Lataa pörssihinnat tai valitse kiinteä hinta.',
-    'Reservihinta puuttuu': 'Valitulle skenaariolle ei ole kaikkia reservihintoja.',
-    'Virhe parametreissa': 'Tarkista pitoaika, CHP-osuus, hyötysuhde ja ohjaustuntien summa.',
-  };
-
-  function chart(monthly) {
-    const W = 760, H = 240, padL = 52, padB = 24, padT = 10, n = 12, gw = (W - padL - 8) / n;
-    const max = Math.max(1, ...monthly.map(m => Math.max(m.base, m.buy, m.pv)));
-    const step = Math.pow(10, Math.floor(Math.log10(max / 4))); const nice = [1, 2, 2.5, 5, 10].map(x => x * step).find(x => max / x <= 5) || step * 10;
-    const top = Math.ceil(max / nice) * nice, y = v => padT + (H - padT - padB) * (1 - v / top);
-    const kk = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
-    let s = '';
-    for (let v = 0; v <= top + 1e-9; v += nice) s += `<line x1="${padL}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${nf0.format(v / 1000)}</text>`;
-    s += `<text x="4" y="${padT + 4}">MWh</text>`;
-    monthly.forEach((m, i) => {
-      const x = padL + i * gw + 4, bw = (gw - 8) / 3;
-      s += `<rect x="${x}" y="${y(m.base)}" width="${bw}" height="${y(0) - y(m.base)}" fill="var(--lila-soft)" stroke="var(--lila)" stroke-width="1"/>`;
-      s += `<rect x="${x + bw}" y="${y(m.buy)}" width="${bw}" height="${y(0) - y(m.buy)}" fill="var(--lila)"/>`;
-      s += `<rect x="${x + 2 * bw}" y="${y(m.pv)}" width="${bw}" height="${y(0) - y(m.pv)}" fill="var(--keltainen)" stroke="var(--line)" stroke-width="1"/>`;
-      s += `<text x="${x + 1.5 * bw}" y="${H - 6}" text-anchor="middle">${kk[i]}</text>`;
-    });
-    $('kaavio').innerHTML = s;
-  }
-
-  function render() {
-    const p = readInputs();
-    const r = L.calculate(p, data, own, spot);
-    const ok = r.status === 'OK';
-    $('tila').textContent = r.status; $('tila').className = 'pill ' + (ok ? 'ok' : 'bad');
-    $('tilaSelite').textContent = STATUS[r.status] || '';
-    if (!r.econ) { ['kCash', 'kNpv', 'kPb', 'kNet'].forEach(k => { $(k).textContent = '–'; }); return; }
-    const e = r.econ, en = r.energy;
-    $('kCash').textContent = f0(e.cash); $('kNpv').textContent = f0(e.npv);
-    $('kNpvS').textContent = `€, ${p.pitoaika} v, korko ${nf1.format(p.korko * 100)} %, sis. ylläpito ja uusimiset`;
-    $('kPb').textContent = e.payback == null ? (ok ? 'ei' : '–') : f1(e.payback);
-    $('kPbS').textContent = e.paybackGross == null ? 'vuotta nettoinvestoinnilla' : `vuotta; ilman tukea ${f1(e.paybackGross)} v`;
-    $('kNet').textContent = f0(e.net); $('kNetS').textContent = `€ tuen jälkeen; brutto ${f0(e.gross)} €`;
-    chart(r.monthly);
-    table('tEnergia', ['kWh/v', 'Lähtötilanne', 'Hybridi'], [
-      ['Sähkön osto verkosta', f0(en.buyBase), f0(en.buyHyb)],
-      ['Aurinkosähkön tuotanto', '0', f0(en.pv)],
-      ['Aurinkosähkön omakäyttöaste', '–', pct(en.selfUse)],
-      ['Myynti verkkoon', '0', f0(en.sell)],
-      ['Akun purku kuormaan', '0', f0(en.dis)],
-      ['Lämpöpumpun lämpö', '0', f0(en.hp)],
-      ['Sähkökattilan lämpö', '0', f0(en.eb)],
-      ['Päälämmityksen tuotanto', f0(en.mainBase), f0(en.mainHyb)],
-      ['CHP-sähkö', '0', f0(en.chp)],
-      ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
-      ['Akun syklit / käyttöikä', '–', p.akkuOn ? `${f0(en.cycles)} / ${f1(en.life)} v` : '–'],
-    ]);
-    table('tTalous', ['€/v', 'Lähtötilanne', 'Hybridi'], [
-      ['Ostosähkö (energia + tehomaksu)', f0(e.elBase), f0(e.elHyb)],
-      ['Sähkön myyntitulot', '0', f0(e.sales)],
-      ['Lämmityksen polttoaine', f0(e.fuelBase), f0(e.fuelHyb)],
-      ['Energiakustannukset yhteensä', f0(e.costBase), f0(e.costHyb)],
-      ['Energiasäästö', '', f0(e.energySaving)],
-      ['Reservituotto (tilan osuus)', '', f0(e.reserve.farm)],
-      ['Ylläpito', '', '−' + f0(e.om)],
-      ['Kassasäästö ylläpidon jälkeen', '', f0(e.cash)],
-    ], [, , , , , , , 'total']);
-    const inv = e.inv, rep = e.replacements;
-    table('tInv', ['€', 'Summa'], [
-      ['Aurinkosähkö', f0(inv.pv)], ['Akku', f0(inv.akku)], ['Lämpöpumppu', f0(inv.lp)], ['Sähkökattila', f0(inv.ek)],
-      ['Vesivaraaja', f0(inv.varaaja)], ['CHP', f0(inv.chp)], ['Investointi brutto', f0(e.gross)], ['Tuki', '−' + f0(e.subsidy)],
-      ['Nettoinvestointi', f0(e.net)], ['Invertterin vaihto, nykyarvo', f0(rep.invRep)], ['Akun uusimiset, nykyarvo', f0(rep.batRep)],
-      ['CHP:n uusiminen, nykyarvo', f0(rep.chpRep)],
-    ], [, , , , , , , , 'total']);
-    const c = r.co2;
-    table('tCo2', ['t CO₂e/v', 'Lähtötilanne', 'Hybridi', 'Muutos'], [
-      ['Ostosähkö, tuntikerroin', f1(c.elBase), f1(c.elHyb), f1(c.elHyb - c.elBase)],
-      ['Päälämmön toimitusketju', f1(c.heatBase), f1(c.heatHyb), f1(c.heatHyb - c.heatBase)],
-      ['Yhteensä', f1(c.elBase + c.heatBase), f1(c.elHyb + c.heatHyb), f1(c.elHyb + c.heatHyb - c.elBase - c.heatBase)],
-    ], [, , 'total']);
-    if (p.reservi === 'Kyllä' && p.akkuOn) {
-      const rows = [], cls = [];
-      L.SCENARIOS.forEach(s => {
-        const pr = L.reservePrices(p, data, s), rv = L.reserveRevenue(p, r.o, pr);
-        const avg = a => (typeof a === 'number' ? a : (() => { let t = 0, k = 0; a.forEach(v => { if (Number.isFinite(v)) { t += v; k++; } }); return k ? t / k : NaN; })());
-        rows.push([s, f2(avg(pr.up)), f2(avg(pr.down)), f0(rv.upG), f0(rv.downG), f0(rv.farm), pct(pr.growth)]);
-        cls.push(s === p.skenaario ? 'sel' : '');
-      });
-      table('tRes', ['Skenaario', 'Ylös €/MW,h', 'Alas €/MW,h', 'Ylös brutto €/v', 'Alas brutto €/v', 'Tilalle €/v', 'Vuosimuutos'], rows, cls);
-      $('resInfo').textContent = 'Valittu skenaario korostettu. Kyllästynyt markkina = Fingridin vuosimarkkina 2026; Viimeiset 12 kk = toteutuneet tuntihinnat 24.9.2025–24.9.2026. Historialliset vuodet ovat ajalta ennen akkujen tuomaa kyllästymistä.';
-    } else { $('tRes').innerHTML = ''; $('resInfo').textContent = 'Skenaariot lasketaan, kun reservi on valittu ja akku on mukana (kohta 4).'; }
-  }
-  function schedule() { clearTimeout(timer); timer = setTimeout(render, 60); }
-
-  function parseCsv(text) {
-    const rows = text.replace(/^﻿/, '').split(/\r?\n/).filter(x => x.trim() !== '');
-    const delim = rows[0].includes(';') ? ';' : rows[0].includes('\t') ? '\t' : ',';
-    return rows.map(r => r.split(delim).map(v => v.trim().replace(/^"|"$/g, '')));
-  }
-  const num = v => (v === '' || v == null ? NaN : Number(String(v).replace(',', '.')));
-  $('omaData').addEventListener('change', ev => {
-    const f = ev.target.files[0]; if (!f) return;
-    f.text().then(t => {
-      let rows = parseCsv(t); if (!Number.isFinite(num(rows[0][rows[0].length - 1]))) rows = rows.slice(1);
-      const el = rows.map(r => num(r[r.length - 2])), heat = rows.map(r => num(r[r.length - 1]));
-      const okRows = el.length === 8760 && el.every(Number.isFinite) && heat.every(Number.isFinite) && Math.min(...el, ...heat) >= 0;
-      if (okRows) { own = { el, heat }; $('tuotanto').value = 'Oma data';
-        $('omaTila').textContent = `Ladattu ${f.name}: sähkö ${nf0.format(el.reduce((a, b) => a + b, 0))} kWh/v, lämpö ${nf0.format(heat.reduce((a, b) => a + b, 0))} kWh/v.`; }
-      else { own = null; $('omaTila').textContent = `Tiedostossa ${f.name} on ${el.length} riviä tai puuttuvia arvoja. Tarvitaan 8 760 riviä: kaksi viimeistä saraketta sähkö ja lämpö kWh/h.`; }
-      render();
-    });
-  });
-  $('porssi').addEventListener('change', ev => {
-    const f = ev.target.files[0]; if (!f) return;
-    f.text().then(t => {
-      let rows = parseCsv(t); if (!Number.isFinite(num(rows[0][rows[0].length - 1]))) rows = rows.slice(1);
-      const v = rows.map(r => num(r[r.length - 1])); const n = v.filter(Number.isFinite).length;
-      if (v.length === 8760 && n === 8760) { spot = Float64Array.from(v); $('hinnoittelu').value = 'Pörssihinta';
-        $('porssiTila').textContent = `Ladattu ${f.name}: keskihinta ${nf2.format(v.reduce((a, b) => a + b, 0) / 8760)} €/MWh.`; }
-      else { spot = null; $('porssiTila').textContent = `Tiedostossa ${f.name} on ${v.length} riviä, joista ${n} numeerisia. Tarvitaan 8 760 tuntihintaa €/MWh.`; }
-      render();
-    });
-  });
-  $('inputs').addEventListener('input', schedule); $('inputs').addEventListener('change', schedule);
-  $('palauta').addEventListener('click', () => { setInputs(L.DEFAULTS); render(); });
-
-  $('oRun').addEventListener('click', () => {
-    const parse = s => s.split(',').map(x => parseFloat(x.trim())).filter(Number.isFinite);
-    const lists = ['oPv', 'oLp', 'oEk', 'oVar', 'oAkku', 'oChp'].map(k => parse($(k).value));
-    $('oRun').disabled = true; $('oTila').textContent = 'Lasketaan…';
-    setTimeout(() => {
-      const t0 = performance.now();
-      const res = L.optimise(readInputs(), data, own, spot, lists, $('oMetric').value);
-      const b = res.best, map = { pv: ['pvOn', 'pv'], lp: ['lpOn', 'lp'], ek: ['ekOn', 'ek'], varaaja: ['varOn', 'varaaja'], akku: ['akkuOn', 'akku'], chpOsuus: ['chpOn', 'chpOsuus'] };
-      Object.entries(map).forEach(([k, [on, size]]) => { if (b[k] > 0) { $(on).checked = true; $(size).value = b[k]; } else $(on).checked = false; });
-      const log = res.log.filter(x => x.score != null).sort((a, c) => c.score - a.score).slice(0, 10);
-      table('tOpt', ['#', 'PV kWp', 'LP kW', 'SK kW', 'Varaaja m³', 'Akku kWh', 'CHP', 'Netto €', 'Säästö €/v', 'Takaisinm. v', 'NPV €'],
-        log.map((x, i) => [i + 1, ...x.cfg.map(v => String(v).replace('.', ',')), f0(x.net), f0(x.cash), f1(x.payback), f0(x.npv)]), ['sel']);
-      $('oTila').textContent = `${res.log.length} kokoonpanoa, ${res.passes} kierrosta, ${nf1.format((performance.now() - t0) / 1000)} s. Paras asetettu syötteisiin; taulukossa 10 parasta.`;
-      $('oRun').disabled = false; render();
-    }, 30);
-  });
-  setInputs(L.DEFAULTS); render();
-})();
-</script>
+<script>/*SOVELLUS*/</script>

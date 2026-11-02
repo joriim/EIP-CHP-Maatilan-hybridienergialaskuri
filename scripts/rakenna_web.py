@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Kokoaa selainversion web/index.html: sivu (web/sovellus.html), malli (web/malli.js) ja data (data/*.csv).
+"""Kokoaa selainversion web/index.html: sivu (web/sovellus.html), malli (web/malli.js),
+käyttöliittymä (web/sovellus.js) ja data (data/*.csv).
 
 Käyttö: python scripts/rakenna_web.py [--vain-sisalto POLKU]
 Tulos on yksi itsenäinen HTML-tiedosto, joka toimii ilman palvelinta (myös GitHub Pagesissa).
@@ -48,11 +49,12 @@ def main():
     js = 'window.LASKURI_DATA=' + json.dumps(data, separators=(',', ':')) + ';'
     page = (ROOT / 'web' / 'sovellus.html').read_text(encoding='utf-8')
     malli = (ROOT / 'web' / 'malli.js').read_text(encoding='utf-8')
-    assert '/*DATA*/' in page and '/*MALLI*/' in page
-    body = page.replace('/*DATA*/', js).replace('/*MALLI*/', malli)
+    ui = (ROOT / 'web' / 'sovellus.js').read_text(encoding='utf-8')
+    assert '/*DATA*/' in page and '/*MALLI*/' in page and '/*SOVELLUS*/' in page
+    body = page.replace('/*DATA*/', js).replace('/*MALLI*/', malli).replace('/*SOVELLUS*/', ui)
     full = ('<!doctype html>\n<html lang="fi">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-            '<!-- Rakennettu: python scripts/rakenna_web.py. Muokkaa web/sovellus.html ja web/malli.js. -->\n'
+            '<!-- Rakennettu: python scripts/rakenna_web.py. Muokkaa web/sovellus.html, web/sovellus.js ja web/malli.js. -->\n'
             + body + '\n</html>\n')
     (ROOT / 'web' / 'index.html').write_text(full, encoding='utf-8')
     print('web/index.html', len(full.encode()) // 1024, 'kt')

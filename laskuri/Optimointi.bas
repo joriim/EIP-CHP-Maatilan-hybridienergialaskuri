@@ -3,7 +3,7 @@ Option Explicit
 
 ' Maatilan hybridienergialaskuri 0.9.2 - kokoonpanon optimointi
 ' Koordinaattihaku: yksi teknologia kerrallaan, muut pidet‰‰n paikallaan.
-' Tekij‰t: Suvi Karirinne, Miiro J‰‰skel‰inen (SeAMK). Lisenssi: MIT (LICENSE-CODE).
+' Tekij‰t: Suvi Karirinne, Miiro J‰‰skel‰inen (SEAMK, Maatalous ja energia -tutkimusryhm‰). Lisenssi: MIT (LICENSE-CODE).
 '
 ' Muutokset 0.9.2-luonnokseen:
 ' - laskenta pakotetaan valmiiksi jokaisen kokoonpanon j‰lkeen (CalculationState)

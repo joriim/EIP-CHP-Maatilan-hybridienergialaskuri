@@ -1,6 +1,7 @@
-/* Maatilan hybridienergialaskuri 0.9.3 – laskentamalli selaimeen.
+/* Maatilan hybridienergialaskuri 0.10.0 – laskentamalli selaimeen.
  * Sama tuntitase kuin Excel-työkirjassa ja malli/sim.py:ssä (8 760 h, kiinteä EET).
- * Tekijät: Suvi Karirinne, Miiro Jääskeläinen (SeAMK). Lisenssi: MIT (LICENSE-CODE).
+ * Tekijät: Suvi Karirinne, Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK),
+ * Maatalous ja energia -tutkimusryhmä. Lisenssi: MIT (LICENSE-CODE).
  */
 (function (root) {
   'use strict';
@@ -22,7 +23,9 @@
     hinnoittelu: 'Kiinteä', lisa: 7.56, myyntipalkkio: 0.3, katkaise: 'Ei',
     akunOhjaus: 'Vain PV-ylijäämä', halvat: 3, kalliit: 8, minEro: 3, tehomaksu: 0,
     syklit: 6000, akkuUusiminen: 0.6, invertteri: 60, yllapito: 0.01,
-    co2Hake: 13, co2Biokaasu: 15,
+    co2Hake: 13, co2Biokaasu: 15, co2Kotimainen: 45, puuBiogeeninen: 403, biokaasuBiogeeninen: 198,
+    pvValmistus: 700, pvIka: 30, akkuValmistus: 90, lpValmistus: 100, lpIka: 20, varValmistus: 300, varIka: 25,
+    hakeTiheys: 0.8, aloitusvuosi: 2026, hintavuosi: '2025',
     kalenteriIka: 15, varaajaHavio: 0.1, varaajaPurku: 300, ekVerkko: 'Ei',
     lpOhjaus: 'Taloudellinen', copA: 3.2, copB: 0.07, copMin: 1.8, copMax: 4.8, lpMinT: -25, lpTeho: 1,
     kuluminen: 1, lammonPeruste: 'Polttoaine',
@@ -54,7 +57,9 @@
     const se = el.reduce((a, b) => a + b, 0), sh = heat.reduce((a, b) => a + b, 0);
     const ke = p.skaalaSahko > 0 && se > 0 ? p.skaalaSahko / se : 1;
     const kh = p.skaalaLampo > 0 && sh > 0 ? p.skaalaLampo / sh : 1;
-    return { el: Float64Array.from(el, x => Math.max(0, x) * ke), heat: Float64Array.from(heat, x => Math.max(0, x) * kh) };
+    // Own outdoor temperature (e.g. Rakennushaku export) replaces the reference year hour by hour.
+    const temp = Float64Array.from(data.temp, (x, i) => (p.tuotanto === 'Oma data' && own && own.temp && Number.isFinite(own.temp[i]) ? own.temp[i] : x));
+    return { el: Float64Array.from(el, x => Math.max(0, x) * ke), heat: Float64Array.from(heat, x => Math.max(0, x) * kh), temp };
   }
 
   function fuelPrice(p) { return p.lammitys === 'Hakekattila' ? p.hake : p.biokaasu; } // €/MWh
@@ -93,7 +98,7 @@
     o.buyP = buyP; o.sellP = sellP;
     let soc = 0, tsoc = 0; const Et = TANK * 46.5;
     for (let t = 0; t < n; t++) {
-      const pv = PV * data.pv[t], L = l.el[t], Q = l.heat[t], T = data.temp[t];
+      const pv = PV * data.pv[t], L = l.el[t], Q = l.heat[t], T = l.temp[t];
       const d = Math.min(pv, L), surplus = pv - d, sp = spot ? spot[t] / 1000 : NaN;
       let dis = rFirst ? 0 : Math.min(L - d, P, soc);
       if (arbi && rank[t] <= 24 - p.kalliit) dis = 0;
@@ -155,6 +160,32 @@
     return o;
   }
 
+  /* Spot prices €/MWh for the year chosen like the workbook's Hintahistoria (K49):
+   * a year or 'Keskiarvo'; a missing hour of the chosen year is filled with the hourly average
+   * of the years that have it. Accepts a plain 8 760 array as well. */
+  function resolveSpot(prices, year) {
+    if (!prices) return null;
+    if (ArrayBuffer.isView(prices) || Array.isArray(prices)) return Float64Array.from(prices, v => (v == null ? NaN : v));
+    const years = Object.keys(prices).filter(y => prices[y]);
+    const out = new Float64Array(8760); let filled = 0;
+    for (let t = 0; t < 8760; t++) {
+      let s = 0, k = 0; years.forEach(y => { const v = prices[y][t]; if (Number.isFinite(v)) { s += v; k++; } });
+      const avg = k ? s / k : NaN, own = year !== 'Keskiarvo' && prices[year] ? prices[year][t] : NaN;
+      if (year !== 'Keskiarvo' && !Number.isFinite(own) && Number.isFinite(avg)) filled++;
+      out[t] = year === 'Keskiarvo' ? avg : (Number.isFinite(own) ? own : avg);
+    }
+    out.filled = filled; return out;
+  }
+
+  /* Motiva/Sitowise 06/2025 table 5 points; the workbook's own linear interpolation (Vuosikassavirta I). */
+  function impactFactor(y) {
+    const X = [2023, 2030, 2035, 2040, 2045, 2050], Y = [290, 155, 110, 80, 35, 0];
+    if (y >= 2050) return 0;
+    const v = Math.min(2049.999, Math.max(2023, y)); let k = 0;
+    while (k < X.length - 2 && X[k + 1] <= v) k++;
+    return Y[k] + (y - X[k]) * (Y[k + 1] - Y[k]) / (X[k + 1] - X[k]);
+  }
+
   function sum(a) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s; }
   function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) if (Number.isFinite(b[i])) s += a[i] * b[i]; return s; }
   function count(a) { let c = 0; for (let i = 0; i < a.length; i++) if (Number.isFinite(a[i])) c++; return c; }
@@ -199,17 +230,17 @@
   }
 
   /* Full calculation: dispatch, baseline, economics, emissions. */
-  function calculate(pIn, data, own, spot) {
+  function calculate(pIn, data, own, prices) {
     const p = Object.assign({}, DEFAULTS, pIn);
-    const warn = [];
     const l = loads(p, data, own);
     if (!l) return { status: 'Kulutusdata puuttuu', p };
     const spotMode = p.hinnoittelu === 'Pörssihinta';
+    const spot = resolveSpot(prices, p.hintavuosi);
     if (spotMode && (!spot || count(spot) < 8760)) return { status: 'Hintadata puuttuu', p };
-    if (p.pitoaika < 1 || p.pitoaika > 100 || p.chpOsuus < 0 || p.chpOsuus > 1 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24)
+    if (p.pitoaika < 1 || p.pitoaika > 100 || p.chpOsuus < 0 || p.chpOsuus > 1 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24 ||
+        p.kalenteriIka < 1 || p.copMax < p.copMin || p.copMin <= 0)
       return { status: 'Virhe parametreissa', p };
-    const o = simulate(p, data, l, spot);
-    const base = { buy: l.el };
+    const o = simulate(p, data, l, spotMode ? spot : null);
     const eta = delivered(p) ? 1 : p.hyotysuhde;
     const fuel = fuelPrice(p);
     const pkHyb = peaks(o.buy), pkBase = peaks(l.el);
@@ -239,53 +270,103 @@
     let status = 'OK';
     if (unmet > 1e-6 || baseUnmet > 1e-6) status = 'Lämpövaje';
     else if (p.reservi === 'Kyllä' && p.akkuOn && !Number.isFinite(reserveR.farm)) status = 'Reservihinta puuttuu';
+    const ok = status === 'OK';
 
-    const r = p.korko, N = p.pitoaika;
+    // Replacements and yearly cash flow (Vuosikassavirta).
+    const r = p.korko, N = p.pitoaika, disc = t => 1 / Math.pow(1 + r, t);
     const cycles = p.akkuOn && p.akku > 0 ? (sum(o.dis) + sum(o.act)) / p.akku : 0;
     const life = cycles > 0 ? Math.min(p.kalenteriIka, p.syklit / cycles) : p.kalenteriIka;
-    const batRep = p.akkuOn && p.akku > 0 && life >= 1 ? batteryReplacementPV(inv.akku, life, N, r, p.akkuUusiminen) : 0;
-    const invRep = N >= 12 ? p.pvOn * p.pv * p.invertteri / Math.pow(1 + r, 12) : 0;
+    const events = [];
+    let batRep = 0;
+    if (p.akkuOn && p.akku > 0 && life >= 1) {
+      const times = []; for (let j = 1; j <= 100; j++) if (j * life < N - 1e-7) times.push(j * life);
+      const renew = inv.akku * p.akkuUusiminen;
+      times.forEach(t => { batRep += renew * disc(t); events.push({ t, what: 'Akun uusiminen', cost: renew }); });
+      const residual = times.length ? renew * Math.max(0, 1 - (N - times[times.length - 1]) / life) : 0;
+      if (residual > 0) { batRep -= residual * disc(N); events.push({ t: N, what: 'Uusitun akun jäännösarvo', cost: -residual }); }
+    }
+    const invRep = N >= 12 ? p.pvOn * p.pv * p.invertteri * disc(12) : 0;
+    if (invRep > 0) events.push({ t: 12, what: 'Invertterin vaihto', cost: p.pvOn * p.pv * p.invertteri });
     let chpRep = 0;
     if (inv.chp > 0 && p.chpIka < N) {
       const renew = inv.chp * p.chpUusiminen, residual = renew * Math.max(0, 1 - (N - p.chpIka) / p.chpIka);
-      chpRep = renew / Math.pow(1 + r, p.chpIka) - residual / Math.pow(1 + r, N);
+      chpRep = renew * disc(p.chpIka) - residual * disc(N);
+      events.push({ t: p.chpIka, what: 'CHP:n uusiminen', cost: renew });
+      if (residual > 0) events.push({ t: N, what: 'Uusitun CHP:n jäännösarvo', cost: -residual });
     }
     const resFarm = Number.isFinite(reserveR.farm) ? reserveR.farm : 0;
-    let pvFlows = 0;
-    for (let t = 1; t <= N; t++) pvFlows += (energySaving - om + resFarm * Math.pow(1 + growth, t - 1)) / Math.pow(1 + r, t);
-    const ok = status === 'OK';
+    const years = []; let pvFlows = 0, cum = -net;
+    for (let t = 1; t <= N; t++) {
+      const res = resFarm * Math.pow(1 + growth, t - 1), cash = energySaving - om + res;
+      const repl = events.filter(e => Math.ceil(e.t - 1e-9) === t).reduce((a, e) => a + e.cost, 0);
+      pvFlows += cash * disc(t); cum += cash - repl;
+      years.push({ t, year: p.aloitusvuosi + t - 1, df: disc(t), saving: energySaving, om, reserve: res, cash,
+        pv: cash * disc(t), replacements: repl, cumulative: cum, impact: impactFactor(p.aloitusvuosi + t - 1) });
+    }
     const cash = energySaving + resFarm - om;
     const npv = -net - (invRep + batRep + chpRep) + pvFlows;
+    const annuity = g => (Math.abs(r - g) < 1e-6 ? N / (1 + r) : (1 - Math.pow((1 + g) / (1 + r), N)) / (r - g));
+    const pvAnn = r ? energySaving * (1 - Math.pow(1 + r, -N)) / r : energySaving * N;
+    const npvSimple = -net + pvAnn + resFarm * annuity(growth);
 
-    // Emissions: purchased electricity × Fingrid 2025 hourly factor; main-heat fuel chain.
-    const ef = data.ef;
-    const co2Base = dot(l.el, ef) / 1e6, co2Hyb = dot(o.buy, ef) / 1e6;
+    // Emissions (Ohjauspaneeli rows 68–76).
+    const ef = data.ef, buyBase = sum(l.el), buyHyb = sum(o.buy), sold = sum(o.sell);
+    const impactAvg = years.reduce((a, y) => a + y.impact, 0) / N;
     const chainF = p.lammitys === 'Hakekattila' ? p.co2Hake : p.co2Biokaasu;
-    const heatBase = baseMain / (p.hyotysuhde * 1000) * chainF / 1000;
-    const heatHyb = (hybMain + chpKwh) / (p.hyotysuhde * 1000) * chainF / 1000;
+    const bioF = p.lammitys === 'Hakekattila' ? p.puuBiogeeninen : p.biokaasuBiogeeninen;
+    const fuelMWhBase = baseMain / (p.hyotysuhde * 1000), fuelMWhHyb = (hybMain + chpKwh) / (p.hyotysuhde * 1000);
+    const manuf = (p.pvOn * p.pv * p.pvValmistus / p.pvIka +
+      (p.akkuOn && p.akku > 0 ? p.akku * p.akkuValmistus * Math.ceil(N / life - 1e-12) / N : 0) +
+      p.lpOn * p.lp * p.lpValmistus / p.lpIka + p.varOn * p.varaaja * p.varValmistus / p.varIka) / 1000;
+    const co2 = {
+      domestic: [buyBase * p.co2Kotimainen / 1e6, buyHyb * p.co2Kotimainen / 1e6],
+      hourly: [dot(l.el, ef) / 1e6, dot(o.buy, ef) / 1e6],
+      impact: [buyBase * impactAvg / 1e6, (buyHyb - sold - sum(o.chpsell) - sum(o.act)) * impactAvg / 1e6],
+      heat: [fuelMWhBase * chainF / 1000, fuelMWhHyb * chainF / 1000],
+      manufacturing: [0, manuf],
+      biogenic: [fuelMWhBase * bioF / 1000, fuelMWhHyb * bioF / 1000],
+      impactFactor: impactAvg,
+    };
+    co2.opDomestic = [co2.domestic[0] + co2.heat[0], co2.domestic[1] + co2.heat[1]];
+    co2.opHourly = [co2.hourly[0] + co2.heat[0], co2.hourly[1] + co2.heat[1]];
 
-    const monthly = Array.from({ length: 12 }, () => ({ base: 0, buy: 0, pv: 0, sell: 0, dis: 0, main: 0, hp: 0 }));
+    // Monthly summary (Kuukausikoonti C–X).
+    const monthly = Array.from({ length: 12 }, () => ({ base: 0, buy: 0, mainBase: 0, pv: 0, selfUse: 0, sell: 0, dis: 0,
+      hp: 0, eb: 0, main: 0, costHyb: 0, costBase: 0, sales: 0, peakHyb: 0, peakBase: 0, co2Hyb: 0, co2Base: 0, curt: 0,
+      gridch: 0, chp: 0, chpsell: 0 }));
     for (let t = 0; t < 8760; t++) {
       const m = monthly[MONTH[t]];
-      m.base += l.el[t]; m.buy += o.buy[t]; m.pv += o.pv[t]; m.sell += o.sell[t]; m.dis += o.dis[t];
-      m.main += o.main[t]; m.hp += o.hp[t];
+      m.base += l.el[t]; m.buy += o.buy[t]; m.mainBase += o.baseMain[t]; m.pv += o.pv[t]; m.sell += o.sell[t];
+      m.dis += o.dis[t]; m.hp += o.hp[t]; m.eb += o.eb[t]; m.main += o.main[t]; m.costHyb += o.buy[t] * o.buyP[t];
+      m.costBase += l.el[t] * o.buyP[t]; m.sales += o.sell[t] * o.sellP[t] + o.actRev[t] + o.chprev[t];
+      m.peakHyb = Math.max(m.peakHyb, o.buy[t]); m.peakBase = Math.max(m.peakBase, l.el[t]);
+      m.co2Hyb += o.buy[t] * ef[t] / 1000; m.co2Base += l.el[t] * ef[t] / 1000; m.curt += o.curt[t];
+      m.gridch += o.gridch[t]; m.chp += o.chp[t]; m.chpsell += o.chpsell[t];
     }
+    monthly.forEach(m => { m.saving = m.base - m.buy; m.selfUse = m.pv - m.sell - m.curt; });
+
     const pvSum = sum(o.pv);
+    const ownTemp = p.tuotanto === 'Oma data' && own && own.temp ? count(own.temp) : 0;
     return {
-      status, p, o, monthly, warn,
+      status, p, o, monthly, years, events, spot,
+      info: { ownTempHours: ownTemp, priceFilled: spot && spot.filled ? spot.filled : 0 },
       energy: {
-        elDemand: sum(l.el), heatDemand: sum(l.heat), buyBase: sum(l.el), buyHyb: sum(o.buy), pv: pvSum,
-        selfUse: pvSum > 0 ? (pvSum - sum(o.sell) - sum(o.curt)) / pvSum : 0, sell: sum(o.sell), dis: sum(o.dis),
+        elDemand: sum(l.el), heatDemand: sum(l.heat), buyBase, buyHyb, pv: pvSum,
+        selfUse: pvSum > 0 ? (pvSum - sold - sum(o.curt)) / pvSum : 0, sell: sold, dis: sum(o.dis),
         hp: sum(o.hp), eb: sum(o.eb), mainBase: baseMain, mainHyb: hybMain, chp: chpKwh, unmet, baseUnmet,
-        peakHeat: Math.max(...l.heat), cycles, life,
+        peakHeat: Math.max(...l.heat), peakEl: Math.max(...l.el), cycles, life,
+        fuelMWhBase: baseMain / (p.hyotysuhde * 1000), fuelMWhHyb: (hybMain + chpKwh) / (p.hyotysuhde * 1000),
+        chipBase: p.lammitys === 'Hakekattila' ? baseMain / (p.hyotysuhde * 1000 * p.hakeTiheys) : null,
+        chipHyb: p.lammitys === 'Hakekattila' ? (hybMain + chpKwh) / (p.hyotysuhde * 1000 * p.hakeTiheys) : null,
       },
       econ: {
         elBase, elHyb, sales, fuelBase, fuelHyb, costBase, costHyb, energySaving, reserve: reserveR, om,
         inv, gross, subsidy, net, cash: ok ? cash : null,
         payback: ok ? (cash > 0 ? net / cash : null) : null, paybackGross: ok ? (cash > 0 ? gross / cash : null) : null,
-        npv: ok ? npv : null, replacements: { invRep, batRep, chpRep }, growth,
+        npv: ok ? npv : null, npvSimple: ok ? npvSimple : null, replacements: { invRep, batRep, chpRep }, growth,
+        reservePV: resFarm * annuity(growth),
       },
-      co2: { elBase: co2Base, elHyb: co2Hyb, heatBase, heatHyb },
+      co2,
     };
   }
 
@@ -328,6 +409,6 @@
     return { best, log, passes };
   }
 
-  const api = { DEFAULTS, SCENARIOS, calculate, simulate, optimise, reservePrices, reserveRevenue, MONTH_HOURS };
+  const api = { DEFAULTS, SCENARIOS, calculate, simulate, optimise, reservePrices, reserveRevenue, resolveSpot, impactFactor, MONTH_HOURS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Laskuri = api;
 })(typeof self !== 'undefined' ? self : this);

@@ -1,10 +1,10 @@
 # Maatilan hybridienergialaskuri – esittely, käyttö ja jatkokehitys
 
-Ohje versiolle 0.9.3. Päivitetty 23.10.2026.
+Ohje versiolle 0.10.0. Päivitetty 2.11.2026.
 
 ## Mikä laskuri on?
 
-Maatilan hybridienergialaskuri on avoimesti jaettava Excel-työkalu maatilan energiaratkaisujen vertailuun. Sen avulla viljelijä, energianeuvoja tai kehittäjä voi tarkastella, miten aurinkosähkö, sähköakku, lämpöpumppu, sähkökattila ja lämpövaraaja toimivat yhdessä olemassa olevan hake- tai biokaasulämmityksen kanssa. Laskuri on kehitetty EIP CHP Energiaälykäs eteläpohjalainen maatila -hankkeessa. Tekijät ovat Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu.
+Maatilan hybridienergialaskuri on avoimesti jaettava selain- ja Excel-työkalu maatilan energiaratkaisujen vertailuun. Sen avulla viljelijä, energianeuvoja tai kehittäjä voi tarkastella, miten aurinkosähkö, sähköakku, lämpöpumppu, sähkökattila ja lämpövaraaja toimivat yhdessä olemassa olevan hake- tai biokaasulämmityksen kanssa. Laskuri on kehitetty EIP CHP Energiaälykäs eteläpohjalainen maatila -hankkeessa. Tekijät ovat Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä.
 
 Laskennan lähtökohtana ovat tilan sähkönkulutus ja lämmöntarve. Laskuri käy vuoden läpi tunti tunnilta ja arvioi energian tuotannon, käytön, varastoinnin, verkko-ostot ja sähkön myynnin. Käyttäjä valitsee laitteiden koot ja hinnat sekä vertailee vaihtoehtoja. Makroversion Optimointi-välilehti voi lisäksi käydä läpi käyttäjän antamat kokovaihtoehdot ja asettaa niistä parhaan. Laskuri ei mitoita lopullista toteutusta.
 
@@ -24,7 +24,7 @@ Laskurin tavoite on tehdä vaihtoehtojen oletukset ja vaikutukset näkyviksi. Se
 
 ## Näin aloitat
 
-1. Avaa [projektin GitHub-sivu](https://github.com/SeAMKedu/maatilan-hybridienergialaskuri). Lataa koko projekti valinnalla **Code → Download ZIP**, tai lataa [makroton Excel-tiedosto](../laskuri/Maatilan_hybridienergialaskuri.xlsx) tiedoston latauspainikkeella. Kokoonpanon optimointi on vain [makroversiossa](../laskuri/Maatilan_hybridienergialaskuri.xlsm); internetistä ladatun .xlsm-tiedoston esto poistetaan tiedoston ominaisuuksista (**Poista esto**) ennen avaamista.
+1. Nopein tapa: avaa [selainversio](https://seamkedu.github.io/maatilan-hybridienergialaskuri/). Excel-versiota varten avaa [projektin GitHub-sivu](https://github.com/SeAMKedu/maatilan-hybridienergialaskuri). Lataa koko projekti valinnalla **Code → Download ZIP**, tai lataa [makroton Excel-tiedosto](../laskuri/Maatilan_hybridienergialaskuri.xlsx) tiedoston latauspainikkeella. Kokoonpanon optimointi on vain [makroversiossa](../laskuri/Maatilan_hybridienergialaskuri.xlsm); internetistä ladatun .xlsm-tiedoston esto poistetaan tiedoston ominaisuuksista (**Poista esto**) ennen avaamista.
 2. Pura ZIP ennen käyttöä ja säilytä alkuperäisestä työkirjasta kopio. Nimeä oma tarkastelusi esimerkiksi tilan sisäisellä tunnisteella ja päivämäärällä.
 3. Avaa Excel-tiedosto ja varmista, että laskenta on automaattinen. Työkirjan uudelleenlaskenta voi kestää. Suositeltu Excel-versio on Microsoft 365 / Excel 2019 tai uudempi. Osa funktioista, kuten MAXIFS, ei ole käytettävissä kaikissa vanhemmissa versioissa.
 4. Aloita välilehdeltä **Ohjauspaneeli ja Tulokset**. Muokkaa keltaisia syöttösoluja. Säilytä laskentasolujen kaavat.
@@ -122,7 +122,7 @@ Laskurin avoin lisenssi ei muuta ulkoisen datan ehtoja. Esimerkiksi ladatun pör
 
 Lähdeviitteen voi muodostaa näin:
 
-> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.9.3. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/SeAMKedu/maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
+> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.10.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/SeAMKedu/maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
 
 Lisää muokattuun versioon tieto omista muutoksistasi ja niiden päivämäärästä. Koneellisesti luettava viittaus on tiedostossa [CITATION.cff](../CITATION.cff).
 
@@ -149,7 +149,7 @@ Päästölaskentaa voi kehittää yhtenäiseksi elinkaarivertailuksi, kun sähk�
 
 1. Avaa ensin GitHub Issue, jos muutos vaikuttaa mallin rajaukseen, tiedostomuotoon tai tulosten tulkintaan. Kuvaa ongelma ja pieni esimerkki siitä.
 2. Tee repositoriosta oma kopio (**fork**), kloonaa se ja luo muutokselle oma haara. Pidä muutos rajattuna yhteen kokonaisuuteen.
-3. Päivitä laskentamuutos sekä Exceliin että sitä vastaavaan Python-sääntömalliin. Tee kaavamuutos .xlsm-tiedostoon ja muodosta .xlsx siitä (`python scripts/tee_xlsx.py laskuri/Maatilan_hybridienergialaskuri.xlsm laskuri/Maatilan_hybridienergialaskuri.xlsx`), jotta tiedostot pysyvät samoina. Makron lähdekoodi on tiedostossa `laskuri/Optimointi.bas`; pidä se ja työkirjan moduuli samoina. Jos mallit tarkoituksella eroavat, dokumentoi ero. Excelin kaava on osa laskennan lähdettä, vaikka se tallentuu binääritiedostoon.
+3. Päivitä laskentamuutos samassa muutoksessa Exceliin, selainversion malliin (web/malli.js) ja Python-sääntömalliin; versiot ovat tasavertaiset. Aja sen jälkeen `python malli/vie_vertailu.py laskuri/Maatilan_hybridienergialaskuri.xlsm` ja `node web/testi.js`. Tee kaavamuutos .xlsm-tiedostoon ja muodosta .xlsx siitä (`python scripts/tee_xlsx.py laskuri/Maatilan_hybridienergialaskuri.xlsm laskuri/Maatilan_hybridienergialaskuri.xlsx`), jotta tiedostot pysyvät samoina. Makron lähdekoodi on tiedostossa `laskuri/Optimointi.bas`; pidä se ja työkirjan moduuli samoina. Jos mallit tarkoituksella eroavat, dokumentoi ero. Excelin kaava on osa laskennan lähdettä, vaikka se tallentuu binääritiedostoon.
 4. Lisää laskentalogiikan korjaukselle testi, joka epäonnistuu vanhalla toiminnalla ja läpäisee korjatun toiminnan. Esitä Excel-muutoksesta muuttuneet välilehdet, solualueet, kaavat ja tulosero, jotta muutos on katselmoitavissa.
 5. Päivitä [muutosloki](../CHANGELOG.md), menetelmä, lähteet ja käyttöohje siltä osin kuin muutos niitä koskee. Merkitse lähteelle organisaatio/tekijä, nimi, vuosi, URL, tarkistuspäivä, yksikkö ja käyttötapa. Erota lähdetieto omasta oletuksesta.
 6. Avaa pull request alkuperäiseen projektiin. Kerro ongelma, ratkaisu, testit ja mahdollinen muutos oletustuloksiin. Julkiseen muutosehdotukseen ei liitetä tunnistettavia tilatietoja tai käyttöehdoiltaan rajoitettua dataa.

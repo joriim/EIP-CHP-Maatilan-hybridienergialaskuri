@@ -1,4 +1,4 @@
-# Lähteet, oletukset ja aineistojen alkuperä — 0.9.3
+# Lähteet, oletukset ja aineistojen alkuperä — 0.10.0
 
 Tarkistuspäivä 21.10.2026; CHP- ja optimointioletukset lisätty 22.10.2026; reservimarkkinan lähteet 23.10.2026. Lähteen olemassaolo ja parametrin soveltuvuus ovat eri asioita. Alla erotetaan tarkistettu lähdetieto ja laskurin oma oletus.
 

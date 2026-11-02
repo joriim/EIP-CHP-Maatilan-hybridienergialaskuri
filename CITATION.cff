@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "Jos käytät laskuria, viittaa siihen näin. / If you use this calculator, please cite it as below."
 title: "Maatilan hybridienergialaskuri"
 abstract: >-
-  Excel-laskuri sika- ja siipikarjatilojen aurinkosähkön, akkujen, lämpöpumppujen,
+  Excel- ja selainlaskuri sika- ja siipikarjatilojen aurinkosähkön, akkujen, lämpöpumppujen,
   sähkökattiloiden, lämpövaraajien ja CHP-sähkön mitoitukseen ja kannattavuuteen
   tuntitasolla, sisältäen kokoonpanon optimoinnin, reservimarkkinatuoton ja erilliset
   päästöarviot.
@@ -10,13 +10,16 @@ type: software
 authors:
   - family-names: "Karirinne"
     given-names: "Suvi"
-    affiliation: "Seinäjoen ammattikorkeakoulu"
+    orcid: "https://orcid.org/0000-0003-1000-557X"
+    affiliation: "Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä"
   - family-names: "Jääskeläinen"
     given-names: "Miiro"
-    affiliation: "Seinäjoen ammattikorkeakoulu"
+    orcid: "https://orcid.org/0000-0002-0683-8352"
+    affiliation: "Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä"
+url: "https://seamkedu.github.io/maatilan-hybridienergialaskuri/"
 repository-code: "https://github.com/SeAMKedu/maatilan-hybridienergialaskuri"
-version: "0.9.3"
-date-released: "2026-10-23"
+version: "0.10.0"
+date-released: "2026-11-02"
 license:
   - CC-BY-4.0
   - MIT

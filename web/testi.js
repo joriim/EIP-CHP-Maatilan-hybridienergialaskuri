@@ -49,6 +49,46 @@ if (require.main === module) {
     if (bad.length) fail++;
     console.log((bad.length ? 'VIRHE ' : 'ok    ') + name, JSON.stringify(got));
   }
+  // Detailed parity with the workbook: energy, economics, emissions, monthly and yearly tables.
+  const ref = JSON.parse(fs.readFileSync(path.join(__dirname, 'vertailu_excel.json'), 'utf8'));
+  const pr = csv('esimerkkiprofiilit.csv');
+  const ownData = { el: pr.sikala_sahko_kwh, heat: pr.sikala_lampo_kwh, temp: pr.ulkolampotila_C.map(x => x + 5) };
+  const defs = {
+    oletus: [{}, null, null], chp_15: [{ chpOn: 1 }, null, null], reservi_12kk: [{ reservi: 'Kyllä' }, null, null],
+    lampo_ja_varaaja: [{ lpOn: 1, ekOn: 1, varOn: 1, ekVerkko: 'Kyllä', hinnoittelu: 'Pörssihinta' }, null, synth],
+    oma_data_oma_lampotila: [{ tuotanto: 'Oma data', lpOn: 1, lp: 30 }, ownData, null],
+    broileri_biokaasu_25v: [{ tuotanto: 'Broilerikasvattamo', lammitys: 'Biokaasu', pitoaika: 25, kattila: 400 }, null, null],
+  };
+  const pick = r => {
+    const e = r.energy, c = r.econ, q = r.co2, rep = c.replacements;
+    const m = {
+      C33: e.buyBase, D33: e.buyHyb, D34: e.pv, D35: e.selfUse, D36: e.sell, D37: e.dis, D38: e.hp, D39: e.eb, C40: e.mainBase,
+      D40: e.mainHyb, C41: e.fuelMWhBase, D41: e.fuelMWhHyb, C42: e.chipBase, D42: e.chipHyb, D43: e.chp, C46: c.elBase,
+      D46: c.elHyb, D47: c.sales, C48: c.fuelBase, D48: c.fuelHyb, C49: c.costBase, D49: c.costHyb, E49: c.energySaving,
+      E50: c.reserve.farm, E51: c.cash, E52: c.payback, E53: c.paybackGross, E54: c.npv, E55: c.npvSimple, G16: c.gross,
+      G17: c.subsidy, G18: c.net, C59: e.cycles, C60: e.life, C61: c.om, C62: rep.invRep, C63: rep.batRep,
+      C64: rep.invRep + rep.batRep + rep.chpRep, K37: q.impactFactor, K68: e.chp,
+    };
+    [['domestic', 68], ['hourly', 69], ['impact', 70], ['heat', 71], ['manufacturing', 72], ['opDomestic', 73], ['opHourly', 74],
+      ['impact', 75], ['biogenic', 76]].forEach(([k, row]) => { m['C' + row] = q[k][0]; m['D' + row] = q[k][1]; });
+    return m;
+  };
+  const MCOLS = ['base', 'buy', 'saving', 'mainBase', 'pv', 'selfUse', 'sell', 'dis', 'hp', 'eb', 'main', 'costHyb', 'costBase',
+    'sales', 'peakHyb', 'peakBase', 'co2Hyb', 'co2Base', 'curt', 'gridch', 'chp', 'chpsell'];
+  const YCOLS = ['year', 'df', 'saving', 'om', 'reserve', 'cash', 'pv', 'impact'];
+  // The workbook's hourly emission factor differs from data/fingrid_paastokerroin_2025.csv by ±0,001 g/kWh
+  // in a few hours (rounding), so monthly CO2 kilograms are compared at 1e-5.
+  const close = (a, b, tol = 1e-6) => (typeof b !== 'number' ? true : Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)));
+  for (const [name, want] of Object.entries(ref)) {
+    const [p, own, sp] = defs[name], r = L.calculate(p, data, own, sp);
+    const got = pick(r), bad = [];
+    Object.entries(want.panel).forEach(([k, v]) => { if (!close(got[k], v)) bad.push(`${k}: ${got[k]} ≠ ${v}`); });
+    want.monthly.forEach((row, i) => row.forEach((v, j) => { if (!close(r.monthly[i][MCOLS[j]], v, MCOLS[j].startsWith('co2') ? 1e-5 : 1e-6)) bad.push(`kk${i + 1} ${MCOLS[j]}: ${r.monthly[i][MCOLS[j]]} ≠ ${v}`); }));
+    want.years.forEach((row, i) => row.forEach((v, j) => { if (!close(r.years[i][YCOLS[j]], v)) bad.push(`v${i + 1} ${YCOLS[j]}: ${r.years[i][YCOLS[j]]} ≠ ${v}`); }));
+    const n = Object.keys(want.panel).length + want.monthly.length * 22 + want.years.length * 8;
+    if (bad.length) fail++;
+    console.log((bad.length ? 'VIRHE ' : 'ok    ') + `${name}: ${n} arvoa` + (bad.length ? '\n  ' + bad.slice(0, 8).join('\n  ') : ''));
+  }
   const miss = L.calculate({ tuotanto: 'Oma data' }, data, null, null).status;
   const heat = L.calculate({ kattila: 10 }, data, null, null).status;
   const spotMiss = L.calculate({ hinnoittelu: 'Pörssihinta' }, data, null, null).status;

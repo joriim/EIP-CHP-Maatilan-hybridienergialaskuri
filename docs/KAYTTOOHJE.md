@@ -2,7 +2,7 @@
 
 Laskurin tarkoitus, tulosten tulkinta, avoimet lisenssit ja jatkokehitys: [esittely-, käyttö- ja kehitysopas](OPAS.md).
 
-Tämä ohje käy laskurin läpi vaihe vaiheelta. Laskuri toimii Excelissä (suositus Microsoft 365 / Excel 2019 tai uudempi) ja LibreOffice Calcissa. Versio 0.9.3 on avattu ja uudelleenlaskettu LibreOffice Calcissa. Microsoft Excelin omaa avaamista ei ole testattu tässä ympäristössä; varmista uudelleenlaskenta avatessasi tiedoston. MAXIFS ei ole kaikissa Excel 2016 -asennuksissa saatavilla.
+Tämä ohje käy laskurin läpi vaihe vaiheelta. Laskuri on kahtena tasavertaisena versiona: selaimessa (https://seamkedu.github.io/maatilan-hybridienergialaskuri/ tai web/index.html) ja Excelissä (suositus Microsoft 365 / Excel 2019 tai uudempi, myös LibreOffice Calc). Versiot laskevat samat tulokset. Työkirja 0.10.0 on avattu ja uudelleenlaskettu LibreOffice Calcissa. Microsoft Excelin omaa avaamista ei ole testattu tässä ympäristössä; varmista uudelleenlaskenta avatessasi tiedoston. MAXIFS ei ole kaikissa Excel 2016 -asennuksissa saatavilla.
 
 ## Kaksi tiedostoa
 
@@ -128,6 +128,20 @@ Tee vertailu aina myös ilman reservituloa. Toteutunut tuotto vaihtelee kuukausi
 - Sää (ulkolämpötila ja aurinkosähkön tuotto) on Etelä-Pohjanmaan referenssivuosi, ei tarkasteluvuoden sää.
 - Akun ja reservimarkkinan arvo riippuu voimakkaasti hinnoista ja tehomaksusta. Tarkista oman verkkoyhtiön hinnasto.
 - Maatalouden investointituen ehdot (esim. verkosta ladattava akku) tarkistetaan ELY-keskukselta.
+
+## Selainversio
+
+Selainversio sisältää samat syötteet ja tulokset kuin työkirja. Syötteiden kohdalla näkyy vastaava Excel-solu (vie hiiri rivin päälle).
+
+- **Oma kulutus ja Rakennushaku:** kohta 1, tiedosto *Oma kulutusdata tai Rakennushaun vienti*. Rakennushaun `oma_kulutusdata_<vuosi>.csv` tuo sähkön, lämmön, ulkolämpötilan ja vuoden pörssihinnat kerralla. Muu CSV: 8 760 riviä, kaksi viimeistä saraketta sähkö ja lämpö kWh/h.
+- **Pörssihinnat:** kohta 3. Lataa Rakennushaun `hintahistoria_2023-2026.csv`, hae_porssihinnat.py-tiedostoja tai muita yhden hintasarakkeen tiedostoja (vuosi tiedostonimestä tai valinnasta). Valitse vuosi tai *Keskiarvo*.
+- **Tulokset:** välilehdet Yhteenveto, Kuukaudet, Kassavirta, Päästöt, Reservi, Optimointi, Vertailu sekä Menetelmä ja lähteet.
+- **Tallennus:** *Tallenna lähtötiedot* (JSON), *Avaa lähtötiedot*, *Kopioi jakolinkki* (lähtötiedot linkissä; ladatut tiedostot eivät kulje linkissä), *Lataa tulokset* ja *Lataa tuntitase* (CSV, puolipiste ja desimaalipilkku). *Lisää vertailuun* tallentaa laskelman vertailutaulukkoon tähän selaimeen.
+
+## Muutokset version 0.10.0 käyttöön
+
+- Oma kulutusdata, sarake G: valinnainen ulkolämpötila (°C). Kun D4 = Oma data, lämpöpumpun COP ja pakkasraja käyttävät sitä; puuttuvat tunnit esimerkkivuodesta. Rakennushaun vienti liitetään sarakkeisiin A–G sellaisenaan.
+- Tuntitase BR: laskennassa käytetty ulkolämpötila.
 
 ## Muutokset version 0.9.3 käyttöön
 

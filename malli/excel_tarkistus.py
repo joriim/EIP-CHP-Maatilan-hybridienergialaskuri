@@ -254,7 +254,7 @@ class Model:
     def calculate(self):
         h='Tuntitase_8760h'
         for r in range(2,8762):
-            for c in ['AB','AD','AF','AG','K','L','M','N','O','T','AC','P','R','AH','AU','BA','BH','BI','Q','S','U','AY','X','V','AZ','W','Y','Z','AA','AI','AJ','AK','AL','AM','AN','AV','AW','AX','BB','BC','BD','BE','BF','BG','BP','BQ']:
+            for c in ['AB','AD','AF','AG','K','L','M','N','O','BR','T','AC','P','R','AH','AU','BA','BH','BI','Q','S','U','AY','X','V','AZ','W','Y','Z','AA','AI','AJ','AK','AL','AM','AN','AV','AW','AX','BB','BC','BD','BE','BF','BG','BP','BQ']:
                 self.get(h,c+str(r))
         for k in self.formulas:self.get(*k)
         return self

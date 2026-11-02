@@ -1,4 +1,4 @@
-# Menetelmä 0.9.3
+# Menetelmä 0.10.0
 
 ## Aika ja järjestelmäraja
 
@@ -20,7 +20,7 @@ Ohjaus on heuristiikka: maksimihintatunnin kulutusta tai tehomaksun tulevaa kasv
 
 ## Lämpö
 
-COP = min(COPmax, max(COPmin, a+b*T)). Parametrit, pakkasraja ja lämpötehon kerroin ovat kalibroitavia oletuksia. IVLP ja LTO eivät ole samalla käyrällä validoituja. LP tuottaa lämpöä suoraan kuormaan, ei 85 °C varaajaan. Menoveden lämpötila ja sulatukset on sisällytettävä käyttäjän käyrään.
+COP = min(COPmax, max(COPmin, a+b*T)). T on referenssivuoden ulkolämpötila tai, kun käytössä on oma data, Oma kulutusdata -välilehden sarakkeen G oma ulkolämpötila (puuttuvat tunnit referenssivuodesta). Aurinkosähkö käyttää aina referenssivuotta. Parametrit, pakkasraja ja lämpötehon kerroin ovat kalibroitavia oletuksia. IVLP ja LTO eivät ole samalla käyrällä validoituja. LP tuottaa lämpöä suoraan kuormaan, ei 85 °C varaajaan. Menoveden lämpötila ja sulatukset on sisällytettävä käyttäjän käyrään.
 
 Taloudellinen ohjaus vertaa verkkosähkön hintaa/COP ja PV:n menetettyä nettomyyntihintaa/COP päälämmön muuttuvaan hintaan. Negatiivinen PV-nettomyyntihinta rajataan tässä vertailussa nollaan. Etusija-valinta käyttää LP:tä ensin hinnasta riippumatta. Koko vuoden tehomaksua tai kattilan käynnistyksiä ei optimoida.
 
@@ -55,6 +55,10 @@ Bruttotulo = Σ (ylös-tarjonta kW × ylös-hinta + alas-tarjonta kW × alas-hin
 Skenaariot: historialliset vuodet (ylös: Fingrid 318, mukana; alas: Fingrid 283, mukana 21.4.2021–30.10.2026), viimeiset 12 kk (24.9.2025 klo 23 – 24.9.2026 klo 22), kyllästynyt markkina (Fingridin vuosimarkkina 2026, vuosimuutos C42; alas-hinta 6,00 €/MW,h on yli kaksinkertainen tuntimarkkinan 2026 toteumaan 2,8 €/MW,h nähden), oma hinta ja keskiarvo 2021–2025. Jos valitulle skenaariolle puuttuu alas-hinta, kannattavuustulos estetään. Vuosimarkkinan hinta on sopimushinta koko vuodelle, ei tuntimarkkinan toteuma; sitä käytetään kyllästyneen markkinan tasona, koska vuoden 2026 tuntihinnat ovat olleet lähellä akkujen käyttökustannuksia. NPV:n vuosimuutos on valitun skenaarion mukainen (C43).
 
 C33=0,01 h/h on oma herkkyysoletus, ei havaittu aktivointi. FCR-N, aFRR, mFRR ja FFR on rajattu pois: perustelut ovat Reservimarkkina-välilehden riveillä 48–55. Taajuushäiriöitä, hyväksymiskokeita, tasekuluja tai aggregaattorin energiasopimusta ei toisteta. Historiallisten skenaarioiden kapasiteettihinnat vaihdetaan saman ohjaustaseen päälle; aktivointienergian arvo käyttää käyttäjän sähkösopimusta. Vuoden 2026 osavuosi skaalattuna ei ole toteutunut vuosituotto eikä tulevan hinnan alaraja.
+
+## Kaksi toteutusta
+
+Sama malli on toteutettu Excel-kaavoina, JavaScriptinä (web/malli.js) ja Pythonina (malli/sim.py, talous.py). Excel ja JavaScript ovat käyttäjän versioita; Python on riippumaton vertailumalli. Testit vertaavat tuntisarjoja (Excel–Python) sekä energia-, talous-, kuukausi-, vuosi- ja päästötuloksia (Excel–JavaScript). Muutos tehdään kaikkiin kolmeen samassa muutoksessa.
 
 ## Talous
 

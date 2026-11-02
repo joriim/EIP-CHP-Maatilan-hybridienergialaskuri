@@ -23,6 +23,7 @@ Issues-osion viestit ovat **julkisia**. Älä liitä tilasi nimeä, osoitetta ta
 
 Muutosehdotukset (pull request) ovat tervetulleita. Kerro kuvauksessa, mitä muutit ja miten testasit. Laskurin kaavamuutoksista pyydämme:
 
+- Selain- ja Excel-versio ovat tasavertaiset: tee laskentamuutos molempiin (web/malli.js ja työkirja) sekä Python-malliin, päivitä vertailuarvot `python malli/vie_vertailu.py laskuri/Maatilan_hybridienergialaskuri.xlsm` ja aja `node web/testi.js`.
 - Tee muutos .xlsm-tiedostoon ja muodosta makroton .xlsx komennolla `python scripts/tee_xlsx.py laskuri/Maatilan_hybridienergialaskuri.xlsm laskuri/Maatilan_hybridienergialaskuri.xlsx`.
 - Makromuutokset tehdään myös tiedostoon `laskuri/Optimointi.bas`, jotta koodi on luettavissa ilman Exceliä.
 - Älä tallenna työkirjaan pörssihintoja, omaa kulutusdataa, kommentteja, lisäosia tai luottamuksellisuusmerkintöjä.

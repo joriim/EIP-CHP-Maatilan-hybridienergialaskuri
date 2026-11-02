@@ -1,3 +1,19 @@
+# Version 0.10.0 tarkistukset — 2.11.2026
+
+| Tarkistus | Tulos |
+|---|---|
+| LibreOffice Calc, täysi uudelleenlaskenta (.xlsm ja .xlsx) | 431 720 kaavaa, 0 virhettä |
+| Riippumaton kaavatulkitsin vs. LibreOffice | 0 poikkeamaa |
+| Excel-regressio (malli/test_excel.py), uutena oma data + oma ulkolämpötila + lämpöpumppu 30 kW | 16 täyttä vuotta ja 5 puutetilaa hyväksytty; uusi tapaus: tuntiero 0, NPV 38 306,13 € |
+| Selainversio vs. työkirja (node web/testi.js) | 10 tapausta ja 3 puutetilaa sekä 2 932 yksityiskohtaista arvoa kuudessa tapauksessa täsmäävät |
+| Selainversion käyttöliittymä Chromiumissa (1 400 px vaalea, 420 px tumma) | ei skriptivirheitä eikä vaakavieritystä; Rakennushaku-muotoinen tiedosto, pörssihinnat, CSV- ja JSON-lataus, jakolinkki ja vertailu toimivat |
+
+Yksityiskohtainen vertailu kattaa Ohjauspaneelin energia-, talous- ja päästörivit (C33–D43, C46–E55, G16–G18, C59–C64, C68–D76, K37, K68), Kuukausikoonnin C–X kaikilta kuukausilta ja Vuosikassavirran B–I kaikilta vuosilta. Tapaukset: oletus, CHP 15 %, reservi (viimeiset 12 kk), lämpöpumppu + sähkökattila + varaaja synteettisellä pörssihinnalla, oma data omalla ulkolämpötilalla sekä broileri + biokaasu + 25 vuotta. Toleranssi on 10⁻⁶ suhteellinen; kuukausittaiset CO₂-kilot 10⁻⁵, koska työkirjan tuntikerroin poikkeaa data/fingrid_paastokerroin_2025.csv:stä ±0,001 g/kWh muutamalla tunnilla pyöristyksen vuoksi.
+
+Microsoft Excelin avaamista ja makron ajoa ei ole testattu tässä ympäristössä. GitHub Pages -julkaisu ja Actions-testit ajetaan vasta, kun repositorio on GitHubissa.
+
+---
+
 # Version 0.9.3 tarkistukset — 23.10.2026
 
 | Tarkistus | Tulos |

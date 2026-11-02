@@ -16,4 +16,4 @@ Tuloksina esitetään energian käyttö ja riittävyys, taloudellinen vertailu s
 - [SVG-vektorikuva](kuvat/hybridienergiamalli-konseptikuva.svg): skaalautuu ja on muokattavissa vektorigrafiikkaohjelmassa.
 - [PNG-kuva](kuvat/hybridienergiamalli-konseptikuva.png): sopii esityksiin ja tekstiasiakirjoihin.
 
-Kuvan pohjana on laskurin version 0.9.1 menetelmäkuvaus. Versiossa 0.9.2 lisätyt CHP-sähkö ja kokoonpanon optimointi eivät vielä näy kuvissa; ks. [MENETELMA.md](MENETELMA.md). Päiväys 22.10.2026. Tekijäviite: Maatilan hybridienergialaskuri, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke / SeAMK. Lisenssi [CC BY 4.0](../LICENSE).
+Kuvan pohjana on laskurin version 0.9.1 menetelmäkuvaus. Versiossa 0.9.2 lisätyt CHP-sähkö ja kokoonpanon optimointi eivät vielä näy kuvissa; ks. [MENETELMA.md](MENETELMA.md). Päiväys 22.10.2026. Tekijäviite: Maatilan hybridienergialaskuri, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke / SEAMK, Maatalous ja energia -tutkimusryhmä. Lisenssi [CC BY 4.0](../LICENSE).

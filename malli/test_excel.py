@@ -40,11 +40,18 @@ def main():
         ('chp_porssi_katkaisu',{(panel,'C15'):1,(panel,'K22'):'Pörssihinta',(panel,'K25'):'Kyllä'},dict(chp_share=.15,pricing='spot',spot=prices,curtail_negative=True)),
         ('chp_toimitettu_lampo',{(panel,'C15'):1,(panel,'K62'):'Toimitettu lämpö'},dict(chp_share=.15,delivered_heat=True)),
     ]
+    # Own data with own outdoor temperature (Rakennushaku export, Oma kulutusdata E-G).
+    od='Oma kulutusdata';T5=p.ulkolampotila_C.values+5
+    own={(panel,'D4'):'Oma data',(panel,'C10'):1,(panel,'D10'):30}
+    for i in range(8760):
+        own[(od,'E%d'%(i+2))]=float(p.sikala_sahko_kwh.values[i]);own[(od,'F%d'%(i+2))]=float(p.sikala_lampo_kwh.values[i]);own[(od,'G%d'%(i+2))]=float(T5[i])
+    cases.append(('oma_data_oma_lampotila',own,dict(HP=30,T_override=T5)))
     results=[]
     for name,overrides,kw in cases:
         model.cache=raw.copy();model.cache.update(overrides)
         if 'porssi'in name or name=='lampo_ja_varaaja':model.cache.update({('Pörssihinnat','C'+str(i+2)):float(v*1000) for i,v in enumerate(prices)})
-        model.calculate();expected=sim(*args,**kw);error=0.
+        kw=dict(kw);T_over=kw.pop('T_override',None)
+        model.calculate();expected=sim(*(args[:3]+[T_over if T_over is not None else args[3]]),**kw);error=0.
         for c,key in columns.items():
             want=expected[key]
             if c=='V':want=expected['eb']-expected['ebgrid']
