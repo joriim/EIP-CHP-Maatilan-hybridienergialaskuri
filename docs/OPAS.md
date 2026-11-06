@@ -24,7 +24,7 @@ Laskurin tavoite on tehdä vaihtoehtojen oletukset ja vaikutukset näkyviksi. Se
 
 ## Näin aloitat
 
-1. Nopein tapa: avaa [selainversio](https://seamkedu.github.io/maatilan-hybridienergialaskuri/). Excel-versiota varten avaa [projektin GitHub-sivu](https://github.com/SeAMKedu/maatilan-hybridienergialaskuri). Lataa koko projekti valinnalla **Code → Download ZIP**, tai lataa [makroton Excel-tiedosto](../laskuri/Maatilan_hybridienergialaskuri.xlsx) tiedoston latauspainikkeella. Kokoonpanon optimointi on vain [makroversiossa](../laskuri/Maatilan_hybridienergialaskuri.xlsm); internetistä ladatun .xlsm-tiedoston esto poistetaan tiedoston ominaisuuksista (**Poista esto**) ennen avaamista.
+1. Nopein tapa: avaa [selainversio](https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/). Excel-versiota varten avaa [projektin GitHub-sivu](https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri). Lataa koko projekti valinnalla **Code → Download ZIP**, tai lataa [makroton Excel-tiedosto](../laskuri/Maatilan_hybridienergialaskuri.xlsx) tiedoston latauspainikkeella. Kokoonpanon optimointi on vain [makroversiossa](../laskuri/Maatilan_hybridienergialaskuri.xlsm); internetistä ladatun .xlsm-tiedoston esto poistetaan tiedoston ominaisuuksista (**Poista esto**) ennen avaamista.
 2. Pura ZIP ennen käyttöä ja säilytä alkuperäisestä työkirjasta kopio. Nimeä oma tarkastelusi esimerkiksi tilan sisäisellä tunnisteella ja päivämäärällä.
 3. Avaa Excel-tiedosto ja varmista, että laskenta on automaattinen. Työkirjan uudelleenlaskenta voi kestää. Suositeltu Excel-versio on Microsoft 365 / Excel 2019 tai uudempi. Osa funktioista, kuten MAXIFS, ei ole käytettävissä kaikissa vanhemmissa versioissa.
 4. Aloita välilehdeltä **Ohjauspaneeli ja Tulokset**. Muokkaa keltaisia syöttösoluja. Säilytä laskentasolujen kaavat.
@@ -122,7 +122,7 @@ Laskurin avoin lisenssi ei muuta ulkoisen datan ehtoja. Esimerkiksi ladatun pör
 
 Lähdeviitteen voi muodostaa näin:
 
-> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.10.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/SeAMKedu/maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
+> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.10.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
 
 Lisää muokattuun versioon tieto omista muutoksistasi ja niiden päivämäärästä. Koneellisesti luettava viittaus on tiedostossa [CITATION.cff](../CITATION.cff).
 

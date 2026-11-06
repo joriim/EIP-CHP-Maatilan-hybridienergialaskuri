@@ -86,7 +86,7 @@ Pörssihintoja ei jaeta laskurin mukana, koska niiden käyttöehdot määrää h
 
 ## Selainversio
 
-**Avaa laskuri selaimessa:** https://seamkedu.github.io/maatilan-hybridienergialaskuri/ (GitHub Pages; toimii myös avaamalla [web/index.html](web/index.html) omalta koneelta).
+**Avaa laskuri selaimessa:** https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/ (GitHub Pages; toimii myös avaamalla [web/index.html](web/index.html) omalta koneelta).
 
 Selainversiossa on sama laskenta ja samat tulokset kuin Excel-työkirjassa. Laskenta tehdään selaimessa, eivätkä ladatut tiedostot lähde koneelta. Lähtötiedot voi tallentaa JSON-tiedostoon tai jakaa linkkinä, ja tulokset saa CSV-tiedostoina.
 

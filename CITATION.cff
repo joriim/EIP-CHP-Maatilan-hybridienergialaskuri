@@ -16,8 +16,8 @@ authors:
     given-names: "Miiro"
     orcid: "https://orcid.org/0000-0002-0683-8352"
     affiliation: "Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä"
-url: "https://seamkedu.github.io/maatilan-hybridienergialaskuri/"
-repository-code: "https://github.com/SeAMKedu/maatilan-hybridienergialaskuri"
+url: "https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/"
+repository-code: "https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri"
 version: "0.10.0"
 date-released: "2026-11-02"
 license:

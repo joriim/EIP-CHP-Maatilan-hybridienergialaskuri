@@ -2,7 +2,7 @@
 
 Laskurin tarkoitus, tulosten tulkinta, avoimet lisenssit ja jatkokehitys: [esittely-, käyttö- ja kehitysopas](OPAS.md).
 
-Tämä ohje käy laskurin läpi vaihe vaiheelta. Laskuri on kahtena tasavertaisena versiona: selaimessa (https://seamkedu.github.io/maatilan-hybridienergialaskuri/ tai web/index.html) ja Excelissä (suositus Microsoft 365 / Excel 2019 tai uudempi, myös LibreOffice Calc). Versiot laskevat samat tulokset. Työkirja 0.10.0 on avattu ja uudelleenlaskettu LibreOffice Calcissa. Microsoft Excelin omaa avaamista ei ole testattu tässä ympäristössä; varmista uudelleenlaskenta avatessasi tiedoston. MAXIFS ei ole kaikissa Excel 2016 -asennuksissa saatavilla.
+Tämä ohje käy laskurin läpi vaihe vaiheelta. Laskuri on kahtena tasavertaisena versiona: selaimessa (https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/ tai web/index.html) ja Excelissä (suositus Microsoft 365 / Excel 2019 tai uudempi, myös LibreOffice Calc). Versiot laskevat samat tulokset. Työkirja 0.10.0 on avattu ja uudelleenlaskettu LibreOffice Calcissa. Microsoft Excelin omaa avaamista ei ole testattu tässä ympäristössä; varmista uudelleenlaskenta avatessasi tiedoston. MAXIFS ei ole kaikissa Excel 2016 -asennuksissa saatavilla.
 
 ## Kaksi tiedostoa
 

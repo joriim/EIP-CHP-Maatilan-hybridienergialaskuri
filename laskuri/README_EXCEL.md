@@ -6,7 +6,7 @@
 **Tekijät:** Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä  
 **Hanke:** EIP CHP Energiaälykäs eteläpohjalainen maatila
 
-Laskurista on myös selainversio samalla laskennalla: https://seamkedu.github.io/maatilan-hybridienergialaskuri/
+Laskurista on myös selainversio samalla laskennalla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/
 
 ## 1. Mihin laskuria käytetään?
 
