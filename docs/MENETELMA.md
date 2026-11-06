@@ -1,4 +1,4 @@
-# Menetelmä 0.10.0
+# Menetelmä 0.11.0
 
 ## Aika ja järjestelmäraja
 
@@ -55,6 +55,12 @@ Bruttotulo = Σ (ylös-tarjonta kW × ylös-hinta + alas-tarjonta kW × alas-hin
 Skenaariot: historialliset vuodet (ylös: Fingrid 318, mukana; alas: Fingrid 283, mukana 21.4.2021–30.10.2026), viimeiset 12 kk (24.9.2025 klo 23 – 24.9.2026 klo 22), kyllästynyt markkina (Fingridin vuosimarkkina 2026, vuosimuutos C42; alas-hinta 6,00 €/MW,h on yli kaksinkertainen tuntimarkkinan 2026 toteumaan 2,8 €/MW,h nähden), oma hinta ja keskiarvo 2021–2025. Jos valitulle skenaariolle puuttuu alas-hinta, kannattavuustulos estetään. Vuosimarkkinan hinta on sopimushinta koko vuodelle, ei tuntimarkkinan toteuma; sitä käytetään kyllästyneen markkinan tasona, koska vuoden 2026 tuntihinnat ovat olleet lähellä akkujen käyttökustannuksia. NPV:n vuosimuutos on valitun skenaarion mukainen (C43).
 
 C33=0,01 h/h on oma herkkyysoletus, ei havaittu aktivointi. FCR-N, aFRR, mFRR ja FFR on rajattu pois: perustelut ovat Reservimarkkina-välilehden riveillä 48–55. Taajuushäiriöitä, hyväksymiskokeita, tasekuluja tai aggregaattorin energiasopimusta ei toisteta. Historiallisten skenaarioiden kapasiteettihinnat vaihdetaan saman ohjaustaseen päälle; aktivointienergian arvo käyttää käyttäjän sähkösopimusta. Vuoden 2026 osavuosi skaalattuna ei ole toteutunut vuosituotto eikä tulevan hinnan alaraja.
+
+## Rakennushaku
+
+Oman tilan tuntiprofiilit voi tuottaa Rakennushaulla (selainversion kohta 1). Rakennushaku mallintaa valittujen rakennusten lämmön ja sähkön tunneittain ulkolämpötilan mukaan ja kalibroi tason tilan vuosi-, kuukausi- tai tuntikulutukseen. Sen menetelmät, oletukset ja lähteet on kuvattu Rakennushaun dokumentissa *Menetelmät ja lähteet* (github.com/joriim/eip-chp-rakennushaku, docs/MENETELMAT_JA_LAHTEET.md).
+
+Siirrossa laskuriin sähkösarja on muu sähkö kuin nykyinen lämmityssähkö, koska laskuri tuottaa lämmön omista lähteistään; lämmöntarve on toimitettua lämpöä. Ulkolämpötila korvaa esimerkkivuoden lämpöpumpun COP:ssa ja pakkasrajassa. Aurinkosähkön tuotto tulee edelleen esimerkkivuodesta. Lämmitysjärjestelmien tehojen summa asetetaan päälämmityksen tehoksi. Kattilan hyötysuhde ja hakkeen energiatiheys siirretään, kun tilalla on yksi kattila tai hakekattila. Pelletti-, öljy-, kaukolämpö-, sähkö- ja lämpöpumppulämmitystä laskuri ei mallinna lähtötilanteena; niistä annetaan huomautus.
 
 ## Kaksi toteutusta
 

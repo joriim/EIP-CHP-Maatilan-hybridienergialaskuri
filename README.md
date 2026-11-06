@@ -1,4 +1,4 @@
-# Maatilan hybridienergialaskuri 0.10.0
+# Maatilan hybridienergialaskuri 0.11.0
 
 Excel-laskuri, jolla sika- tai siipikarjatila voi arvioida, kannattaako olemassa olevan hake- tai biokaasulämmityksen rinnalle hankkia aurinkosähköä, sähköakkua, lämpöpumppua, sähkökattilaa, lämpövaraajaa tai CHP-sähköntuotantoa.
 
@@ -16,6 +16,17 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 **Laskurin kehittämisessä on hyödynnetty tekoälyä** laskentakaavojen ja koodin tarkastelussa, dokumentoinnissa sekä vaihtoehtojen luonnostelussa. Tekoälyä voi käyttää myös oman tilan lähtötietojen jäsentämiseen ja syötön valmisteluun. Suosittelemme kokeilemaan Microsoft Copilotia Excelissä, OpenAI:n ChatGPT for Excel -lisäosaa tai Anthropicin Claude for Excel -lisäosaa. Asennuslähteet, käyttörajojen täsmennykset ja valmiit esimerkkikehotteet ovat [Excel-käyttöohjeen tekoälyosiossa](laskuri/README_EXCEL.md#13-tekoäly-laskurin-kehittämisessä-ja-käytössä). Saatavuus riippuu palvelusta, tilauksesta ja organisaation asetuksista.
 
 **[Lue esittely, käyttö- ja kehitysopas](docs/OPAS.md).** Opas kertoo, mitä laskuri laskee, miten oman tilan tiedot syötetään, miten vaihtoehtoja vertaillaan ja miten laskuria voi kehittää avoimilla lisensseillä. Käyttäjä valitsee laitteiden koot tai antaa makroversion etsiä parhaan kokoonpanon antamistaan vaihtoehdoista. CHP on yksinkertaistettu sähköosuusmalli; laitoksen prosessia tai biokaasuprosessia ei mallinneta.
+
+## Uutta versiossa 0.11.0
+
+**Rakennushaku on osa laskuria.** Selainversion kohdassa 1 painike *Hae tila Rakennushaulla* avaa Rakennushaun: tilan rakennukset haetaan Maanmittauslaitoksen aineistosta, kulutus kalibroidaan tilan laskuihin tai mittaritietoon, ja säätiedot ja pörssihinnat haetaan samalta vuodelta. *Siirrä laskuriin* vie tuntisarjat suoraan laskentaan ilman CSV-tiedostoa:
+
+- sähkö (ilman nykyistä lämmityssähköä) ja lämmöntarve → Oma data
+- ulkolämpötila → lämpöpumpun COP ja pakkasraja
+- haetut pörssihinnat 2023–2026 → hintahistoria, hintavuodeksi tarkasteluvuosi
+- lämmitysjärjestelmien teho, kattilan hyötysuhde ja hakkeen energiatiheys → vastaavat syötteet
+
+Excel-versiossa sama aineisto tuodaan Rakennushaun CSV-viennillä *Oma kulutusdata* -välilehden sarakkeisiin A–G ja *Hintahistoria*-välilehdelle; työkirjan ohjeteksti ja kaavat eivät muutu. Rakennushaku on myös erillisenä: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html. Selainversion ilme noudattaa SEAMKin brändikäsikirjaa (2025/03).
 
 ## Uutta versiossa 0.10.0
 
@@ -88,9 +99,11 @@ Pörssihintoja ei jaeta laskurin mukana, koska niiden käyttöehdot määrää h
 
 **Avaa laskuri selaimessa:** https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/ (GitHub Pages; toimii myös avaamalla [web/index.html](web/index.html) omalta koneelta).
 
-Selainversiossa on sama laskenta ja samat tulokset kuin Excel-työkirjassa. Laskenta tehdään selaimessa, eivätkä ladatut tiedostot lähde koneelta. Lähtötiedot voi tallentaa JSON-tiedostoon tai jakaa linkkinä, ja tulokset saa CSV-tiedostoina.
+Selainversiossa on sama laskenta ja samat tulokset kuin Excel-työkirjassa. Laskenta tehdään selaimessa, eivätkä ladatut tiedostot lähde koneelta. Rakennushaku avautuu laskurin sisällä (kohta 1, *Hae tila Rakennushaulla*); se lähettää rajapinnoille vain sijainnin, kiinteistötunnuksen, osoitehaun ja vuoden, ja käyttäjä tarvitsee Maanmittauslaitoksen ilmaisen API-avaimen. Lähtötiedot voi tallentaa JSON-tiedostoon tai jakaa linkkinä, ja tulokset saa CSV-tiedostoina.
 
 Kehittäjälle: laskentamalli on [web/malli.js](web/malli.js), käyttöliittymä [web/sovellus.js](web/sovellus.js) ja sivupohja [web/sovellus.html](web/sovellus.html). `python scripts/rakenna_web.py` kokoaa niistä ja `data/`-kansiosta `web/index.html`:n. `node web/testi.js` vertaa tuloksia työkirjaan (vertailuarvot `web/vertailu_excel.json`, päivitys `python malli/vie_vertailu.py laskuri/Maatilan_hybridienergialaskuri.xlsm`).
+
+Rakennushaku on [joriim/eip-chp-rakennushaku](https://github.com/joriim/eip-chp-rakennushaku)-repositorion selainversio (MIT). `web/rakennushaku.html` on sen koottu sivu, johon `scripts/rakenna_web.py` lisää siirtosillan [web/rakennushaku_silta.js](web/rakennushaku_silta.js). Rakennushaun päivitys: `python scripts/rakenna_web.py --rakennushaku <polku>/web/rakennushaku.html`.
 
 ## Palaute ja parannusehdotukset
 
@@ -107,7 +120,7 @@ Katso myös [CONTRIBUTING.md](CONTRIBUTING.md).
 | `laskuri/` | Excel-laskuri (.xlsx ilman makroja, .xlsm optimoinnilla), makron lähdekoodi ja Excel-ohje |
 | `docs/` | Esittely-, käyttö- ja kehitysopas, menetelmä, lähteet ja testaus |
 | `data/` | Esimerkkiprofiilit ja Fingridin avoin data (CSV) |
-| `web/` | Selainversio (index.html), laskentamalli (malli.js) ja vertailutesti |
+| `web/` | Selainversio (index.html), laskentamalli (malli.js), Rakennushaku (rakennushaku.html ja siirtosilta) ja vertailutesti |
 | `scripts/` | Pörssihintojen haku- ja muunnosskripti, työkirjan rakennetarkistus ja .xlsx-muunnos |
 | `malli/` | Python-malli: laskurin yhtälöt ja optimoitu akun ohjaus (MILP-optimointivertailu) |
 

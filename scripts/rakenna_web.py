@@ -6,7 +6,7 @@ Käyttö: python scripts/rakenna_web.py [--vain-sisalto POLKU]
 Tulos on yksi itsenäinen HTML-tiedosto, joka toimii ilman palvelinta (myös GitHub Pagesissa).
 --vain-sisalto kirjoittaa lisäksi version ilman <html>/<head>/<body>-runkoa upotuksia varten.
 """
-import csv, json, math, sys
+import csv, json, math, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,6 +30,22 @@ def nums(values, digits):
         x = round(float(v), digits)
         out.append(int(x) if x == int(x) else x)
     return out
+
+
+BEGIN, END = '<!-- RAKENNUSHAKU-SILTA -->', '<!-- /RAKENNUSHAKU-SILTA -->'
+
+
+def rakennushaku(src=None):
+    """Rakennushaun sivu + silta laskuriin. Palauttaa sivun koon kilotavuina."""
+    target = ROOT / 'web' / 'rakennushaku.html'
+    page = Path(src).read_text(encoding='utf-8') if src else target.read_text(encoding='utf-8')
+    page = re.sub(re.escape(BEGIN) + '.*?' + re.escape(END) + '\n?', '', page, flags=re.S)
+    assert 'root.RH = RH' in page and '</body>' in page, 'ei Rakennushaun selainversio'
+    silta = (ROOT / 'web' / 'rakennushaku_silta.js').read_text(encoding='utf-8')
+    i = page.rindex('</body>')
+    page = page[:i] + BEGIN + '\n<script>\n' + silta + '</script>\n' + END + '\n' + page[i:]
+    target.write_text(page, encoding='utf-8')
+    return len(page.encode()) // 1024
 
 
 def main():
@@ -58,6 +74,8 @@ def main():
             + body + '\n</html>\n')
     (ROOT / 'web' / 'index.html').write_text(full, encoding='utf-8')
     print('web/index.html', len(full.encode()) // 1024, 'kt')
+    src = sys.argv[sys.argv.index('--rakennushaku') + 1] if '--rakennushaku' in sys.argv else None
+    print('web/rakennushaku.html', rakennushaku(src), 'kt')
     if '--vain-sisalto' in sys.argv:
         out = Path(sys.argv[sys.argv.index('--vain-sisalto') + 1])
         out.write_text(body, encoding='utf-8')

@@ -1,4 +1,4 @@
-# Julkaisee selainversion (web/) GitHub Pagesiin jokaisesta main-haaran muutoksesta.
+# Julkaisee selainversion (web/index.html) ja siihen liitetyn Rakennushaun (web/rakennushaku.html) GitHub Pagesiin jokaisesta main-haaran muutoksesta.
 # Ota käyttöön: Settings → Pages → Build and deployment → Source: GitHub Actions.
 name: Selainversio GitHub Pagesiin
 on:
@@ -23,12 +23,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Kokoa web/index.html datasta ja lähteistä
+      - name: Kokoa web/index.html ja web/rakennushaku.html
         run: python scripts/rakenna_web.py
       - name: Valmistele julkaisukansio
         run: |
           mkdir -p _site
           cp web/index.html _site/index.html
+          cp web/rakennushaku.html _site/rakennushaku.html
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

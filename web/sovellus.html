@@ -1,36 +1,40 @@
 <title>Maatilan hybridienergialaskuri</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
 <style>
-/* Layout: syöttöpaneeli vasemmalla, tulokset oikealla; kapealla näytöllä pinottu. SEAMK + Maatalous ja energia -tutkimusryhmän värit. */
+/* Layout: syöttöpaneeli vasemmalla, tulokset oikealla; kapealla näytöllä pinottu. Ilme: SEAMKin brändikäsikirja 2025/03 (Barlow Condensed korvaa Alte DIN 1451:n). */
 :root {
-  --bg: #f6f7f4; --surface: #ffffff; --ink: #1d231f; --muted: #5b655e; --line: #d9ded8;
-  --pelto: #2E6B3F; --pelto-soft: #D5E4D8; --lampo: #B24A28; --lampo-soft: #F0DBD4;
-  --energia: #0E7483; --energia-soft: #CFE3E6; --lila: #542583; --lila-soft: #EEE9F3;
-  --keltainen: #FFF023; --input: #FFF9A7; --olki-soft: #F7ECD1; --ilmasto: #46566A;
-  --ok: #2E6B3F; --warn: #9a6a00; --bad: #B24A28;
-  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
-  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  /* SEAMKin brändikäsikirja 2025/03: päävärit lila ja keltainen; lisävärit (vihreä, pinkki, vaaleansininen) vain tukielementeissä. */
+  --seamk-lila: #542583; --seamk-lila-75: #7F5CA2; --seamk-lila-50: #AA92C1; --seamk-lila-25: #D4C8E0; --seamk-lila-15: #E5DEEC;
+  --seamk-keltainen: #FFF023; --seamk-keltainen-50: #FFF891; --seamk-keltainen-25: #FFFBC8;
+  --seamk-vihrea: #ACD195; --seamk-pinkki: #E8A7C6; --seamk-vaaleansininen: #C7E6F7;
+  --bg: #f7f6f9; --surface: #ffffff; --ink: #1b1620; --muted: #5d5766; --line: #dcd8e2;
+  --pelto: var(--seamk-lila); --pelto-soft: var(--seamk-lila-15); --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
+  --energia: var(--seamk-lila); --energia-soft: var(--seamk-vaaleansininen); --lila: var(--seamk-lila); --lila-soft: var(--seamk-lila-25);
+  --keltainen: var(--seamk-keltainen); --input: var(--seamk-keltainen-25); --olki-soft: var(--seamk-keltainen-25); --ilmasto: #46566A;
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #6b4e00; --bad: #000000; --on-accent: #ffffff;
+  --display: "Alte DIN 1451 Mittelschrift", "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: Arial, Helvetica, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #141815; --surface: #1c221e; --ink: #e8ece8; --muted: #a3ada6; --line: #333b35;
-  --pelto: #7fbf8e; --pelto-soft: #233a2a; --lampo: #e58a68; --lampo-soft: #3d2620;
-  --energia: #5cc2cf; --energia-soft: #173a3f; --lila: #b99ae0; --lila-soft: #2a2236;
-  --keltainen: #e9dc2a; --input: #33311a; --olki-soft: #3a3220; --ilmasto: #a9b6c6;
-  --ok: #7fbf8e; --warn: #e2b54a; --bad: #e58a68; color-scheme: dark } }
+  --bg: #141118; --surface: #1d1922; --ink: #ece8f0; --muted: #aaa2b4; --line: #3a3343;
+  --pelto: var(--seamk-lila-50); --pelto-soft: #2c2338; --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
+  --energia: var(--seamk-lila-50); --energia-soft: #22303a; --lila: var(--seamk-lila-50); --lila-soft: #3a2f4a;
+  --keltainen: #e9dc2a; --input: #2e2b1a; --olki-soft: #34301c; --ilmasto: #a9b6c6;
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #e2b54a; --bad: #000000; --on-accent: #141118; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #141815; --surface: #1c221e; --ink: #e8ece8; --muted: #a3ada6; --line: #333b35;
-  --pelto: #7fbf8e; --pelto-soft: #233a2a; --lampo: #e58a68; --lampo-soft: #3d2620;
-  --energia: #5cc2cf; --energia-soft: #173a3f; --lila: #b99ae0; --lila-soft: #2a2236;
-  --keltainen: #e9dc2a; --input: #33311a; --olki-soft: #3a3220; --ilmasto: #a9b6c6;
-  --ok: #7fbf8e; --warn: #e2b54a; --bad: #e58a68; color-scheme: dark }
+  --bg: #141118; --surface: #1d1922; --ink: #ece8f0; --muted: #aaa2b4; --line: #3a3343;
+  --pelto: var(--seamk-lila-50); --pelto-soft: #2c2338; --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
+  --energia: var(--seamk-lila-50); --energia-soft: #22303a; --lila: var(--seamk-lila-50); --lila-soft: #3a2f4a;
+  --keltainen: #e9dc2a; --input: #2e2b1a; --olki-soft: #34301c; --ilmasto: #a9b6c6;
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #e2b54a; --bad: #000000; --on-accent: #141118; color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px }
 .stripe { height: 6px; background: var(--keltainen); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) }
 header.top { max-width: 1320px; margin: 0 auto; padding-block: 20px 12px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: end; justify-content: space-between }
-h1 { font-family: var(--display); font-weight: 700; font-size: 2rem; letter-spacing: .01em; margin: 0; color: var(--pelto); text-wrap: balance }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.45rem, 6.2vw, 2.1rem); letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; hyphens: auto; margin: 0; color: var(--pelto); text-wrap: balance }
 .lead { margin: 4px 0 0; color: var(--muted); max-width: 70ch }
 .ver { font-size: .85rem; color: var(--muted) }
 main { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 20px; align-items: start }
@@ -53,18 +57,18 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--pelto) }
 .hint { font-size: .82rem; color: var(--muted); margin: 0 }
 .file { display: grid; gap: 4px; font-size: .9rem }
-button { font: inherit; font-family: var(--display); font-weight: 600; letter-spacing: .03em; padding: 8px 14px; border-radius: 4px; border: 1px solid var(--pelto); background: var(--pelto); color: var(--surface); cursor: pointer }
+button { font: inherit; font-family: var(--display); font-weight: 600; letter-spacing: .03em; padding: 8px 14px; border-radius: 4px; border: 1px solid var(--pelto); background: var(--pelto); color: var(--on-accent); cursor: pointer }
 button.ghost { background: transparent; color: var(--pelto) }
 button:disabled { opacity: .5; cursor: default }
 section.results { display: flex; flex-direction: column; gap: 16px; min-width: 0 }
 .status { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center }
 .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-family: var(--display); font-weight: 600; font-size: .95rem }
-.pill.ok { background: var(--pelto-soft); color: var(--ok) }
+.pill.ok { background: var(--ok-soft); color: var(--ok) }
 .pill.bad { background: var(--lampo-soft); color: var(--bad) }
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
 @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 .kpi { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--pelto); border-radius: 6px; padding: 10px 14px }
-.kpi.money { border-top-color: var(--lila) }
+.kpi.money { border-top-color: var(--keltainen) }
 .kpi .k { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
 .kpi .v { font-family: var(--display); font-size: 1.75rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.15 }
 .kpi .s { font-size: .82rem; color: var(--muted) }
@@ -101,7 +105,18 @@ footer a { color: var(--energia) }
 .method p, .method li { max-width: 75ch }
 .method h3 { font-family: var(--display); font-weight: 600; font-size: 1.05rem; margin: 14px 0 4px }
 .small { font-size: .82rem }
-.badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 999px; background: var(--energia-soft); color: var(--energia); margin-left: 6px }
+.badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 999px; background: var(--seamk-vaaleansininen); color: #000; margin-left: 6px }
+.rh-open { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px }
+dialog.rh { width: min(1500px, calc(100vw - 24px)); height: calc(100vh - 24px); max-width: none; max-height: none; padding: 0; border: 0; border-radius: 8px; background: var(--surface); color: var(--ink); overflow: hidden }
+dialog.rh::backdrop { background: rgba(27, 22, 32, .55) }
+.rh-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; padding: 8px 14px; background: var(--seamk-lila); color: #fff }
+.rh-bar strong { font-family: var(--display); font-weight: 700; font-size: 1.15rem; letter-spacing: .03em; text-transform: uppercase }
+.rh-bar span { font-size: .85rem }
+.rh-bar button { background: var(--seamk-keltainen); color: #000; border-color: var(--seamk-keltainen) }
+dialog.rh[open] { display: flex; flex-direction: column }
+dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; border: 0; background: #fff }
+@media (max-width: 640px) { .rh-bar span { display: none } dialog.rh { width: 100vw; height: 100vh; border-radius: 0 } }
+.rh-sum { margin: 6px 0 0; padding-left: 1.1em; font-size: .85rem }
 </style>
 
 <div class="stripe" aria-hidden="true"></div>
@@ -110,7 +125,7 @@ footer a { color: var(--energia) }
     <h1>Maatilan hybridienergialaskuri</h1>
     <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja, CHP ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
   </div>
-  <div class="ver">Versio 0.10.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
+  <div class="ver">Versio 0.11.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
 <div class="toolbar" role="toolbar" aria-label="Tallennus ja jakaminen">
   <button type="button" id="tSave">Tallenna lähtötiedot</button>
@@ -138,7 +153,7 @@ footer a { color: var(--energia) }
   <div class="panel" id="p-yhteenveto">
     <div class="card"><h2>Sähkön osto kuukausittain</h2>
       <div class="tw"><svg id="kaavio" viewBox="0 0 760 240" width="100%" role="img" aria-label="Verkko-osto ilman investointia ja investoinnin kanssa sekä aurinkosähkön tuotanto kuukausittain"></svg></div>
-      <div class="legend"><span><i style="background:var(--lila-soft);border:1px solid var(--lila)"></i>Osto ilman investointia</span><span><i style="background:var(--lila)"></i>Osto hybridillä</span><span><i style="background:var(--keltainen);border:1px solid var(--line)"></i>Aurinkosähkö</span></div>
+      <div class="legend"><span><i style="background:var(--lila-soft);border:1px solid var(--lila)"></i>Osto ilman investointia</span><span><i style="background:var(--lila)"></i>Osto hybridillä</span><span><i style="background:var(--keltainen);border:1px solid var(--muted)"></i>Aurinkosähkö</span></div>
     </div>
     <div class="two">
       <div class="card"><h2>Energiatase</h2><div class="tw"><table id="tEnergia"></table></div></div>
@@ -224,6 +239,14 @@ footer a { color: var(--energia) }
   <div>Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Euroopan unionin osarahoittama.</div>
   <div>Laskuri ja dokumentaatio CC BY 4.0, koodi MIT. Fingridin avoin data CC BY 4.0, lähde Fingrid Oyj. Excel-versio, menetelmä ja palaute: <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri" target="_blank" rel="noopener">github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri</a></div>
 </footer>
+
+<dialog class="rh" id="rhDialog" aria-labelledby="rhTitle">
+  <div class="rh-bar">
+    <div><strong id="rhTitle">Rakennushaku</strong> <span>Tilan rakennukset, kulutus, säätiedot ja pörssihinnat. Laske tuntiprofiili ja paina <em>Siirrä laskuriin</em>.</span></div>
+    <button type="button" id="rhClose">Sulje</button>
+  </div>
+  <iframe id="rhFrame" title="Rakennushaku" loading="lazy"></iframe>
+</dialog>
 
 <script>/*DATA*/</script>
 <script>/*MALLI*/</script>

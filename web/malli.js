@@ -1,4 +1,4 @@
-/* Maatilan hybridienergialaskuri 0.10.0 – laskentamalli selaimeen.
+/* Maatilan hybridienergialaskuri 0.11.0 – laskentamalli selaimeen.
  * Sama tuntitase kuin Excel-työkirjassa ja malli/sim.py:ssä (8 760 h, kiinteä EET).
  * Tekijät: Suvi Karirinne, Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK),
  * Maatalous ja energia -tutkimusryhmä. Lisenssi: MIT (LICENSE-CODE).

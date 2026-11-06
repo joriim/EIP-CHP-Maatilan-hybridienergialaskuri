@@ -21,8 +21,10 @@ jobs:
       - run: node web/testi.js
       - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsx
       - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsm
-      - name: web/index.html on ajan tasalla lähteisiin nähden
+      - name: web/index.html ja web/rakennushaku.html ovat ajan tasalla lähteisiin nähden
         run: |
           cp web/index.html /tmp/vanha.html
+          cp web/rakennushaku.html /tmp/vanha_rh.html
           python scripts/rakenna_web.py
           cmp web/index.html /tmp/vanha.html
+          cmp web/rakennushaku.html /tmp/vanha_rh.html

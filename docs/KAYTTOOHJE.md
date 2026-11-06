@@ -133,10 +133,16 @@ Tee vertailu aina myös ilman reservituloa. Toteutunut tuotto vaihtelee kuukausi
 
 Selainversio sisältää samat syötteet ja tulokset kuin työkirja. Syötteiden kohdalla näkyy vastaava Excel-solu (vie hiiri rivin päälle).
 
-- **Oma kulutus ja Rakennushaku:** kohta 1, tiedosto *Oma kulutusdata tai Rakennushaun vienti*. Rakennushaun `oma_kulutusdata_<vuosi>.csv` tuo sähkön, lämmön, ulkolämpötilan ja vuoden pörssihinnat kerralla. Muu CSV: 8 760 riviä, kaksi viimeistä saraketta sähkö ja lämpö kWh/h.
+- **Rakennushaku:** kohta 1, *Hae tila Rakennushaulla*. Hae tila kiinteistötunnuksella, osoitteella tai kartalta (Maanmittauslaitoksen ilmainen API-avain), valitse rakennukset, anna kulutus laskuilta tai mittareilta, valitse säätiedot ja hae halutessa pörssihinnat. Paina *Laske tuntiprofiili* ja sitten *Siirrä laskuriin*. Laskuri ottaa käyttöön Oma data -profiilin, ulkolämpötilan ja hinnat, ja kohdan 1 alle tulee luettelo siirretyistä tiedoista. Tarkista sen jälkeen päälämmitys (D5), polttoaineen hinta ja hinnoittelu (kohta 3). Erillinen Rakennushaku: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html (*Avaa laskurissa*).
+- **Oma kulutus ja Rakennushaun CSV:** kohta 1, tiedosto *Oma kulutusdata tai Rakennushaun vienti*. Rakennushaun `oma_kulutusdata_<vuosi>.csv` tuo sähkön, lämmön, ulkolämpötilan ja vuoden pörssihinnat kerralla. Muu CSV: 8 760 riviä, kaksi viimeistä saraketta sähkö ja lämpö kWh/h.
 - **Pörssihinnat:** kohta 3. Lataa Rakennushaun `hintahistoria_2023-2026.csv`, hae_porssihinnat.py-tiedostoja tai muita yhden hintasarakkeen tiedostoja (vuosi tiedostonimestä tai valinnasta). Valitse vuosi tai *Keskiarvo*.
 - **Tulokset:** välilehdet Yhteenveto, Kuukaudet, Kassavirta, Päästöt, Reservi, Optimointi, Vertailu sekä Menetelmä ja lähteet.
 - **Tallennus:** *Tallenna lähtötiedot* (JSON), *Avaa lähtötiedot*, *Kopioi jakolinkki* (lähtötiedot linkissä; ladatut tiedostot eivät kulje linkissä), *Lataa tulokset* ja *Lataa tuntitase* (CSV, puolipiste ja desimaalipilkku). *Lisää vertailuun* tallentaa laskelman vertailutaulukkoon tähän selaimeen.
+
+## Muutokset version 0.11.0 käyttöön
+
+- Selainversio: Rakennushaku avautuu laskurista ja siirtää tiedot suoraan (ks. Selainversio).
+- Excel: ei kaavamuutoksia. Rakennushaun CSV liitetään edelleen *Oma kulutusdata* -välilehden sarakkeisiin A–G ja sarake H *Hintahistoria*-välilehden vuoden sarakkeeseen (J3).
 
 ## Muutokset version 0.10.0 käyttöön
 

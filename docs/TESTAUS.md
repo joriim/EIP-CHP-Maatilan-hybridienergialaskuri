@@ -1,3 +1,16 @@
+# Version 0.11.0 tarkistukset — 6.11.2026
+
+| Tarkistus | Tulos |
+|---|---|
+| Selainversio vs. työkirja (node web/testi.js) | 2 932 arvoa täsmää; laskenta ei muuttunut |
+| Rakennushaun liitos (scripts/test_rakennushaku.py) | silta sivulla kerran ja ajan tasalla, koonti toistettava, viestin kentät samat |
+| Siirto Chromiumissa (paikallinen HTTP-palvelin) | dialogi avautuu, *Siirrä laskuriin* asettaa Oma data -profiilin, ulkolämpötilan (8 760 h), päälämmityksen tehon 250 kW, hyötysuhteen 0,82 ja hakkeen energiatiheyden 0,85; erillisestä Rakennushausta *Avaa laskurissa* siirtää tiedot ja tyhjentää tallennustilan; öljykattilasta tulee huomautus; ei skriptivirheitä |
+| Työkirjat (.xlsm, .xlsx) | vain tekstisolut J3, B81 ja menetelmävälilehden versiorivi muuttuivat; rakenne- ja virhetarkistus läpäisty |
+
+Rakennushaun rajapintoja (MML, Ilmatieteen laitos, Open-Meteo, Sähkötin) ei voitu kutsua testiympäristöstä. Siirto testattiin Rakennushaun omalla laskentamoottorilla ja synteettisellä säällä; rajapinnat on testattu Rakennushaun omissa tarkistuksissa 31.10.2026.
+
+---
+
 # Version 0.10.0 tarkistukset — 2.11.2026
 
 | Tarkistus | Tulos |

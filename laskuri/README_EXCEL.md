@@ -1,12 +1,12 @@
 # Maatilan hybridienergialaskuri – Excel-mallin käyttöohje
 
-**Mallin versio:** 0.10.0  
-**Ohje päivitetty:** 2.11.2026  
+**Mallin versio:** 0.11.0  
+**Ohje päivitetty:** 6.11.2026  
 **Työkirjat:** Maatilan_hybridienergialaskuri.xlsx (ilman makroja) ja Maatilan_hybridienergialaskuri.xlsm (lisäksi kokoonpanon optimointi)  
 **Tekijät:** Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä  
 **Hanke:** EIP CHP Energiaälykäs eteläpohjalainen maatila
 
-Laskurista on myös selainversio samalla laskennalla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/
+Laskurista on myös selainversio samalla laskennalla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/. Tilan oman kulutusprofiilin voi tehdä Rakennushaulla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html
 
 ## 1. Mihin laskuria käytetään?
 
@@ -24,7 +24,7 @@ Keskeiset tulokset ovat verkosta ostettu ja verkkoon myyty sähkö, aurinkosähk
 4. Varmista **Kaavat → Laskenta-asetukset → Automaattinen**. Tarvittaessa käynnistä täysi uudelleenlaskenta näppäimillä **Ctrl+Alt+F9**. Laskenta voi kestää.
 5. Aloita välilehdeltä **Ohjauspaneeli ja Tulokset**. Muokkaa keltaisia syöttösoluja ja säilytä laskentasolujen kaavat.
 
-Version 0.10.0 työkirjat on laskettu uudelleen LibreOffice Calcissa ja tarkistettu riippumattomalla kaavatulkitsimella. Microsoft Excelin omaa avaamista ja makron ajoa ei ole testattu tässä tarkistuksessa. Jos sovellus ilmoittaa tiedoston korjauksesta tai kaavavirheistä, selvitä ilmoitus ennen tulosten käyttöä.
+Version 0.11.0 työkirjojen kaavat ovat samat kuin versiossa 0.10.0, jonka työkirjat on laskettu uudelleen LibreOffice Calcissa ja tarkistettu riippumattomalla kaavatulkitsimella. Microsoft Excelin omaa avaamista ja makron ajoa ei ole testattu tässä tarkistuksessa. Jos sovellus ilmoittaa tiedoston korjauksesta tai kaavavirheistä, selvitä ilmoitus ennen tulosten käyttöä.
 
 ## 3. Välilehdet
 
@@ -59,7 +59,7 @@ Esimerkkiprofiilit ovat synteettisiä. Ne eivät ole mitattuja tiloja eikä niid
 3. Liitä **Oma kulutusdata** -välilehdelle sähkö sarakkeeseen **E** ja lämpö sarakkeeseen **F**, alkaen riviltä **2**. Käytä **Liitä määräten → Arvot**.
 4. Valitse Ohjauspaneelin **D4 = Oma data**.
 5. Tarkista molempien sarjojen kattavuus ja tarkistustaulukon ilmoitukset. Kummassakin sarjassa tarvitaan 8 760 numeerista tuntiarvoa.
-6. Valinnainen: liitä saman vuoden ulkolämpötila (°C) sarakkeeseen **G**. Lämpöpumpun COP ja pakkasraja käyttävät sitä; puuttuvat tunnit otetaan esimerkkivuodesta. Rakennushaun vienti `oma_kulutusdata_<vuosi>.csv` liitetään sarakkeisiin A–G sellaisenaan ja sen hintasarake Hintahistoria-välilehden vuoden sarakkeeseen.
+6. Valinnainen: liitä saman vuoden ulkolämpötila (°C) sarakkeeseen **G**. Lämpöpumpun COP ja pakkasraja käyttävät sitä; puuttuvat tunnit otetaan esimerkkivuodesta. Rakennushaun (https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html) vienti `oma_kulutusdata_<vuosi>.csv` liitetään sarakkeisiin A–G sellaisenaan ja sen hintasarake H Hintahistoria-välilehden vuoden sarakkeeseen.
 
 Kulutussarjojen yksikkö on **kWh tunnissa**, eli jokaisen rivin tulee sisältää kyseisen tunnin energia. Todellinen nolla ja puuttuva havainto ovat eri asioita: älä täydennä tuntematonta kulutusta nollaksi ilman perustetta.
 
@@ -170,7 +170,7 @@ Laskuri näyttää useita eri rajauksia:
 
 Seuraavat arvot ovat **mallin oletuksia**, eivät lähdeluettelon vahvistamia laiteominaisuuksia:
 
-| Oletusryhmä | Version 0.10.0 lähtöarvoja | Käyttäjän tarkistettava |
+| Oletusryhmä | Version 0.11.0 lähtöarvoja | Käyttäjän tarkistettava |
 |---|---|---|
 | Lämpöpumppu | COP = rajattu 3,2 + 0,07 × ulkolämpötila; rajat 1,8–4,8 | Laitteen COP, lämmönjaon lämpötilat, sulatukset ja pakkaskäyttö |
 | Akku | Hyötysuhde 90 %, 0,5C, 6 000 sykliä, kalenteri-ikä 15 v | Käytettävä kapasiteetti, teho, takuu ja ikääntyminen |
@@ -268,7 +268,7 @@ Laskuri on laadittu EIP CHP Energiaälykäs eteläpohjalainen maatila -hankkeess
 
 Excel-laskuria ja tätä ohjetta voi käyttää, muokata ja jakaa **CC BY 4.0** -lisenssillä [13], kun tekijät ja lähde mainitaan, lisenssiin viitataan ja muutoksista ilmoitetaan. Säilytä mukana toimitetut lisenssi- ja tekijätiedot. Laskuri toimitetaan ilman takuuta.
 
-Lähdeviite: Karirinne, S. & Jääskeläinen, M. (2026). *Maatilan hybridienergialaskuri*, versio 0.10.0. Seinäjoen ammattikorkeakoulu, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke. CC BY 4.0.
+Lähdeviite: Karirinne, S. & Jääskeläinen, M. (2026). *Maatilan hybridienergialaskuri*, versio 0.11.0. Seinäjoen ammattikorkeakoulu, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke. CC BY 4.0.
 
 ## 13. Tekoäly laskurin kehittämisessä ja käytössä
 

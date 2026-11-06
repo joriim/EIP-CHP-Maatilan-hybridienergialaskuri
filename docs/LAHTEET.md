@@ -1,4 +1,4 @@
-# Lähteet, oletukset ja aineistojen alkuperä — 0.10.0
+# Lähteet, oletukset ja aineistojen alkuperä — 0.11.0
 
 Tarkistuspäivä 21.10.2026; CHP- ja optimointioletukset lisätty 22.10.2026; reservimarkkinan lähteet 23.10.2026. Lähteen olemassaolo ja parametrin soveltuvuus ovat eri asioita. Alla erotetaan tarkistettu lähdetieto ja laskurin oma oletus.
 
@@ -18,6 +18,7 @@ Tarkistuspäivä 21.10.2026; CHP- ja optimointioletukset lisätty 22.10.2026; re
 | PV:n elinkaaritutkimus | Louwen, A., van Sark, W.G.J.H.M., Faaij, A.P.C. & Schropp, R.E.I. (2016). [Nature Communications 7:13728](https://doi.org/10.1038/ncomms13728) | Vertaisarvioitu taustatutkimus. 700 kg/kWp säilytetään skenaario-oletuksena; nykyisen asennetun järjestelmän kerroin on varmennettava erikseen. |
 | EPEAT 630 kg CO2e/kWp | [GEC: Photovoltaic modules and inverters — State of Sustainability Research, 5.3.2025](https://globalelectronicscouncil.org/wp-content/uploads/PVMI-SOSR-Draft-PC-2025.pdf), s. 28–29 ja liite | Julkisen kuulemisen luonnos. 630 on moduulin luokitteluraja, ei koko asennetun järjestelmän keskiarvo. |
 | Metsäbiomassan toimitusketju | Metsäteho (2017), [CO2-eq-päästöt ja energiatehokkuus metsäbiomassojen toimitusketjuissa](https://www.metsateho.fi/wp-content/uploads/Tuloskalvosarja_2017_04a_Co2-eq-paastot_ja_energiatehokkuus_metsabiomassojen.pdf) | Taustalähde. Linkin sisältöä ei saatu tässä tarkistuksessa avattua. Laskurin kokonaiskerrointa 13 kg/MWh ei siten merkitä tämän raportin suoraksi tulokseksi. |
+| Rakennushaku | Jääskeläinen, M. & Karirinne, S. (2026). [Rakennushaku 0.6.0](https://github.com/joriim/eip-chp-rakennushaku), SEAMK, MIT. Menetelmät ja lähteet: docs/MENETELMAT_JA_LAHTEET.md | Selainversion kohta 1. Rakennukset (MML Maastotietokanta, CC BY 4.0), säätiedot (Ilmatieteen laitos, Open-Meteo, CC BY 4.0) ja pörssihinnat (Sähkötin; Nord Poolin data, ei-kaupallinen käyttö) haetaan käyttäjän selaimeen käytön aikana; niitä ei jaeta laskurin mukana. Rakennushaun oletusparametreja ei ole validoitu mitatuilla tiloilla. |
 | Ratkaisija | Virtanen ym. (2020), [SciPy 1.0, Nature Methods 17, 261–272](https://doi.org/10.1038/s41592-019-0686-2); [SciPy milp](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.milp.html) | Ohjelmiston lähteet. Eivät validoi energiamallia tai oletuksia. |
 | HiGHS | Huangfu & Hall (2018), [Mathematical Programming Computation 10, 119–142](https://doi.org/10.1007/s12532-017-0130-5) | Ratkaisijan algoritmitausta. |
 

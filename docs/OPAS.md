@@ -1,6 +1,6 @@
 # Maatilan hybridienergialaskuri – esittely, käyttö ja jatkokehitys
 
-Ohje versiolle 0.10.0. Päivitetty 2.11.2026.
+Ohje versiolle 0.11.0. Päivitetty 6.11.2026.
 
 ## Mikä laskuri on?
 
@@ -77,7 +77,7 @@ Lämpöpumpun COP-parametrit, pakkasraja ja käytettävissä oleva teho ovat kal
 
 Reservimarkkinatarkastelu tehdään **Reservimarkkina**-välilehdellä. Akku tarjoaa purkutehonsa FCR-D ylös- ja lataustehonsa FCR-D alas -reserviin. Oletusskenaario *Viimeiset 12 kk* käyttää toteutuneita tuntihintoja; *Kyllästynyt markkina* käyttää Fingridin vuoden 2026 vuosimarkkinahintoja ja olettaa hintojen laskevan 10 % vuodessa. Tarkista aggregaattorin osuus (**C10**) ja vähimmäispalkkio (**C39**); pienellä akulla palkkio voi viedä tuoton. Tee vertailu myös ilman reservituloa. Historiallinen keskiarvo ei ennusta tulevaa tuottoa, koska vuodet 2021–2025 ovat ajalta ennen akkujen tuomaa kyllästymistä. FCR-N, aFRR, mFRR ja FFR on rajattu pois; perustelut ovat välilehden tuotetaulukossa. Käytännön osallistuminen edellyttää erillistä teknisten ja kaupallisten ehtojen selvittämistä.
 
-Excelin rinnalla on selainversio [web/index.html](../web/index.html), jossa on sama laskenta ja kokoonpanon optimointi ilman makroja.
+Excelin rinnalla on selainversio [web/index.html](../web/index.html), jossa on sama laskenta ja kokoonpanon optimointi ilman makroja. Selainversiossa tilan oma kulutusprofiili tehdään Rakennushaulla (kohta 1, *Hae tila Rakennushaulla*): rakennukset kartalta, kulutus laskuilta tai mittareilta ja saman vuoden sää ja pörssihinnat siirtyvät laskentaan yhdellä painalluksella. Excelissä sama aineisto tuodaan Rakennushaun CSV-tiedostona.
 
 ## Lue tuloksia tässä järjestyksessä
 
@@ -122,7 +122,7 @@ Laskurin avoin lisenssi ei muuta ulkoisen datan ehtoja. Esimerkiksi ladatun pör
 
 Lähdeviitteen voi muodostaa näin:
 
-> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.10.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
+> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.11.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
 
 Lisää muokattuun versioon tieto omista muutoksistasi ja niiden päivämäärästä. Koneellisesti luettava viittaus on tiedostossa [CITATION.cff](../CITATION.cff).
 

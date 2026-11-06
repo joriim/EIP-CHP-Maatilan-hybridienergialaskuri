@@ -1,4 +1,4 @@
-/* Maatilan hybridienergialaskuri 0.10.0 – selainversion käyttöliittymä.
+/* Maatilan hybridienergialaskuri 0.11.0 – selainversion käyttöliittymä.
  * SEAMK, Maatalous ja energia -tutkimusryhmä. Lisenssi: MIT (LICENSE-CODE). */
 (function () {
   'use strict';
@@ -128,7 +128,7 @@
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
       }
       fields.forEach(f => { html += row(f); });
-      if (extra === 'ownFiles') html += `<div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
+      if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
       if (extra === 'priceFiles') html += `<div class="file"><label for="fPrice">Pörssihinnat (CSV €/MWh, alv 0)</label><input type="file" id="fPrice" accept=".csv,.txt" multiple>` +
         `<div class="row"><label for="fPriceYear">Vuosi, jos tiedostossa on yksi hintasarake</label><select id="fPriceYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>` +
         `<p class="hint" id="priceInfo">Ei hintoja. Rakennushaun hintahistoria_2023-2026.csv tai scripts/hae_porssihinnat.py-tiedosto.</p><button type="button" class="ghost" id="fPriceClear">Tyhjennä hinnat</button></div>`;
@@ -192,7 +192,7 @@
       const x = padL + i * gw + 4, bw = (gw - 8) / 3;
       s += `<rect x="${x}" y="${y(m.base)}" width="${bw}" height="${y(0) - y(m.base)}" fill="var(--lila-soft)" stroke="var(--lila)"/>`;
       s += `<rect x="${x + bw}" y="${y(m.buy)}" width="${bw}" height="${y(0) - y(m.buy)}" fill="var(--lila)"/>`;
-      s += `<rect x="${x + 2 * bw}" y="${y(m.pv)}" width="${bw}" height="${y(0) - y(m.pv)}" fill="var(--keltainen)" stroke="var(--line)"/>`;
+      s += `<rect x="${x + 2 * bw}" y="${y(m.pv)}" width="${bw}" height="${y(0) - y(m.pv)}" fill="var(--keltainen)" stroke="var(--muted)" stroke-width="0.75"/>`;
       s += `<text x="${x + 1.5 * bw}" y="${H - 6}" text-anchor="middle">${KK[i]}</text>`;
     });
     $('kaavio').innerHTML = s;
@@ -357,6 +357,63 @@
     }).join(', ') + '. Valitse vuosi tai keskiarvo yllä.' : 'Ei hintoja.';
   }
 
+  /* ------------------------------------------------------------------ Rakennushaku
+   * Rakennushaku (web/rakennushaku.html) avautuu dialogiin. Sen "Siirrä laskuriin" lähettää tuntisarjat
+   * postMessage-viestinä (web/rakennushaku_silta.js). Erillisestä välilehdestä tiedot tulevat localStoragen kautta
+   * osoitteella index.html#rakennushaku. Siirrettävät kentät: sähkö (ilman lämmityssähköä), lämmöntarve,
+   * ulkolämpötila, haetut pörssihinnat sekä lämmitysjärjestelmien teho, hyötysuhde ja hakkeen energiatiheys. */
+  const RH_TYPE = 'rakennushaku-siirto', RH_STORE = 'hybridilaskuri.rakennushaku.v1';
+  const RH_SYSTEM = { fuel: 'kattila', district: 'kaukolämpö', electric: 'sähkölämmitys', heatpump: 'lämpöpumppu' };
+  function rhValid(m) {
+    const ok8760 = a => Array.isArray(a) && a.length === 8760;
+    return m && m.type === RH_TYPE && ok8760(m.sahko) && ok8760(m.lampo) && m.sahko.every(v => Number.isFinite(+v) && +v >= 0) && m.lampo.every(v => Number.isFinite(+v) && +v >= 0);
+  }
+  function applyRakennushaku(m) {
+    if (!rhValid(m)) { msg('Rakennushaun tietoja ei voitu lukea.'); return false; }
+    const year = String(m.vuosi || ''), lines = [];
+    own = { el: Float64Array.from(m.sahko, Number), heat: Float64Array.from(m.lampo, Number),
+      temp: Array.isArray(m.ulkolampotila) && m.ulkolampotila.length === 8760 ? Float64Array.from(m.ulkolampotila, v => (v === null || v === '' ? NaN : +v)) : null };
+    ownName = `Rakennushaku ${year}${m.kohde ? ', ' + m.kohde : ''}`;
+    $('tuotanto').value = 'Oma data'; $('skaalaSahko').value = 0; $('skaalaLampo').value = 0;
+    const se = own.el.reduce((a, b) => a + b, 0), sh = own.heat.reduce((a, b) => a + b, 0);
+    lines.push(`Kulutus ${year}: sähkö ${f0(se / 1000)} MWh/v, lämmöntarve ${f0(sh / 1000)} MWh/v (huippu ${f1((m.yhteensa || {}).lampoHuippu || Math.max(...own.heat))} kW). Tuotantosuunta = Oma data.`);
+    if ((m.yhteensa || {}).lammityssahko > 0) lines.push(`Nykyinen lämmityssähkö ${f0(m.yhteensa.lammityssahko / 1000)} MWh/v on lämmöntarpeessa, ei sähkösarjassa.`);
+    if (own.temp) lines.push(`Ulkolämpötila ${year}: ${f0(own.temp.filter(Number.isFinite).length)} h, käytössä lämpöpumpun COP-laskennassa.`);
+    const ys = Object.keys(m.hinnat || {}).filter(y => Array.isArray(m.hinnat[y]) && m.hinnat[y].length === 8760).sort();
+    ys.forEach(y => { prices[y] = Float64Array.from(m.hinnat[y], v => (v === null || v === '' ? NaN : +v)); priceNames[y] = 'Rakennushaku'; });
+    if (ys.length) {
+      $('hintavuosi').value = prices[year] ? year : ys[ys.length - 1];
+      lines.push(`Pörssihinnat ${ys.join(', ')}; laskennan hintavuosi ${$('hintavuosi').value}. Pörssihinnoittelu valitaan kohdasta 3.`);
+      updatePriceInfo();
+    }
+    const piirit = Array.isArray(m.piirit) ? m.piirit : [];
+    const cap = piirit.reduce((a, c) => a + (+c.teho > 0 ? +c.teho : 0), 0);
+    if (cap > 0) { $('kattila').value = Math.round(cap); lines.push(`Päälämmityksen teho ${f0(cap)} kW lämmitysjärjestelmien tehoista.`); }
+    const boilers = piirit.filter(c => (c.tapa || 'fuel') === 'fuel');
+    const chip = boilers.filter(c => c.yksikko === 'i-m3' || c.yksikko === 'MWh_pa');
+    if (boilers.length === 1 && +boilers[0].hyotysuhde > 0) { $('hyotysuhde').value = +boilers[0].hyotysuhde; lines.push(`Kattilan hyötysuhde ${f2(+boilers[0].hyotysuhde)}.`); }
+    if (chip.length && +chip[0].hakeTiheys > 0) { $('hakeTiheys').value = +chip[0].hakeTiheys; $('lammitys').value = 'Hakekattila'; }
+    const other = piirit.filter(c => (c.tapa || 'fuel') !== 'fuel' || ['t_pelletti', 'l_oljy'].includes(c.yksikko));
+    if (other.length) lines.push(`Huom. nykyinen lämmitys: ${other.map(c => `${c.nimi} (${c.yksikko === 't_pelletti' ? 'pelletti' : c.yksikko === 'l_oljy' ? 'öljy' : RH_SYSTEM[c.tapa] || c.tapa})`).join(', ')}. Laskurin lähtötilanne on hake- tai biokaasukattila (D5); tarkista polttoaineen hinta.`);
+    $('ownInfo').textContent = `Ladattu ${ownName}.`;
+    $('rhSum').innerHTML = lines.map(t => `<li>${esc(t)}</li>`).join(''); $('rhSum').hidden = false;
+    msg(`Rakennushaun tiedot siirretty: ${ownName}.`);
+    render();
+    return true;
+  }
+  function openRakennushaku() {
+    const d = $('rhDialog'), f = $('rhFrame');
+    if (!f.getAttribute('src')) f.setAttribute('src', 'rakennushaku.html');
+    if (d.showModal) d.showModal(); else window.open('rakennushaku.html', '_blank');
+  }
+  function fromRakennushakuStore() {
+    if (!/rakennushaku/.test(location.hash)) return false;
+    let m = null;
+    try { m = JSON.parse(localStorage.getItem(RH_STORE) || 'null'); localStorage.removeItem(RH_STORE); } catch (e) { m = null; }
+    history.replaceState(null, '', location.href.split('#')[0]);
+    return m ? applyRakennushaku(m) : false;
+  }
+
   /* ------------------------------------------------------------------ save, share, export */
   function download(name, text, type) {
     try {
@@ -370,7 +427,7 @@
   const fiNum = v => (ok(v) ? String(Math.round(v * 1000) / 1000).replace('.', ',') : '');
   function csvRows(rows) { return rows.map(r => r.map(x => (typeof x === 'number' ? fiNum(x) : `"${String(x).replace(/"/g, '""')}"`)).join(';')).join('\r\n'); }
   function resultsCsv(r) {
-    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.10.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
+    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.11.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
     out.push(['YHTEENVETO', 'Arvo', 'Yksikkö']);
     [['Kassasäästö ylläpidon jälkeen', e.cash, '€/v'], ['NPV', e.npv, '€'], ['Takaisinmaksuaika', e.payback, 'v'], ['Investointi brutto', e.gross, '€'],
       ['Tuki', e.subsidy, '€'], ['Nettoinvestointi', e.net, '€'], ['Energiasäästö', e.energySaving, '€/v'], ['Reservituotto', e.reserve.farm, '€/v'],
@@ -461,7 +518,7 @@
       });
     });
     $('fPriceClear').addEventListener('click', () => { prices = {}; priceNames = {}; updatePriceInfo(); render(); });
-    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.10.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
+    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.11.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
     $('tOpenBtn').addEventListener('click', () => $('tOpen').click());
     $('tOpen').addEventListener('change', ev => {
       const f = ev.target.files[0]; if (!f) return;
@@ -497,8 +554,14 @@
         $('oRun').disabled = false; render();
       }, 30);
     });
+    $('rhOpen').addEventListener('click', openRakennushaku);
+    $('rhClose').addEventListener('click', () => $('rhDialog').close());
+    window.addEventListener('message', ev => {
+      if (!ev.data || ev.data.type !== RH_TYPE || ev.source !== $('rhFrame').contentWindow) return;
+      if (applyRakennushaku(ev.data)) { $('rhDialog').close(); showTab('yhteenveto'); }
+    });
     updatePriceInfo();
-    if (!fromHash()) render();
+    if (!fromRakennushakuStore() && !fromHash()) render();
     window.addEventListener('hashchange', fromHash);
   }
   init();

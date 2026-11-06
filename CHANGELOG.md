@@ -1,5 +1,19 @@
 # Muutosloki
 
+## 0.11.0 (2026-11-06): Rakennushaku osaksi laskuria
+
+**Uutta**
+- Selainversio: kohdan 1 painike *Hae tila Rakennushaulla* avaa Rakennushaun (versio 0.6.0) laskurin päälle. Tulosnäkymän *Siirrä laskuriin* vie sähkön, lämmöntarpeen, ulkolämpötilan, haetut pörssihinnat sekä lämmitysjärjestelmien tehon, kattilan hyötysuhteen ja hakkeen energiatiheyden laskuriin. Laskuri listaa siirretyt tiedot ja huomauttaa, jos nykyinen lämmitys on muu kuin hake- tai biokaasukattila.
+- Erillisenä avattu Rakennushaku (https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html) siirtää tiedot painikkeella *Avaa laskurissa* (selaimen tallennustilan kautta).
+- `web/rakennushaku.html` ja siirtosilta `web/rakennushaku_silta.js`; `scripts/rakenna_web.py --rakennushaku` päivittää Rakennushaun. Molemmat sivut julkaistaan GitHub Pagesiin.
+- Testit `scripts/test_rakennushaku.py`: silta kerran, koonti toistettava, viestin kentät samat molemmissa päissä.
+
+**Muutettua**
+- Excel: *Oma kulutusdata* J3 kertoo, mihin Rakennushaun CSV:n sarake H (pörssihinta) liitetään, ja antaa Rakennushaun osoitteen; versioteksti B81 ja menetelmävälilehti päivitetty. Kaavat ja tulokset eivät muutu.
+- Selainversion ilme SEAMKin brändikäsikirjan (2025/03) mukaan: lila ja keltainen päävärit, lisävärit vain tukielementeissä, otsikot Barlow Condensed (korvaa Alte DIN 1451 Mittelschriftin), leipäteksti Arial.
+- Laskennan tulokset eivät muutu (node web/testi.js: 2 932 arvoa).
+
+
 ## 0.10.0 (2026-11-02): selainversio tasavertaiseksi Excelin kanssa
 
 **Uutta**
