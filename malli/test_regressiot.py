@@ -42,7 +42,7 @@ class Regressiot(unittest.TestCase):
         self.assertTrue(np.all(start-o['dis']>=o['r']*(1/3+.01)-1e-8));self.balance(o,*a[:2])
 
     def test_unserved_heat_blocks_saving(self):
-        a=self.args();a[1][:]=400;o=sim(*a,PV=0,BESS=0)
+        a=self.args();a[1][:]=400;o=sim(*a,PV=0,BESS=0,main_max=300)
         self.assertEqual(o['unmet'].sum(),2400)
         self.assertEqual(o['base_unmet'].sum(),2400)
         with self.assertRaises(ValueError):annual_cost(o)

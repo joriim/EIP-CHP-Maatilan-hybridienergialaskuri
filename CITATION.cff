@@ -18,8 +18,8 @@ authors:
     affiliation: "Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä"
 url: "https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/"
 repository-code: "https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri"
-version: "0.11.0"
-date-released: "2026-11-06"
+version: "0.12.0"
+date-released: "2026-11-09"
 license:
   - CC-BY-4.0
   - MIT

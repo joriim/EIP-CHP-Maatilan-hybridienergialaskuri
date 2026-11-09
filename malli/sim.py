@@ -1,4 +1,4 @@
-"""Hourly rule dispatch 0.9.3; all flows kWh per one-hour step.
+"""Hourly rule dispatch 0.12.0; all flows kWh per one-hour step.
 
 SOC is usable AC discharge energy; charge efficiency 0.9, discharge efficiency 1.
 Reserve activation is an expected-energy scenario, not frequency replay.
@@ -10,13 +10,13 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
         eta=0.9, crate=0.5, gridcharge=None, *, spot=None, pricing='fixed',
         battery_mode='pv', cheap_hours=3, expensive_hours=8, min_spread=.03,
         buy_fixed=.12, sell_fixed=.04, adder=.0756, sellfee=.003, deg=.01,
-        fuel=16, eta_b=.85, delivered_heat=False, main_max=300,
+        fuel=16, eta_b=.85, delivered_heat=False, main_max=500,
         hp_economic=True, cop_a=3.2, cop_b=.07, cop_min=1.8, cop_max=4.8,
         hp_min_temp=-25, hp_power_factor=1, tank_loss_kw=.1, tank_discharge_kw=300,
         eb_grid=False, curtail_negative=False, reserve=False, reserve_first=False,
         reserve_target=.5, reserve_hours=1/3, activation_hours=.01,
         availability=.95, recovery_power=.2, chp_share=0., reserve_up=True,
-        reserve_down=True):
+        reserve_down=True, chp_max=np.inf, chp_min_heat=0.):
     if gridcharge is not None:
         raise ValueError('Use spot=..., pricing="spot", battery_mode="spot" instead of gridcharge.')
     el, heat, pv1, T = [np.asarray(x, dtype=float) for x in (el, heat, pv1, T)]
@@ -27,8 +27,8 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
         raise ValueError('Load, heat and PV reference must be nonnegative.')
     if not 0 < eta <= 1 or not 0 < eta_b <= 1 or min(PV,BESS,HP,EB,TANK,main_max,tank_loss_kw,tank_discharge_kw,activation_hours)<0:
         raise ValueError('Invalid capacity, loss or efficiency.')
-    if not 0 <= chp_share <= 1:
-        raise ValueError('CHP electricity share must be between 0 and 1.')
+    if not 0 <= chp_share <= 1 or chp_max < 0 or chp_min_heat < 0:
+        raise ValueError('CHP electricity share must be between 0 and 1; limits nonnegative.')
     if not 0 < reserve_hours or not 0 <= reserve_target <= 1 or not 0 <= availability <= 1:
         raise ValueError('Invalid reserve parameters.')
     sp = np.full(n, np.nan) if spot is None else np.asarray(spot,dtype=float)
@@ -94,8 +94,9 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
         base_main=min(main_max,Q)
         gross_sell=max(0,surplus-ch-php-epv)
         curtail=gross_sell if pricing=='spot' and curtail_negative and sellprice[t]<0 else 0.
-        # CHP: electricity = share x main-boiler heat (not with delivered-heat pricing).
-        chp=0. if delivered_heat else chp_share*main
+        # CHP/ORC, heat-led: electricity = ratio x main-boiler heat, capped at the ORC net maximum,
+        # off below the ORC minimum heat input (not with delivered-heat pricing). See orc_params().
+        chp=0. if delivered_heat or main*(1+chp_share)<chp_min_heat-1e-9 else min(chp_share*main,chp_max)
         chpload=min(chp,max(0,L-d-dis)+max(0,php-hppv));chpsell=chp-chpload
         chprev=0. if pricing=='spot' and curtail_negative and sellprice[t]<0 else chpsell*sellprice[t]
         buy=max(0,L-d-dis)+max(0,php-hppv)+gc+eg-chpload+act_down
@@ -135,3 +136,19 @@ def annual_cost(o, *, fuel=16, eta_b=.85, delivered_heat=False, pch=0,
     caprev=0 if fcr is None else reserve_revenue(o,fcr,fcr_down,share=share,monthly_fee=monthly_fee)
     return float(np.dot(o['buy'],o['buyprice'])-np.dot(o['sell'],o['sellprice'])
                  -o['activation_revenue'].sum()-o['chprevenue'].sum()+fuelcost+pch*peak-caprev)
+
+
+def orc_params(gross_kwe=40., heat_in=640., supply=110., ret=30., ref_supply=110., ref_ret=25.,
+               own_use=.10, min_heat=450., dt_evap=10., dt_cond=12.):
+    """Enogia ENO-40LT type ORC on the main boiler (workbook K69-K79).
+
+    Gross efficiency at the reference temperatures = gross_kwe / heat_in and scales with the
+    Carnot factor 1 - (ret + dt_cond) / (supply - dt_evap) (kelvin). Returns the electricity
+    per delivered heat (chp_share), net maximum (chp_max, kW) and minimum heat input (kW;
+    the ENO-40LT datasheet operating range is 450-640 kWth).
+    """
+    carnot = lambda m, r: 1 - (r + dt_cond + 273.15) / (m - dt_evap + 273.15)
+    ratio = carnot(supply, ret) / carnot(ref_supply, ref_ret)
+    eta = max(0., gross_kwe / heat_in * ratio * (1 - own_use))
+    return dict(eta_net=eta, chp_share=eta / (1 - eta) if eta < 1 else 0.,
+                chp_max=max(0., min(gross_kwe, gross_kwe * ratio) * (1 - own_use)), chp_min_heat=min_heat)

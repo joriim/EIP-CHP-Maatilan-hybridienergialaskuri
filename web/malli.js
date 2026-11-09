@@ -1,4 +1,4 @@
-/* Maatilan hybridienergialaskuri 0.11.0 – laskentamalli selaimeen.
+/* Maatilan hybridienergialaskuri 0.12.0 – laskentamalli selaimeen.
  * Sama tuntitase kuin Excel-työkirjassa ja malli/sim.py:ssä (8 760 h, kiinteä EET).
  * Tekijät: Suvi Karirinne, Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK),
  * Maatalous ja energia -tutkimusryhmä. Lisenssi: MIT (LICENSE-CODE).
@@ -15,8 +15,10 @@
     ekOn: 0, ek: 30, ekHinta: 120,
     varOn: 0, varaaja: 5, varHinta: 1400,
     akkuOn: 1, akku: 60, akkuHinta: 450,
-    kattila: 300,
-    chpOn: 0, chpOsuus: 0.15, chpHinta: 3000,
+    kattila: 500, // Veljekset Ala-Talkkari Veto Cont 500e -tyyppinen tuorehakelämpökeskus
+    chpOn: 0, chpKwe: 40, chpHinta: 3000,
+    // Enogia ENO-40LT -tyyppinen ORC (Ohjauspaneeli K70–K76)
+    orcLampo: 640, orcMeno: 110, orcPaluu: 30, orcRefMeno: 110, orcRefPaluu: 25, orcOmakaytto: 0.1, orcMinimi: 450,
     tuki: 0.4,
     ostoKiintea: 12, myyntiKiintea: 4, hake: 16, biokaasu: 12, hyotysuhde: 0.85,
     korko: 0.08, pitoaika: 20,
@@ -65,6 +67,15 @@
   function fuelPrice(p) { return p.lammitys === 'Hakekattila' ? p.hake : p.biokaasu; } // €/MWh
   function delivered(p) { return p.lammonPeruste === 'Toimitettu lämpö'; }
 
+  /* ORC (K77–K79): gross efficiency at the reference temperatures = chpKwe / orcLampo, scaled with the
+   * Carnot factor 1 - (paluu + 12 K) / (meno - 10 K) in kelvin. Same as malli/sim.py orc_params(). */
+  function orc(p) {
+    const carnot = (m, r) => 1 - (r + 12 + 273.15) / (m - 10 + 273.15);
+    const ratio = carnot(p.orcMeno, p.orcPaluu) / carnot(p.orcRefMeno, p.orcRefPaluu);
+    const eta = Math.max(0, p.chpKwe / p.orcLampo * ratio * (1 - p.orcOmakaytto));
+    return { eta, share: eta < 1 ? eta / (1 - eta) : 0, max: Math.max(0, Math.min(p.chpKwe, p.chpKwe * ratio) * (1 - p.orcOmakaytto)), min: p.orcMinimi };
+  }
+
   /* Hourly dispatch: port of malli/sim.py (identical rules). */
   function simulate(p, data, l, spot) {
     const n = 8760, eta = 0.9;
@@ -77,7 +88,7 @@
     const rh = p.energiavaatimus, ah = p.aktivointi, avail = p.saatavuus, rec = p.hallinta;
     const adder = p.lisa / 100, sellfee = p.myyntipalkkio / 100, deg = p.kuluminen / 100;
     const fuelc = fuelPrice(p) / 1000 / (delivered(p) ? 1 : p.hyotysuhde);
-    const chpShare = p.chpOn && !delivered(p) ? p.chpOsuus : 0;
+    const O = orc(p), chpOnHere = p.chpOn && !delivered(p);
     const curtailNeg = spotMode && p.katkaise === 'Kyllä';
     const buyP = new Float64Array(n), sellP = new Float64Array(n);
     for (let t = 0; t < n; t++) {
@@ -93,7 +104,7 @@
       for (let k = s; k < s + 24; k++) dayMax[k] = mx;
     }
     const keys = ['buy', 'sell', 'main', 'dis', 'ch', 'hp', 'eb', 'hpel', 'gridch', 'soc', 'unmet', 'baseMain',
-      'baseUnmet', 'r', 'act', 'actRev', 'pv', 'chp', 'chpload', 'chpsell', 'chprev', 'rdown', 'actDown', 'curt', 'direct'];
+      'baseUnmet', 'r', 'act', 'actRev', 'pv', 'chp', 'chpload', 'chpsell', 'chprev', 'rdown', 'actDown', 'curt', 'direct', 'mainOrc', 'td'];
     const o = {}; keys.forEach(k => { o[k] = new Float64Array(n); });
     o.buyP = buyP; o.sellP = sellP;
     let soc = 0, tsoc = 0; const Et = TANK * 46.5;
@@ -146,7 +157,7 @@
       const grossSell = Math.max(0, surplus - ch - php - epv);
       const negative = curtailNeg && sellP[t] < 0;
       const curt = negative ? grossSell : 0;
-      const chp = chpShare * main;
+      const chp = chpOnHere && main * (1 + O.share) >= O.min - 1e-9 ? Math.min(O.share * main, O.max) : 0;
       const chpload = Math.min(chp, Math.max(0, L - d - dis) + Math.max(0, php - hppv));
       const chpsell = chp - chpload;
       const buy = Math.max(0, L - d - dis) + Math.max(0, php - hppv) + gc + eg - chpload + actDown;
@@ -155,6 +166,7 @@
       o.baseMain[t] = Math.min(mainMax, Q); o.baseUnmet[t] = Q - Math.min(mainMax, Q); o.r[t] = up; o.act[t] = act;
       o.actRev[t] = act * sellP[t]; o.pv[t] = pv; o.direct[t] = d; o.chp[t] = chp; o.chpload[t] = chpload;
       o.chpsell[t] = chpsell; o.chprev[t] = negative ? 0 : chpsell * sellP[t]; o.rdown[t] = down; o.actDown[t] = actDown;
+      o.mainOrc[t] = chp > 0 ? main : 0; o.td[t] = td;
       soc = newsoc; tsoc = newtsoc;
     }
     return o;
@@ -237,7 +249,8 @@
     const spotMode = p.hinnoittelu === 'Pörssihinta';
     const spot = resolveSpot(prices, p.hintavuosi);
     if (spotMode && (!spot || count(spot) < 8760)) return { status: 'Hintadata puuttuu', p };
-    if (p.pitoaika < 1 || p.pitoaika > 100 || p.chpOsuus < 0 || p.chpOsuus > 1 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24 ||
+    if (p.pitoaika < 1 || p.pitoaika > 100 || p.chpKwe < 0 || p.orcLampo <= 0 || p.orcMeno - 10 <= p.orcPaluu + 12 ||
+        p.orcRefMeno - 10 <= p.orcRefPaluu + 12 || p.orcOmakaytto < 0 || p.orcOmakaytto >= 1 || p.orcMinimi < 0 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24 ||
         p.kalenteriIka < 1 || p.copMax < p.copMin || p.copMin <= 0)
       return { status: 'Virhe parametreissa', p };
     const o = simulate(p, data, l, spotMode ? spot : null);
@@ -255,7 +268,7 @@
     const inv = {
       pv: p.pvOn * p.pv * p.pvHinta, lp: p.lpOn * p.lp * p.lpHinta, ek: p.ekOn * p.ek * p.ekHinta,
       varaaja: p.varOn * p.varaaja * p.varHinta, akku: p.akkuOn * p.akku * p.akkuHinta,
-      chp: p.chpOn * p.chpOsuus * p.kattila * p.chpHinta * (delivered(p) ? 0 : 1),
+      chp: p.chpOn * p.chpKwe * p.chpHinta * (delivered(p) ? 0 : 1),
     };
     const gross = Object.values(inv).reduce((a, b) => a + b, 0);
     const subsidy = gross * p.tuki, net = gross - subsidy;
@@ -330,10 +343,10 @@
     co2.opDomestic = [co2.domestic[0] + co2.heat[0], co2.domestic[1] + co2.heat[1]];
     co2.opHourly = [co2.hourly[0] + co2.heat[0], co2.hourly[1] + co2.heat[1]];
 
-    // Monthly summary (Kuukausikoonti C–X).
+    // Monthly summary (Kuukausikoonti C–AA).
     const monthly = Array.from({ length: 12 }, () => ({ base: 0, buy: 0, mainBase: 0, pv: 0, selfUse: 0, sell: 0, dis: 0,
       hp: 0, eb: 0, main: 0, costHyb: 0, costBase: 0, sales: 0, peakHyb: 0, peakBase: 0, co2Hyb: 0, co2Base: 0, curt: 0,
-      gridch: 0, chp: 0, chpsell: 0 }));
+      gridch: 0, chp: 0, chpsell: 0, heat: 0, mainOrc: 0, unmet: 0 }));
     for (let t = 0; t < 8760; t++) {
       const m = monthly[MONTH[t]];
       m.base += l.el[t]; m.buy += o.buy[t]; m.mainBase += o.baseMain[t]; m.pv += o.pv[t]; m.sell += o.sell[t];
@@ -342,13 +355,14 @@
       m.peakHyb = Math.max(m.peakHyb, o.buy[t]); m.peakBase = Math.max(m.peakBase, l.el[t]);
       m.co2Hyb += o.buy[t] * ef[t] / 1000; m.co2Base += l.el[t] * ef[t] / 1000; m.curt += o.curt[t];
       m.gridch += o.gridch[t]; m.chp += o.chp[t]; m.chpsell += o.chpsell[t];
+      m.heat += l.heat[t]; m.mainOrc += o.mainOrc[t]; m.unmet += o.unmet[t];
     }
     monthly.forEach(m => { m.saving = m.base - m.buy; m.selfUse = m.pv - m.sell - m.curt; });
 
     const pvSum = sum(o.pv);
     const ownTemp = p.tuotanto === 'Oma data' && own && own.temp ? count(own.temp) : 0;
     return {
-      status, p, o, monthly, years, events, spot,
+      status, p, o, monthly, years, events, spot, load: { el: l.el, heat: l.heat }, orc: orc(p),
       info: { ownTempHours: ownTemp, priceFilled: spot && spot.filled ? spot.filled : 0 },
       energy: {
         elDemand: sum(l.el), heatDemand: sum(l.heat), buyBase, buyHyb, pv: pvSum,
@@ -372,8 +386,8 @@
 
   /* Coordinate search over candidate sizes, as the workbook's optimisation macro. */
   function optimise(pIn, data, own, spot, lists, metric, onStep) {
-    const keys = ['pv', 'lp', 'ek', 'varaaja', 'akku', 'chpOsuus'];
-    const on = { pv: 'pvOn', lp: 'lpOn', ek: 'ekOn', varaaja: 'varOn', akku: 'akkuOn', chpOsuus: 'chpOn' };
+    const keys = ['pv', 'lp', 'ek', 'varaaja', 'akku', 'chpKwe'];
+    const on = { pv: 'pvOn', lp: 'lpOn', ek: 'ekOn', varaaja: 'varOn', akku: 'akkuOn', chpKwe: 'chpOn' };
     const p = Object.assign({}, DEFAULTS, pIn);
     const cfg = keys.map(k => (p[on[k]] ? p[k] : 0));
     const cache = new Map(), log = [];
@@ -409,6 +423,6 @@
     return { best, log, passes };
   }
 
-  const api = { DEFAULTS, SCENARIOS, calculate, simulate, optimise, reservePrices, reserveRevenue, resolveSpot, impactFactor, MONTH_HOURS };
+  const api = { DEFAULTS, SCENARIOS, calculate, simulate, optimise, orc, reservePrices, reserveRevenue, resolveSpot, impactFactor, MONTH_HOURS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Laskuri = api;
 })(typeof self !== 'undefined' ? self : this);

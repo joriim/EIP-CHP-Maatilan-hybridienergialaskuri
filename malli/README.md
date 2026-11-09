@@ -1,4 +1,4 @@
-# Python-mallit 0.11.0
+# Python-mallit 0.12.0
 
 - sim.py: korjattu Excelin sääntöohjaus, mukaan lukien pörssi, reservin odotusenergia (FCR-D ylös ja alas: `reserve_up`, `reserve_down`), CHP-sähkö (`chp_share`) ja aggregaattorin palkkio (`reserve_revenue`).
 - lp2.py: SciPy/HiGHS MILP-vertailu, fyysiset suuntarajoitteet ja kuukausihuiput.

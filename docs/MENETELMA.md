@@ -1,10 +1,10 @@
-# Menetelmä 0.11.0
+# Menetelmä 0.12.0
 
 ## Aika ja järjestelmäraja
 
 8 760 yhden tunnin askelta kiinteällä EET-ajalla (UTC+2), ilman kesäaikasiirtymää. Tuntienergia kWh vastaa yhden tunnin keskitehoa kW. Karkauspäivä poistetaan. Varttihinnat aggregoidaan tunneiksi; varttien sisäinen jousto ei mallinnu. Sää, kulutus ja hinnat on kohdistettava samaan aikakantaan.
 
-Laskuri arvioi olemassa olevan päälämmityksen rinnalle tehtäviä investointeja. Se ei mallinna biokaasun tuotantoprosessia. CHP on yksinkertaistettu sähköosuusmalli (ks. CHP), ei laitoksen prosessimalli. Lähteet ja oletusten tila: [LAHTEET.md](LAHTEET.md).
+Laskuri arvioi olemassa olevan päälämmityksen rinnalle tehtäviä investointeja. Se ei mallinna biokaasun tuotantoprosessia. CHP on yksinkertaistettu lämpöohjattu ORC-malli (ks. CHP ja ORC), ei laitoksen prosessimalli. Lähteet ja oletusten tila: [LAHTEET.md](LAHTEET.md).
 
 ## Sähkö ja akku
 
@@ -30,11 +30,19 @@ Päälämpö = min(kattilateho, jäljellä oleva lämmöntarve). Lähtötilantee
 
 K62=Polttoaine: muuttuva lämpöhinta = polttoainehinta/(1000*hyötysuhde). K62=Toimitettu lämpö: lämpöhinta = sopimushinta/1000. Fyysisen polttoaineen ja päästöjen arvio käyttää kattilahyötysuhdetta; toimitetulle biokaasulämmölle se on erikseen varmistettava oletus.
 
-## CHP
+## CHP ja ORC
 
-CHP:n sähköntuotanto tunnilla t = D15 × päälämmön tuotto Y_t, kun CHP ja päälämmitys ovat päällä eikä K62 = Toimitettu lämpö. Sähkö kattaa ensin tilan jäljellä olevan sähköntarpeen (perussähkö PV:n ja akun jälkeen sekä LP:n verkkosähkö); akun tai vastuksen verkkolataukseen sitä ei kohdisteta. Ylijäämä myydään tunnin myyntihinnalla; negatiivisella hinnalla myyntitulo on 0, jos K25 = Kyllä.
+Päälämmityksen oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus, nimellislämpöteho 500 kW (D14). CHP kuvaa kattilan yhteyteen asennettavaa Enogia ENO-40LT -tyyppistä ORC:tä ([Enogia ENO-40LT datasheet 2019](https://www.hydroscot-energies.co.uk/wp-content/uploads/2020/04/Datasheet-ENO-40LT_2019-EN.pdf)): lämmönlähde 70–120 °C, lämpöteho sisään 450–640 kWth, enintään 40 kWe brutto, jäähdytysvesi 0–60 °C. Se on suurin Enogia-malli, joka sopii 500 kW:n kattilaan.
 
-Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26. Malli olettaa siis, että sähkö syntyy samalla kokonaishyötysuhteella kuin lämpö eikä lämmöntuotanto muutu. Todellisen laitteen sähköhyötysuhde, minimikuorma, käynnistykset ja kesäajan pieni lämpökuorma eivät mallinnu. Investointi = D15 × D14 × F15 (€/kWe). Ylläpito = K65 €/MWh sähköä. Käyttöikä K66; jos se on lyhyempi kuin tarkasteluaika, laite uusitaan kerran hintaan K67 × investointi ja uusitun laitteen jäännösarvo hyvitetään (Vuosikassavirta T2:U7). Tukiosuus Vuosikassavirta rivi 8. Päästöissä lisäpolttoaine on mukana toimitusketjun ja biogeenisen CO2:n riveillä.
+Bruttosähköhyötysuhde viiteolosuhteessa (oletus menovesi 110 °C, paluu 25 °C) on D15 / K70 = 40 / 640 = 6,25 %. Muissa lämpötiloissa hyötysuhde skaalataan Carnot-kertoimella
+
+    η = D15 / K70 × C(meno, paluu) / C(viitemeno, viitepaluu) × (1 − omakäyttö K75),   C = 1 − (paluu + 12 K) / (meno − 10 K)  [K]
+
+jossa 10 K on höyrystimen ja 12 K lauhduttimen lämpötilaero (omat oletukset). Paluupiirin lämpötila K72 on tilan lämmitysverkon paluuvesi, joka jäähdyttää lauhduttimen: lattialämmitys noin 25–30 °C, patterit 40–50 °C. Oletuksilla (110/30 °C) nettohyötysuhde on 5,2 % ja nettoteho enintään 33,1 kWe. Datasheet ei kerro mitoitusolosuhteita eikä nettotehoa, joten viiteolosuhde ja omakäyttö ovat omia oletuksia.
+
+ORC on lämpöohjattu: sähkö tunnilla t = K79 × Y_t, enintään K78, kun ORC:n lämpöteho Y_t × (1 + K79) on vähintään K76 (450 kWth, datasheetin alaraja) ja CHP ja päälämmitys ovat päällä eikä K62 = Toimitettu lämpö. Lauhdutusajoa (lämmön hukkaamista jäähdyttimeen) ei mallinneta. Siksi ORC ei käy tilalla, jonka lämmöntarve jää alle noin 430 kW (esim. esimerkkisikalan huippu 46 kW). Sähkö kattaa ensin tilan jäljellä olevan sähköntarpeen (perussähkö PV:n ja akun jälkeen sekä LP:n verkkosähkö); akun tai vastuksen verkkolataukseen sitä ei kohdisteta. Ylijäämä myydään tunnin myyntihinnalla; negatiivisella hinnalla myyntitulo on 0, jos K25 = Kyllä.
+
+Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26. Malli olettaa siis, että sähkö syntyy samalla kokonaishyötysuhteella kuin lämpö eikä lämmöntuotanto muutu. Osakuorman hyötysuhteen muutos ja käynnistykset eivät mallinnu. Investointi = D15 × F15 (€/kWe brutto). Ylläpito = K65 €/MWh sähköä. Käyttöikä K66; jos se on lyhyempi kuin tarkasteluaika, laite uusitaan kerran hintaan K67 × investointi ja uusitun laitteen jäännösarvo hyvitetään (Vuosikassavirta T2:U7). Tukiosuus Vuosikassavirta rivi 8. Päästöissä lisäpolttoaine on mukana toimitusketjun ja biogeenisen CO2:n riveillä.
 
 ## Kokoonpanon optimointi
 

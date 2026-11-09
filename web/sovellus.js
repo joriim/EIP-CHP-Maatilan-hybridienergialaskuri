@@ -20,7 +20,7 @@
     ['tila', '1. Tila ja kulutus', true, [
       ['tuotanto', 'Tuotantosuunta', '', 'D4', ['Lihasikala', 'Broilerikasvattamo', 'Oma data']],
       ['lammitys', 'Päälämmitys', '', 'D5', ['Hakekattila', 'Biokaasu']],
-      ['kattila', 'Päälämmityksen teho', 'kW', 'D14', N(10, 0)],
+      ['kattila', 'Päälämmityksen teho (oletus Veto Cont 500e -tyyppinen, 500 kW)', 'kW', 'D14', N(10, 0)],
       ['skaalaSahko', 'Sähkö vuodessa (0 = profiilin taso)', 'kWh', 'K7', N(1000, 0)],
       ['skaalaLampo', 'Lämpö vuodessa (0 = profiilin taso)', 'kWh', 'L7', N(1000, 0)],
     ], 'ownFiles'],
@@ -57,7 +57,7 @@
       ['minEro', 'Vuorokauden vähimmäishintaero', 'c/kWh', 'K29', N(0.5, 0)],
       ['kuluminen', 'Akun kulumiskustannus ohjauksessa', 'c/kWh', 'K61', N(0.5, 0)],
     ]],
-    ['lampo', '6. Lämpöpumppu, varaaja ja CHP', false, [
+    ['lampo', '6. Lämpöpumppu, varaaja ja CHP (ORC)', false, [
       ['lpOhjaus', 'Lämpöpumpun ohjaus', '', 'K54', ['Taloudellinen', 'Etusija']],
       ['copA', 'COP-käyrän vakiotermi a', '', 'K55', N(0.1)],
       ['copB', 'COP-käyrän lämpötilakerroin b', '1/K', 'K56', N(0.01)],
@@ -71,6 +71,13 @@
       ['chpYllapito', 'CHP: ylläpito', '€/MWh sähköä', 'K65', N(1, 0)],
       ['chpIka', 'CHP: käyttöikä', 'v', 'K66', N(1, 1)],
       ['chpUusiminen', 'CHP: uusiminen, osuus nykyhinnasta', 'osuus', 'K67', N(0.05, 0)],
+      ['orcLampo', 'ORC: nimellinen lämpöteho sisään', 'kWth', 'K70', N(10, 1)],
+      ['orcMeno', 'ORC: kattilan menoveden lämpötila', '°C', 'K71', N(1, 70, 120)],
+      ['orcPaluu', 'ORC: paluupiirin lämpötila (lauhdutinvesi sisään)', '°C', 'K72', N(1, 0, 60)],
+      ['orcRefMeno', 'ORC: viiteolosuhteen menovesi', '°C', 'K73', N(1, 70, 120)],
+      ['orcRefPaluu', 'ORC: viiteolosuhteen paluuvesi', '°C', 'K74', N(1, 0, 60)],
+      ['orcOmakaytto', 'ORC: omakäyttö (pumput, jäähdytys)', 'osuus', 'K75', N(0.01, 0, 0.99)],
+      ['orcMinimi', 'ORC: pienin lämpöteho sisään', 'kW', 'K76', N(10, 0)],
     ]],
     ['reservi', '7. FCR-D-reservimarkkina', false, [
       ['reservi', 'Osallistuminen', '', 'Res. C6', YES],
@@ -110,7 +117,7 @@
   const DEVICES = [
     ['pvOn', 'pv', 'pvHinta', 'Aurinkosähkö', 'kWp', 'C9:F9'], ['akkuOn', 'akku', 'akkuHinta', 'Akku', 'kWh', 'C13:F13'],
     ['lpOn', 'lp', 'lpHinta', 'Lämpöpumppu', 'kW lämpöä', 'C10:F10'], ['ekOn', 'ek', 'ekHinta', 'Sähkökattila', 'kW', 'C11:F11'],
-    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'], ['chpOn', 'chpOsuus', 'chpHinta', 'CHP, sähköosuus', '€/kWe', 'C15:F15'],
+    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'], ['chpOn', 'chpKwe', 'chpHinta', 'CHP: ORC (Enogia ENO-40LT -tyyppinen)', 'kWe brutto', 'C15:F15'],
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -121,10 +128,10 @@
       if (extra === 'devices') {
         html += '<div class="dev head"><span></span><span>Laite</span><span>Koko</span><span>€/yksikkö</span></div>';
         DEVICES.forEach(([on, size, price, label, unit, ref]) => {
-          html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit && size !== 'chpOsuus' ? ', ' + unit : ''}</label>` +
-            `<input type="number" id="${size}" min="0" step="${size === 'chpOsuus' ? 0.05 : 1}"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
+          html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit ? ', ' + unit : ''}</label>` +
+            `<input type="number" id="${size}" min="0" step="1"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
         });
-        html += '<p class="hint">Sähkökattila tarvitsee varaajan. CHP-sähkö = osuus × päälämmön tuotto; sähköteho = osuus × kattilan teho, hinta €/kWe.</p>';
+        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho (ENO-40LT 40 kWe), hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
       }
       fields.forEach(f => { html += row(f); });
@@ -171,7 +178,7 @@
     'Kulutusdata puuttuu': 'Lataa oma tuntidata (8 760 riviä) tai valitse esimerkkiprofiili.',
     'Hintadata puuttuu': 'Lataa pörssihinnat (kohta 3) tai valitse kiinteä hinta.',
     'Reservihinta puuttuu': 'Valitulle skenaariolle ei ole kaikkia reservihintoja.',
-    'Virhe parametreissa': 'Tarkista pitoaika, CHP-osuus, hyötysuhde, akun ikä, COP-rajat ja ohjaustuntien summa.',
+    'Virhe parametreissa': 'Tarkista pitoaika, ORC-asetukset (paluu vähintään 22 K menovettä kylmempi, omakäyttö < 1), hyötysuhde, akun ikä, COP-rajat ja ohjaustuntien summa.',
   };
   const KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
 
@@ -181,21 +188,212 @@
     const nice = [1, 2, 2.5, 5, 10].map(x => x * step).find(x => max / x <= 5) || step * 10;
     return [Math.ceil(max / nice) * nice, nice];
   }
-  function barChart(monthly) {
-    const W = 760, H = 240, padL = 52, padB = 24, padT = 10, gw = (W - padL - 8) / 12;
-    const [top, nice] = niceTop(Math.max(1, ...monthly.map(m => Math.max(m.base, m.buy, m.pv))));
-    const y = v => padT + (H - padT - padB) * (1 - v / top);
-    let s = '';
-    for (let v = 0; v <= top + 1e-9; v += nice) s += `<line x1="${padL}" x2="${W - 4}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${nf0.format(v / 1000)}</text>`;
-    s += `<text x="4" y="${padT + 4}">MWh</text>`;
-    monthly.forEach((m, i) => {
-      const x = padL + i * gw + 4, bw = (gw - 8) / 3;
-      s += `<rect x="${x}" y="${y(m.base)}" width="${bw}" height="${y(0) - y(m.base)}" fill="var(--lila-soft)" stroke="var(--lila)"/>`;
-      s += `<rect x="${x + bw}" y="${y(m.buy)}" width="${bw}" height="${y(0) - y(m.buy)}" fill="var(--lila)"/>`;
-      s += `<rect x="${x + 2 * bw}" y="${y(m.pv)}" width="${bw}" height="${y(0) - y(m.pv)}" fill="var(--keltainen)" stroke="var(--muted)" stroke-width="0.75"/>`;
-      s += `<text x="${x + 1.5 * bw}" y="${H - 6}" text-anchor="middle">${KK[i]}</text>`;
-    });
-    $('kaavio').innerHTML = s;
+  /* Chart kit: electricity and heat by month, day or hour. Self-contained (no outer variables), so the
+   * same source also runs in the separate large-screen window (chartKit.toString()). ORC uses one colour
+   * in both charts: its electricity and the main-boiler heat that passed through it. */
+  function chartKit() {
+    const KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
+    const MD = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const nf0 = new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }), nf1 = new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 1 });
+    const C = { lila: '#542583', lilaSoft: '#D4C8E0', keltainen: '#FFF023', orc: '#ACD195', kattila: '#C7E6F7', lp: '#E8A7C6', varaaja: '#FFF891' };
+    const ELEC = [
+      { k: 'base', label: 'Osto ilman investointia', fill: C.lilaSoft, stroke: C.lila },
+      { k: 'buy', label: 'Osto hybridillä', fill: C.lila },
+      { k: 'pv', label: 'Aurinkosähkö', fill: C.keltainen, stroke: '#5d5766' },
+      { k: 'chp', label: 'ORC-sähkö', fill: C.orc, stroke: '#2f5a1c' },
+    ];
+    const HEAT = [
+      { k: 'mainDirect', label: 'Päälämmitys suoraan', fill: C.kattila, stroke: '#3c6e8a' },
+      { k: 'mainOrc', label: 'Päälämmitys ORC:n kautta', fill: C.orc, stroke: '#2f5a1c' },
+      { k: 'hp', label: 'Lämpöpumppu', fill: C.lp, stroke: '#7a3b5a' },
+      { k: 'td', label: 'Varaajan purku (sähkökattila)', fill: C.varaaja, stroke: '#6b6200' },
+      { k: 'unmet', label: 'Toimittamaton lämpö', fill: '#ffffff', stroke: '#1b1620', dash: true },
+    ];
+    function niceTop(max) {
+      const step = Math.pow(10, Math.floor(Math.log10(Math.max(max, 1e-9) / 4)));
+      const nice = [1, 2, 2.5, 5, 10].map(x => x * step).find(x => max / x <= 5) || step * 10;
+      return [Math.max(nice, Math.ceil(max / nice) * nice), nice];
+    }
+    function dayOf(h) { return Math.floor(h / 24); }
+    function dateOf(d) { let m = 0; while (d >= MD[m]) { d -= MD[m]; m++; } return [d + 1, m + 1]; }
+    /* Buckets [from, to) in hours with labels. res: 'kk' | 'pv' | 'h'. */
+    function buckets(res, from, to) {
+      const out = [];
+      if (res === 'kk') { let h = 0; MD.forEach((d, m) => { const e = h + d * 24; if (e > from && h < to) out.push([Math.max(h, from), Math.min(e, to), KK[m]]); h = e; }); }
+      else if (res === 'pv') for (let d = dayOf(from); d * 24 < to; d++) { const [dd, mm] = dateOf(d); out.push([d * 24, Math.min(d * 24 + 24, to), dd + '.' + mm + '.']); }
+      else for (let h = from; h < to; h++) { const [dd, mm] = dateOf(dayOf(h)); out.push([h, h + 1, dd + '.' + mm + '. ' + (h % 24) + '–' + (h % 24 + 1)]); }
+      return out;
+    }
+    function series(data) {
+      const n = 8760, mainDirect = new Float64Array(n);
+      for (let t = 0; t < n; t++) mainDirect[t] = data.main[t] - data.mainOrc[t];
+      return Object.assign({ mainDirect }, data);
+    }
+    function agg(arr, b) { let s = 0; for (let t = b[0]; t < b[1]; t++) s += arr[t]; return s; }
+    /* Returns { svg, rows } for kind 'elec' | 'heat'. Bars for month and day, lines/areas for hours. */
+    function draw(kind, data, res, from, to, W, H) {
+      const S = series(data), defs = kind === 'elec' ? ELEC : HEAT, B = buckets(res, from, to), n = B.length;
+      const unitDiv = res === 'kk' ? 1000 : 1, unit = res === 'kk' ? 'MWh' : res === 'pv' ? 'kWh/vrk' : 'kW';
+      const active = defs.filter(d => S[d.k] && agg(S[d.k], [from, to]) > 1e-9);
+      const vals = B.map(b => Object.fromEntries(defs.map(d => [d.k, S[d.k] ? agg(S[d.k], b) : 0])));
+      const dem = kind === 'heat' ? B.map(b => agg(S.heat, b)) : null;
+      let max = 0;
+      vals.forEach((v, i) => {
+        max = Math.max(max, kind === 'elec' ? Math.max(...active.map(d => v[d.k])) : active.reduce((a, d) => a + v[d.k], 0), dem ? dem[i] : 0);
+      });
+      const padL = 58, padR = 10, padT = 12, padB = 26, [top, nice] = niceTop(max / unitDiv || 1);
+      const x0 = padL, pw = W - padL - padR, gw = pw / Math.max(n, 1), y = v => padT + (H - padT - padB) * (1 - v / unitDiv / top);
+      let s = '';
+      for (let v = 0; v <= top + 1e-9; v += nice) s += `<line x1="${padL}" x2="${W - padR}" y1="${y(v * unitDiv)}" y2="${y(v * unitDiv)}" stroke="var(--line,#dcd8e2)"/><text x="${padL - 6}" y="${y(v * unitDiv) + 4}" text-anchor="end">${nice < 1 ? nf1.format(v) : nf0.format(v)}</text>`;
+      s += `<text x="4" y="${padT + 2}">${unit}</text>`;
+      const every = Math.max(1, Math.ceil(n / (W / 46)));
+      const dayStep = Math.max(1, Math.ceil((n / 24) / (W / 60)));
+      B.forEach((b, i) => {
+        let lab = null;
+        if (res === 'kk') lab = b[2];
+        else if (res === 'pv') lab = i % every === 0 ? b[2] : null;
+        else if (n <= 48) lab = i % 3 === 0 ? (b[0] % 24) + ':00' : null;
+        else if (b[0] % 24 === 0 && (b[0] / 24) % dayStep === 0) lab = b[2].split(' ')[0];
+        if (lab) s += `<text x="${x0 + (i + 0.5) * gw}" y="${H - 8}" text-anchor="middle">${lab}</text>`;
+      });
+      const tip = (i) => B[i][2] + ': ' + (kind === 'heat' ? 'tarve ' + nf0.format(dem[i] / unitDiv) + ' ' + unit + ', ' : '') + active.map(d => d.label + ' ' + nf0.format(vals[i][d.k] / unitDiv)).join(', ') + ' ' + unit;
+      const st = d => `fill="${d.fill}"${d.stroke ? ` stroke="${d.stroke}" stroke-width="0.8"` : ''}${d.dash ? ' stroke-dasharray="3 2"' : ''}`;
+      if (res !== 'h' && kind === 'elec') {
+        const bw = (gw * 0.84) / Math.max(active.length, 1);
+        vals.forEach((v, i) => {
+          let g = `<g><title>${tip(i)}</title>`;
+          active.forEach((d, j) => { const xx = x0 + i * gw + gw * 0.08 + j * bw; g += `<rect x="${xx}" y="${y(v[d.k])}" width="${Math.max(bw, 0.6)}" height="${Math.max(0, y(0) - y(v[d.k]))}" ${st(d)}/>`; });
+          s += g + '</g>';
+        });
+      } else if (res !== 'h') {
+        vals.forEach((v, i) => {
+          let acc = 0, g = `<g><title>${tip(i)}</title>`; const xx = x0 + i * gw + gw * 0.12, bw = Math.max(gw * 0.76, 0.6);
+          active.forEach(d => { const h0 = acc; acc += v[d.k]; g += `<rect x="${xx}" y="${y(acc)}" width="${bw}" height="${Math.max(0, y(h0) - y(acc))}" ${st(d)}/>`; });
+          s += g + '</g>';
+        });
+      } else {
+        const X = i => x0 + (i + 0.5) * gw;
+        if (kind === 'heat') {
+          let base = new Array(n).fill(0);
+          active.forEach(d => {
+            const topv = base.map((b0, i) => b0 + vals[i][d.k]);
+            const pts = topv.map((v, i) => `${X(i)},${y(v)}`).concat(base.map((v, i) => `${X(i)},${y(v)}`).reverse());
+            s += `<polygon points="${pts.join(' ')}" ${st(d)}/>`;
+            base = topv;
+          });
+        } else {
+          // Production as areas (same colours as the bars and the heat chart), purchases as lines on top.
+          active.filter(d => d.k === 'pv' || d.k === 'chp').forEach(d => {
+            const pts = vals.map((v, i) => `${X(i)},${y(v[d.k])}`).concat([`${X(n - 1)},${y(0)}`, `${X(0)},${y(0)}`]);
+            s += `<polygon points="${pts.join(' ')}" ${st(d)} fill-opacity="0.85"/>`;
+          });
+          active.filter(d => d.k === 'base' || d.k === 'buy').forEach(d => {
+            s += `<polyline fill="none" stroke="${C.lila}" stroke-width="${d.k === 'base' ? 1.2 : 2}"${d.k === 'base' ? ' stroke-dasharray="4 3"' : ''} points="${vals.map((v, i) => `${X(i)},${y(v[d.k])}`).join(' ')}"/>`;
+          });
+        }
+      }
+      if (dem) {
+        const X = i => x0 + (i + 0.5) * gw;
+        if (res === 'h') s += `<polyline fill="none" stroke="var(--ink,#1b1620)" stroke-width="1.4" points="${dem.map((v, i) => `${X(i)},${y(v)}`).join(' ')}"/>`;
+        else dem.forEach((v, i) => { s += `<line x1="${x0 + i * gw + gw * 0.06}" x2="${x0 + (i + 1) * gw - gw * 0.06}" y1="${y(v)}" y2="${y(v)}" stroke="var(--ink,#1b1620)" stroke-width="2"><title>${tip(i)}</title></line>`; });
+      }
+      const legend = active.map(d => `<span><i style="background:${d.fill};border:1px ${d.dash ? 'dashed' : 'solid'} ${d.stroke || d.fill}"></i>${d.label}</span>`).join('') +
+        (dem ? '<span><i style="background:var(--ink,#1b1620);height:3px;vertical-align:3px"></i>Lämmöntarve</span>' : '');
+      return { svg: s, legend, buckets: B, vals, dem, active, unit, unitDiv, tip, x0, gw };
+    }
+    return { draw, KK, MD, dateOf };
+  }
+  const KIT = chartKit();
+  function chartData(r) {
+    const o = r.o;
+    return { base: r.load.el, buy: o.buy, pv: o.pv, chp: o.chp, heat: r.load.heat, main: o.main, mainOrc: o.mainOrc, hp: o.hp, td: o.td, unmet: o.unmet };
+  }
+  function barChart(r) {
+    const d = chartData(r);
+    const e = KIT.draw('elec', d, 'kk', 0, 8760, 520, 300), h = KIT.draw('heat', d, 'kk', 0, 8760, 520, 300);
+    $('kaavio').innerHTML = e.svg; $('kaavioLeg').innerHTML = e.legend;
+    $('kaavioL').innerHTML = h.svg; $('kaavioLLeg').innerHTML = h.legend;
+    const O = r.orc, en = r.energy;
+    $('orcNote').textContent = r.p.chpOn
+      ? (en.chp > 0 ? `ORC (vihreä molemmissa kuvaajissa): ${f0(en.chp / 1000)} MWh sähköä ${f0(sum(r.o.mainOrc) / 1000)} MWh:n lämmöstä, nettohyötysuhde ${nf1.format(O.eta * 100)} %, enintään ${nf1.format(O.max)} kWe.`
+        : `ORC ei käy: tilan lämmöntarpeen huippu ${f0(en.peakHeat)} kW jää alle ORC:n pienimmän lämpötehon ${f0(O.min)} kW.`)
+      : '';
+  }
+  const sum = a => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s; };
+
+  /* Large view: own window (preferred for a large display), in-page dialog when pop-ups are blocked. */
+  const BIG_CSS = `:root{--ink:#1b1620;--muted:#5d5766;--line:#dcd8e2;--bg:#fff;--lila:#542583}
+@media (prefers-color-scheme: dark){:root{--ink:#ece8f0;--muted:#aaa2b4;--line:#3a3343;--bg:#1d1922;--lila:#AA92C1}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+
+.bv-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 18px;background:#542583;color:#fff;border-bottom:4px solid #FFF023}
+
+.bv-head h1{font-family:"Alte DIN 1451 Mittelschrift","Barlow Condensed","Arial Narrow",sans-serif;font-size:1.3rem;letter-spacing:.03em;text-transform:uppercase;margin:0}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ctl button,.ctl select{font:inherit;padding:5px 12px;border-radius:6px;border:1px solid #fff;background:transparent;color:#fff;cursor:pointer}
+.ctl select option{color:#000}
+.ctl button[aria-pressed=true]{background:#FFF023;color:#000;border-color:#FFF023}
+.bv-main{padding:10px 18px 18px}
+h2{font-family:"Alte DIN 1451 Mittelschrift","Barlow Condensed","Arial Narrow",sans-serif;font-size:1.1rem;margin:12px 0 2px;color:var(--lila)}
+svg{display:block;width:100%;height:auto}
+svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem;color:var(--muted);margin:4px 0 6px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.read{font-size:.9rem;min-height:1.3em;color:var(--ink)}`;
+  const BIG_BODY = `<div class="bv-head"><h1>Sähkö ja lämpö</h1><div class="ctl" role="group" aria-label="Aikatarkkuus">
+<button type="button" data-res="kk">Kuukausi</button><button type="button" data-res="pv">Päivä</button><button type="button" data-res="h">Tunti</button></div>
+<div class="ctl"><label for="bigRange">Jakso</label><select id="bigRange"></select></div></div>
+<div class="bv-main"><h2>Sähkön osto ja tuotanto</h2><svg id="bigE" role="img" aria-label="Sähkön osto ja tuotanto"></svg><div class="legend" id="bigEL"></div>
+<h2>Lämmön kulutus ja tuotanto</h2><svg id="bigH" role="img" aria-label="Lämmön kulutus ja tuotanto"></svg><div class="legend" id="bigHL"></div>
+<p class="read" id="bigRead" aria-live="polite">Vie hiiri kuvaajan päälle nähdäksesi arvot.</p></div>`;
+  /* Runs inside the large view (own window or dialog); doc = its document. */
+  function bigView(doc, win, K, data, startRes) {
+    let res = startRes || 'pv';
+    const q = id => doc.querySelector('#' + id), sel = q('bigRange');
+    function fillRange() {
+      const opts = [['0-8760', 'Koko vuosi']];
+      let h = 0; K.MD.forEach((d, m) => { opts.push([h + '-' + (h + d * 24), K.KK[m] + 'kuu']); h += d * 24; });
+      if (res === 'h') for (let w = 0; w < 52; w++) { const [dd, mm] = K.dateOf(w * 7); opts.push([w * 168 + '-' + Math.min(8760, w * 168 + 168), 'viikko ' + (w + 1) + ' (' + dd + '.' + mm + '.)']); }
+      const keep = sel.value;
+      sel.innerHTML = opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
+      sel.value = res === 'h' && (!keep || keep === '0-8760') ? opts[13][0] : opts.some(o => o[0] === keep) ? keep : '0-8760';
+      sel.disabled = res === 'kk';
+    }
+    function paint() {
+      const [from, to] = res === 'kk' ? [0, 8760] : sel.value.split('-').map(Number);
+      const W = Math.max(700, Math.min(2400, (win.innerWidth || 1200) - 40)), H = Math.max(260, Math.round(((win.innerHeight || 900) - 230) / 2));
+      [['elec', 'bigE', 'bigEL'], ['heat', 'bigH', 'bigHL']].forEach(([kind, sv, lg]) => {
+        const r = K.draw(kind, data, res, from, to, W, H), el = q(sv);
+        el.setAttribute('viewBox', `0 0 ${W} ${H}`); el.innerHTML = r.svg; q(lg).innerHTML = r.legend;
+        el.onmousemove = ev => {
+          const box = el.getBoundingClientRect(), xx = (ev.clientX - box.left) * W / box.width, i = Math.floor((xx - r.x0) / r.gw);
+          if (i >= 0 && i < r.buckets.length) q('bigRead').textContent = r.tip(i);
+        };
+      });
+      doc.querySelectorAll('[data-res]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.res === res)));
+    }
+    doc.querySelectorAll('[data-res]').forEach(b => b.addEventListener('click', () => { res = b.dataset.res; fillRange(); paint(); }));
+    sel.addEventListener('change', paint);
+    win.addEventListener('resize', paint);
+    fillRange(); paint();
+  }
+  function openBig(startRes) {
+    if (!last || !last.o) return;
+    const data = chartData(last);
+    const plain = {}; Object.keys(data).forEach(k => { plain[k] = Array.from(data[k]); });
+    let w = null;
+    try { w = window.open('', 'hybridilaskuri_kuvaajat', 'width=1600,height=1000'); } catch (e) { w = null; }
+    if (w && w.document) {
+      w.document.open();
+      w.document.write(`<!doctype html><html lang="fi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Sähkö ja lämpö – Maatilan hybridienergialaskuri</title><style>${BIG_CSS}</style></head><body>${BIG_BODY}
+<script>const K=(${chartKit.toString()})();const D=${JSON.stringify(plain)};(${bigView.toString()})(document,window,K,D,${JSON.stringify(startRes)});<\/script></body></html>`);
+      w.document.close(); w.focus();
+      return;
+    }
+    const d = $('bigDialog');
+    d.querySelector('.big-body').innerHTML = `<style>${BIG_CSS.replace(/body\{[^}]*\}/, '').replace(/:root/g, '#bigDialog')}</style>` + BIG_BODY;
+    d.showModal();
+    bigView(d, { innerWidth: window.innerWidth, innerHeight: window.innerHeight, addEventListener: () => {} }, KIT, data, startRes);
   }
   function cumChart(r) {
     const W = 760, H = 220, padL = 64, padB = 24, padT = 10;
@@ -232,7 +430,7 @@
     $('kPb').textContent = e.payback == null ? (okS ? 'ei' : '–') : f1(e.payback);
     $('kPbS').textContent = e.paybackGross == null ? 'vuotta nettoinvestoinnilla' : `vuotta; ilman tukea ${f1(e.paybackGross)} v`;
     $('kNet').textContent = f0(e.net); $('kNetS').textContent = `€ tuen jälkeen; brutto ${f0(e.gross)} €`;
-    barChart(r.monthly);
+    barChart(r);
     table('tEnergia', ['kWh/v', 'Lähtötilanne', 'Hybridi'], [
       ['Sähkön osto verkosta', f0(en.buyBase), f0(en.buyHyb)], ['Aurinkosähkön tuotanto', '0', f0(en.pv)],
       ['Aurinkosähkön omakäyttöaste', '–', pct(en.selfUse)], ['Myynti verkkoon', '0', f0(en.sell)],
@@ -240,7 +438,7 @@
       ['Päälämmityksen tuotanto', f0(en.mainBase), f0(en.mainHyb)],
       ['Polttoaine, MWh', f1(en.fuelMWhBase), f1(en.fuelMWhHyb)],
       ['Hake, i-m³', en.chipBase == null ? '–' : f0(en.chipBase), en.chipHyb == null ? '–' : f0(en.chipHyb)],
-      ['CHP-sähkö', '0', f0(en.chp)], ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
+      ['ORC-sähkö', '0', f0(en.chp)], ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
       ['Lämmön huipputeho, kW', f0(en.peakHeat), f0(en.peakHeat)],
       ['Akun syklit / käyttöikä', '–', p.akkuOn ? `${f0(en.cycles)} / ${f1(en.life)} v` : '–'],
     ]);
@@ -254,7 +452,7 @@
     const inv = e.inv, rep = e.replacements;
     table('tInv', ['€', 'Summa'], [
       ['Aurinkosähkö', f0(inv.pv)], ['Akku', f0(inv.akku)], ['Lämpöpumppu', f0(inv.lp)], ['Sähkökattila', f0(inv.ek)],
-      ['Vesivaraaja', f0(inv.varaaja)], ['CHP', f0(inv.chp)], ['Investointi brutto', f0(e.gross)], ['Tuki', '−' + f0(e.subsidy)],
+      ['Vesivaraaja', f0(inv.varaaja)], ['ORC', f0(inv.chp)], ['Investointi brutto', f0(e.gross)], ['Tuki', '−' + f0(e.subsidy)],
       ['Nettoinvestointi', f0(e.net)], ['Invertterin vaihto, nykyarvo', f0(rep.invRep)], ['Akun uusimiset, nykyarvo', f0(rep.batRep)],
       ['CHP:n uusiminen, nykyarvo', f0(rep.chpRep)],
     ], [, , , , , , , , 'total']);
@@ -262,7 +460,7 @@
     const MC = [['base', 'Osto, lähtö'], ['buy', 'Osto, hybridi'], ['saving', 'Säästö kWh'], ['pv', 'PV'], ['selfUse', 'PV omakäyttö'],
       ['sell', 'Myynti'], ['dis', 'Akun purku'], ['hp', 'LP lämpö'], ['eb', 'SK lämpö'], ['mainBase', 'Päälämpö, lähtö'], ['main', 'Päälämpö, hybridi'],
       ['costBase', 'Osto €, lähtö'], ['costHyb', 'Osto €, hybridi'], ['sales', 'Myynti €'], ['peakBase', 'Huippu kW, lähtö'], ['peakHyb', 'Huippu kW, hybridi'],
-      ['co2Base', 'CO₂ kg, lähtö'], ['co2Hyb', 'CO₂ kg, hybridi'], ['curt', 'PV katkaistu'], ['gridch', 'Akun verkkolataus'], ['chp', 'CHP'], ['chpsell', 'CHP myynti']];
+      ['co2Base', 'CO₂ kg, lähtö'], ['co2Hyb', 'CO₂ kg, hybridi'], ['curt', 'PV katkaistu'], ['gridch', 'Akun verkkolataus'], ['chp', 'ORC-sähkö'], ['chpsell', 'ORC myynti'], ['heat', 'Lämmöntarve'], ['mainOrc', 'Päälämpö ORC:n kautta'], ['unmet', 'Lämpövaje, hybridi']];
     table('tKk', ['Kuukausi', ...MC.map(c => c[1])],
       [...m.map((x, i) => [KK[i], ...MC.map(([k]) => f0(x[k]))]),
         ['Vuosi', ...MC.map(([k]) => f0(k.startsWith('peak') ? maxM(k) : sumM(k)))]], { 12: 'total' });
@@ -427,7 +625,7 @@
   const fiNum = v => (ok(v) ? String(Math.round(v * 1000) / 1000).replace('.', ',') : '');
   function csvRows(rows) { return rows.map(r => r.map(x => (typeof x === 'number' ? fiNum(x) : `"${String(x).replace(/"/g, '""')}"`)).join(';')).join('\r\n'); }
   function resultsCsv(r) {
-    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.11.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
+    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.12.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
     out.push(['YHTEENVETO', 'Arvo', 'Yksikkö']);
     [['Kassasäästö ylläpidon jälkeen', e.cash, '€/v'], ['NPV', e.npv, '€'], ['Takaisinmaksuaika', e.payback, 'v'], ['Investointi brutto', e.gross, '€'],
       ['Tuki', e.subsidy, '€'], ['Nettoinvestointi', e.net, '€'], ['Energiasäästö', e.energySaving, '€/v'], ['Reservituotto', e.reserve.farm, '€/v'],
@@ -467,7 +665,7 @@
   function describe(p) {
     const parts = [];
     if (p.pvOn) parts.push(`PV ${p.pv}`); if (p.akkuOn) parts.push(`akku ${p.akku}`); if (p.lpOn) parts.push(`LP ${p.lp}`);
-    if (p.ekOn) parts.push(`SK ${p.ek}`); if (p.varOn) parts.push(`varaaja ${p.varaaja}`); if (p.chpOn) parts.push(`CHP ${p.chpOsuus}`);
+    if (p.ekOn) parts.push(`SK ${p.ek}`); if (p.varOn) parts.push(`varaaja ${p.varaaja}`); if (p.chpOn) parts.push(`ORC ${p.chpKwe} kWe, paluu ${p.orcPaluu} °C`);
     if (p.reservi === 'Kyllä') parts.push('FCR-D ' + p.skenaario);
     if (p.hinnoittelu === 'Pörssihinta') parts.push('pörssi ' + p.hintavuosi);
     if (p.tuotanto !== 'Lihasikala') parts.push(p.tuotanto.toLowerCase());
@@ -518,7 +716,7 @@
       });
     });
     $('fPriceClear').addEventListener('click', () => { prices = {}; priceNames = {}; updatePriceInfo(); render(); });
-    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.11.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
+    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.12.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
     $('tOpenBtn').addEventListener('click', () => $('tOpen').click());
     $('tOpen').addEventListener('change', ev => {
       const f = ev.target.files[0]; if (!f) return;
@@ -545,7 +743,7 @@
       setTimeout(() => {
         const t0 = performance.now();
         const res = L.optimise(readInputs(), data, own, Object.keys(prices).length ? prices : null, lists, $('oMetric').value);
-        const b = res.best, map = { pv: ['pvOn', 'pv'], lp: ['lpOn', 'lp'], ek: ['ekOn', 'ek'], varaaja: ['varOn', 'varaaja'], akku: ['akkuOn', 'akku'], chpOsuus: ['chpOn', 'chpOsuus'] };
+        const b = res.best, map = { pv: ['pvOn', 'pv'], lp: ['lpOn', 'lp'], ek: ['ekOn', 'ek'], varaaja: ['varOn', 'varaaja'], akku: ['akkuOn', 'akku'], chpKwe: ['chpOn', 'chpKwe'] };
         Object.entries(map).forEach(([k, [on, size]]) => { if (b[k] > 0) { $(on).checked = true; $(size).value = b[k]; } else $(on).checked = false; });
         const log = res.log.filter(x => x.score != null).sort((a, c) => c.score - a.score).slice(0, 10);
         table('tOpt', ['#', 'PV kWp', 'LP kW', 'SK kW', 'Varaaja m³', 'Akku kWh', 'CHP', 'Netto €', 'Säästö €/v', 'Takaisinm. v', 'NPV €'],
@@ -555,6 +753,10 @@
       }, 30);
     });
     $('rhOpen').addEventListener('click', openRakennushaku);
+    ['kaavio', 'kaavioL'].forEach(id => { const el = $(id); el.addEventListener('click', () => openBig('pv'));
+      el.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openBig('pv'); } }); });
+    document.querySelectorAll('[data-big]').forEach(b => b.addEventListener('click', () => openBig(b.dataset.big)));
+    $('bigClose').addEventListener('click', () => $('bigDialog').close());
     $('rhClose').addEventListener('click', () => $('rhDialog').close());
     window.addEventListener('message', ev => {
       if (!ev.data || ev.data.type !== RH_TYPE || ev.source !== $('rhFrame').contentWindow) return;

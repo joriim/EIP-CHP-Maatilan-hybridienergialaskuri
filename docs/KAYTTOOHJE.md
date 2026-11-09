@@ -57,7 +57,9 @@ Lohko **1B** näyttää käytetyt vuosikulutukset ja huipputehot. Se varoittaa, 
 
 Taulukossa rivit 9–15: kytke laite päälle (1) tai pois (0), syötä koko ja yksikköhinta. Yksikköhinnat ovat esimerkkejä; korvaa ne tarjousten hinnoilla. Investointituen osuus on solussa D17.
 
-**CHP (rivi 15, oletuksena pois).** Päälämmityskattilan yhteyteen voi lisätä sähköntuotannon. D15 on sähkön osuus päälämmön tuotosta (0,15 = 15 %), ja sähköteho on D15 × kattilan teho D14. Investointi = sähköteho × F15 (€/kWe). CHP-sähkö käytetään ensin tilan omaan kulutukseen, ylijäämä myydään. Lisäpolttoaine on CHP-sähkö / kattilan hyötysuhde C26. Ylläpito K65 (€/MWh sähköä), käyttöikä K66 ja uusimiskustannus K67. CHP ei toimi, jos K62 = *Toimitettu lämpö*. Kaikki CHP-arvot ovat omia oletuksia; korvaa ne laitetoimittajan tiedoilla (sähköhyötysuhde, minimikuorma, huolto).
+**Päälämmitys (rivi 14).** Oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus, 500 kW. Muuta D14 oman kattilan tehoksi.
+
+**CHP: ORC (rivi 15, oletuksena pois).** Päälämmityskattilan yhteyteen voi lisätä Enogia ENO-40LT -tyyppisen ORC:n. D15 on bruttosähköteho (40 kWe) ja investointi D15 × F15 (€/kWe). Asetukset ovat K69–K79: syötä ainakin **paluupiirin lämpötila K72** (lattialämmitys noin 25–30 °C, patterit 40–50 °C) ja kattilan menovesi K71. Laskettu nettohyötysuhde, nettoteho ja sähkö/lämpö-suhde näkyvät K77–K79. ORC käy vain tunteina, joina lämmöntarve riittää sen pienimpään lämpötehoon K76 (450 kWth). CHP-sähkö käytetään ensin tilan omaan kulutukseen, ylijäämä myydään. Lisäpolttoaine on CHP-sähkö / kattilan hyötysuhde C26. Ylläpito K65 (€/MWh sähköä), käyttöikä K66 ja uusimiskustannus K67. CHP ei toimi, jos K62 = *Toimitettu lämpö*. Hinta, ylläpito, viiteolosuhde ja omakäyttö ovat omia oletuksia; korvaa ne laitetoimittajan tiedoilla.
 
 ## 4. Hinnat ja korko
 
@@ -95,7 +97,7 @@ Välilehti *Optimointi* etsii laitekoot annetuista ehdokasarvoista.
 
 1. Säädä ensin kaikki muut lähtötiedot (tila, lämmitys, hinnat, korko).
 2. Valitse mittari solussa **C5**: *NPV (suurin)*, *Takaisinmaksuaika (lyhin)* tai *Vuotuinen säästö (suurin)*.
-3. Kirjoita ehdokasarvot soluihin **D8:D13** pilkuin eroteltuna. 0 tarkoittaa, että laite on pois. CHP-osuus desimaalina pisteellä (0.15).
+3. Kirjoita ehdokasarvot soluihin **D8:D13** pilkuin eroteltuna. 0 tarkoittaa, että laite on pois. ORC:n ehdokkaat kWe:inä (0, 40).
 4. Paina painiketta. Haku vaihtaa yhden laitteen kokoa kerrallaan, laskee laskurin uudelleen ja toistaa, kunnes tulos ei parane (enintään 4 kierrosta).
 5. Paras kokoonpano asetetaan Ohjauspaneelin riveille 9–15. Rivi 18 näyttää parhaan tuloksen ja rivit 25– jokaisen lasketun kokoonpanon.
 
@@ -136,8 +138,15 @@ Selainversio sisältää samat syötteet ja tulokset kuin työkirja. Syötteiden
 - **Rakennushaku:** kohta 1, *Hae tila Rakennushaulla*. Hae tila kiinteistötunnuksella, osoitteella tai kartalta (Maanmittauslaitoksen ilmainen API-avain), valitse rakennukset, anna kulutus laskuilta tai mittareilta, valitse säätiedot ja hae halutessa pörssihinnat. Paina *Laske tuntiprofiili* ja sitten *Siirrä laskuriin*. Laskuri ottaa käyttöön Oma data -profiilin, ulkolämpötilan ja hinnat, ja kohdan 1 alle tulee luettelo siirretyistä tiedoista. Tarkista sen jälkeen päälämmitys (D5), polttoaineen hinta ja hinnoittelu (kohta 3). Erillinen Rakennushaku: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html (*Avaa laskurissa*).
 - **Oma kulutus ja Rakennushaun CSV:** kohta 1, tiedosto *Oma kulutusdata tai Rakennushaun vienti*. Rakennushaun `oma_kulutusdata_<vuosi>.csv` tuo sähkön, lämmön, ulkolämpötilan ja vuoden pörssihinnat kerralla. Muu CSV: 8 760 riviä, kaksi viimeistä saraketta sähkö ja lämpö kWh/h.
 - **Pörssihinnat:** kohta 3. Lataa Rakennushaun `hintahistoria_2023-2026.csv`, hae_porssihinnat.py-tiedostoja tai muita yhden hintasarakkeen tiedostoja (vuosi tiedostonimestä tai valinnasta). Valitse vuosi tai *Keskiarvo*.
+- **Kuvaajat:** Yhteenvedossa sähkö ja lämpö kuukausittain rinnakkain; ORC on molemmissa vihreä. Klikkaa kuvaajaa tai valitse *Kuukausi*, *Päivä* tai *Tunti*, niin kuvaajat avautuvat suurena omaan ikkunaan. Ikkunassa voi vaihtaa aikatarkkuutta ja jaksoa (kuukausi, tuntitasolla myös viikko) ja nähdä arvot viemällä hiiren kuvaajan päälle.
 - **Tulokset:** välilehdet Yhteenveto, Kuukaudet, Kassavirta, Päästöt, Reservi, Optimointi, Vertailu sekä Menetelmä ja lähteet.
 - **Tallennus:** *Tallenna lähtötiedot* (JSON), *Avaa lähtötiedot*, *Kopioi jakolinkki* (lähtötiedot linkissä; ladatut tiedostot eivät kulje linkissä), *Lataa tulokset* ja *Lataa tuntitase* (CSV, puolipiste ja desimaalipilkku). *Lisää vertailuun* tallentaa laskelman vertailutaulukkoon tähän selaimeen.
+
+## Muutokset version 0.12.0 käyttöön
+
+- D14 on oletuksena 500 kW. D15 on nyt ORC:n bruttosähköteho kWe (ei sähköosuus); ORC-asetukset K69–K79.
+- Tuntitase BS ja Kuukausikoonti Y:AA ovat uusia sarakkeita.
+- Selainversio: lämpökuvaaja ja kuvaajat suurena (klikkaa kuvaajaa tai *Avaa suurena* -painiketta).
 
 ## Muutokset version 0.11.0 käyttöön
 

@@ -1,4 +1,4 @@
-# Maatilan hybridienergialaskuri 0.11.0
+# Maatilan hybridienergialaskuri 0.12.0
 
 Excel-laskuri, jolla sika- tai siipikarjatila voi arvioida, kannattaako olemassa olevan hake- tai biokaasulämmityksen rinnalle hankkia aurinkosähköä, sähköakkua, lämpöpumppua, sähkökattilaa, lämpövaraajaa tai CHP-sähköntuotantoa.
 
@@ -16,6 +16,14 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 **Laskurin kehittämisessä on hyödynnetty tekoälyä** laskentakaavojen ja koodin tarkastelussa, dokumentoinnissa sekä vaihtoehtojen luonnostelussa. Tekoälyä voi käyttää myös oman tilan lähtötietojen jäsentämiseen ja syötön valmisteluun. Suosittelemme kokeilemaan Microsoft Copilotia Excelissä, OpenAI:n ChatGPT for Excel -lisäosaa tai Anthropicin Claude for Excel -lisäosaa. Asennuslähteet, käyttörajojen täsmennykset ja valmiit esimerkkikehotteet ovat [Excel-käyttöohjeen tekoälyosiossa](laskuri/README_EXCEL.md#13-tekoäly-laskurin-kehittämisessä-ja-käytössä). Saatavuus riippuu palvelusta, tilauksesta ja organisaation asetuksista.
 
 **[Lue esittely, käyttö- ja kehitysopas](docs/OPAS.md).** Opas kertoo, mitä laskuri laskee, miten oman tilan tiedot syötetään, miten vaihtoehtoja vertaillaan ja miten laskuria voi kehittää avoimilla lisensseillä. Käyttäjä valitsee laitteiden koot tai antaa makroversion etsiä parhaan kokoonpanon antamistaan vaihtoehdoista. CHP on yksinkertaistettu sähköosuusmalli; laitoksen prosessia tai biokaasuprosessia ei mallinneta.
+
+## Uutta versiossa 0.12.0
+
+- **Päälämmityksen oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus**, nimellislämpöteho 500 kW (aiemmin 300 kW).
+- **CHP on nyt ORC-malli** (Enogia ENO-40LT -tyyppinen, 40 kWe brutto, lämpöteho 450–640 kWth; suurin Enogia-malli, joka sopii 500 kW:n kattilaan). Sähkö riippuu kattilan menoveden ja **paluupiirin lämpötilasta**; ORC käy vain, kun tilan lämmöntarve riittää sen pienimpään lämpötehoon. CHP on edelleen oletuksena pois.
+- **Lämmön kulutus ja tuotanto kuukausittain** sähkökuvaajan rinnalla. ORC näkyy molemmissa samalla värillä: sähkö ja ORC:n läpi kulkenut lämpö.
+- **Kuvaajat suurena omaan ikkunaan** kuukausi-, päivä- tai tuntitasolla (kuukausi- tai viikkojaksoin).
+- Excelissä: ORC-asetukset Ohjauspaneelin K69–K79, Tuntitase BS ja Kuukausikoonti Y:AA (lämmöntarve, ORC:n kautta kulkenut lämpö, lämpövaje).
 
 ## Uutta versiossa 0.11.0
 
@@ -48,7 +56,7 @@ Laskuri on nyt kahtena tasavertaisena toteutuksena: **selainversio** ja **Excel-
 
 ## Uutta versiossa 0.9.2
 
-- **CHP-sähkö** päälämmityskattilan yhteydessä (Ohjauspaneelin rivi 15, oletuksena pois).
+- **CHP-sähkö** päälämmityskattilan yhteydessä (Ohjauspaneelin rivi 15, oletuksena pois; 0.12.0:sta alkaen ORC-malli).
 - **Kokoonpanon optimointi** -välilehti ja -painike (.xlsm): haku käy läpi antamasi laitekoot ja asettaa parhaan kokoonpanon.
 - **Hintahistoria**: vuosien 2023–2026 tuntihinnat rinnakkain ja niiden keskiarvo. Vuosi valitaan solusta K49.
 - Korjattu: ilman pörssihintoja työkirja näytti täydessä uudelleenlaskennassa #ARVO!-virheen kaikissa tuloksissa (koski myös versiota 0.9.1).

@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from excel_tarkistus import Model
-from sim import sim,annual_cost,reserve_revenue
+from sim import sim,annual_cost,reserve_revenue,orc_params
 from talous import npv
 
 
@@ -24,6 +24,10 @@ def main():
     fcr=pd.read_csv(Path(__file__).resolve().parent.parent/'data/fingrid_fcr_d_ylos_tuntihinnat.csv')['fcr_d_ylos_2025_eur_mw_h'].values
     fcr_dn=pd.read_csv(Path(__file__).resolve().parent.parent/'data/fingrid_fcr_d_alas_tuntihinnat.csv')['fcr_d_alas_2025_eur_mw_h'].values
     prices=np.tile(np.r_[np.zeros(12),np.ones(12)*.2],365)
+    BROILER={(panel,'D4'):'Broilerikasvattamo',(panel,'L7'):1300000}
+    broiler=[p.broileri_sahko_kwh.values,p.broileri_lampo_kwh.values*1300000/p.broileri_lampo_kwh.values.sum()]
+    def orc_kw(**k):
+        o=orc_params(**k);return dict(chp_share=o['chp_share'],chp_max=o['chp_max'],chp_min_heat=o['chp_min_heat'])
     cases=[
         ('oletus',{},{}),
         ('ei_akkua',{(panel,'C13'):0},{'BESS':0}),
@@ -36,9 +40,13 @@ def main():
         ('tasahintainen_porssi',{(panel,'K22'):'Pörssihinta',(panel,'K26'):'Pörssiohjattu'},dict(pricing='spot',spot=prices,battery_mode='spot')),
         ('kiintea_porssivalinnalla',{(panel,'K26'):'Pörssiohjattu'},dict(spot=prices,battery_mode='spot')),
         ('lampo_ja_varaaja',{(panel,'C10'):1,(panel,'C11'):1,(panel,'C12'):1,(panel,'K53'):'Kyllä',(panel,'K22'):'Pörssihinta'},dict(HP=10,EB=30,TANK=5,eb_grid=True,pricing='spot',spot=prices)),
-        ('chp_15',{(panel,'C15'):1},dict(chp_share=.15)),
-        ('chp_porssi_katkaisu',{(panel,'C15'):1,(panel,'K22'):'Pörssihinta',(panel,'K25'):'Kyllä'},dict(chp_share=.15,pricing='spot',spot=prices,curtail_negative=True)),
-        ('chp_toimitettu_lampo',{(panel,'C15'):1,(panel,'K62'):'Toimitettu lämpö'},dict(chp_share=.15,delivered_heat=True)),
+        # ORC (Enogia ENO-40LT type): only runs when the ORC heat input reaches K76, so the sikala example
+        # (heat peak 46 kW) gives no electricity; broiler heat scaled to 1 300 MWh/v reaches 450 kW.
+        ('orc_sikala_ei_kay',{(panel,'C15'):1},dict(**orc_kw())),
+        ('orc_broileri_1300MWh',{**BROILER,(panel,'C15'):1},dict(heat_override='broiler',**orc_kw())),
+        ('orc_paluu45_k70_300_porssi',{**BROILER,(panel,'C15'):1,(panel,'K72'):45,(panel,'K70'):300,(panel,'K76'):200,(panel,'K22'):'Pörssihinta',(panel,'K25'):'Kyllä'},
+         dict(heat_override='broiler',pricing='spot',spot=prices,curtail_negative=True,**orc_kw(ret=45,heat_in=300,min_heat=200))),
+        ('orc_toimitettu_lampo',{**BROILER,(panel,'C15'):1,(panel,'K62'):'Toimitettu lämpö'},dict(heat_override='broiler',delivered_heat=True,**orc_kw())),
     ]
     # Own data with own outdoor temperature (Rakennushaku export, Oma kulutusdata E-G).
     od='Oma kulutusdata';T5=p.ulkolampotila_C.values+5
@@ -50,8 +58,8 @@ def main():
     for name,overrides,kw in cases:
         model.cache=raw.copy();model.cache.update(overrides)
         if 'porssi'in name or name=='lampo_ja_varaaja':model.cache.update({('Pörssihinnat','C'+str(i+2)):float(v*1000) for i,v in enumerate(prices)})
-        kw=dict(kw);T_over=kw.pop('T_override',None)
-        model.calculate();expected=sim(*(args[:3]+[T_over if T_over is not None else args[3]]),**kw);error=0.
+        kw=dict(kw);T_over=kw.pop('T_override',None);loads=broiler if kw.pop('heat_override',None) else args[:2]
+        model.calculate();expected=sim(*(loads+[args[2],T_over if T_over is not None else args[3]]),**kw);error=0.
         for c,key in columns.items():
             want=expected[key]
             if c=='V':want=expected['eb']-expected['ebgrid']
@@ -83,19 +91,25 @@ def main():
             expected_npv=npv(177000,70800,saving,battery_cost=27000,battery_cycles=expected['dis'].sum()/60)
             assert abs(result['npv']-expected_npv)<1e-6
             if '--write-caches'in sys.argv:model.save_caches()
-        if name=='chp_15':
-            base=annual_cost(sim(*args,PV=0,BESS=0));saving=base-annual_cost(expected)
-            chp_cost=.15*300*3000;gross=177000+chp_cost
+        if name=='orc_sikala_ei_kay':assert expected['chp'].sum()==0 and model.get(panel,'K68')==0 and model.get(panel,'G15')==120000
+        if name=='orc_paluu45_k70_300_porssi':
+            o=orc_params(ret=45,heat_in=300,min_heat=200);assert expected['chp'].max()<=o['chp_max']+1e-9
+            assert np.isclose(expected['chp'],o['chp_max']).sum()>0,'cap never binds'
+        if name=='orc_broileri_1300MWh':
+            assert expected['chp'].sum()>0
+            base=annual_cost(sim(*(broiler+args[2:]),PV=0,BESS=0));saving=base-annual_cost(expected)
+            chp_cost=40*3000;gross=177000+chp_cost
             expected_npv=npv(gross,.4*gross,saving,battery_cost=27000,battery_cycles=expected['dis'].sum()/60,
                              chp_cost=chp_cost,chp_kwh=expected['chp'].sum())
             assert abs(model.get(panel,'K68')-expected['chp'].sum())<1e-6
             assert abs(result['npv']-expected_npv)<1e-6,(result['npv'],expected_npv)
-        if name=='chp_toimitettu_lampo':assert model.get(panel,'G15')==0 and model.get(panel,'K68')==0
+        if name=='orc_toimitettu_lampo':assert model.get(panel,'G15')==0 and model.get(panel,'K68')==0
     # Boundary changes must expose incomplete service and missing input.
     for name,overrides,want in [
         ('lampovaje',{(panel,'D14'):10},'Lämpövaje'),
         ('hintadata_puuttuu',{(panel,'K22'):'Pörssihinta'},'Hintadata puuttuu'),
-        ('chp_osuus_virheellinen',{(panel,'C15'):1,(panel,'D15'):1.5},'Virhe parametreissa'),
+        ('orc_omakaytto_virheellinen',{(panel,'C15'):1,(panel,'K75'):1.5},'Virhe parametreissa'),
+        ('orc_paluu_liian_kuuma',{(panel,'C15'):1,(panel,'K72'):90},'Virhe parametreissa'),
         ('reservihinta_puuttuu',{('Reservimarkkina','C6'):'Kyllä',('Reservimarkkina','C8'):'2025'},'Reservihinta puuttuu'),
         ('kulutusdata_puuttuu',{(panel,'D4'):'Oma data'},'Kulutusdata puuttuu'),
     ]:

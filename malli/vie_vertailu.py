@@ -14,12 +14,12 @@ ROOT = Path(__file__).resolve().parent.parent
 P = 'Ohjauspaneeli ja Tulokset'; H = 'Tuntitase_8760h'; K = 'Kuukausikoonti'; V = 'Vuosikassavirta'
 HOURLY = ['AB', 'AD', 'AF', 'AG', 'K', 'L', 'M', 'N', 'O', 'BR', 'T', 'AC', 'P', 'R', 'AH', 'AU', 'BA', 'BH', 'BI', 'Q', 'S', 'U',
           'AY', 'X', 'V', 'AZ', 'W', 'Y', 'Z', 'AA', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AV', 'AW', 'AX', 'BB', 'BC', 'BD',
-          'BE', 'BF', 'BG', 'BP', 'BQ']
-PANEL = ['C33', 'D33', 'D34', 'D35', 'D36', 'D37', 'D38', 'D39', 'C40', 'D40', 'C41', 'D41', 'C42', 'D42', 'D43',
+          'BE', 'BF', 'BG', 'BP', 'BQ', 'BS']
+PANEL = ['K77', 'K78', 'K79', 'G15', 'C33', 'D33', 'D34', 'D35', 'D36', 'D37', 'D38', 'D39', 'C40', 'D40', 'C41', 'D41', 'C42', 'D42', 'D43',
          'C46', 'D46', 'D47', 'C48', 'D48', 'C49', 'D49', 'E49', 'E50', 'E51', 'E52', 'E53', 'E54', 'E55',
          'G16', 'G17', 'G18', 'C59', 'C60', 'C61', 'C62', 'C63', 'C64', 'K37', 'K68']
 PANEL += ['%s%d' % (c, r) for r in range(68, 77) for c in 'CD']
-MONTH_COLS = 'CDEFGHIJKLMNOPQRSTUVWX'
+MONTH_COLS = list('CDEFGHIJKLMNOPQRSTUVWXYZ') + ['AA']
 
 
 def main():
@@ -34,7 +34,9 @@ def main():
         own[('Oma kulutusdata', 'G%d' % (i + 2))] = float(t5[i])
     cases = [
         ('oletus', {}, None),
-        ('chp_15', {(P, 'C15'): 1}, None),
+        ('orc_broileri_1300MWh', {(P, 'D4'): 'Broilerikasvattamo', (P, 'L7'): 1300000, (P, 'C15'): 1}, None),
+        ('orc_paluu45_k70_300', {(P, 'D4'): 'Broilerikasvattamo', (P, 'L7'): 1300000, (P, 'C15'): 1, (P, 'K72'): 45,
+                                 (P, 'K70'): 300, (P, 'K76'): 200}, None),
         ('reservi_12kk', {('Reservimarkkina', 'C6'): 'Kyllä'}, None),
         ('lampo_ja_varaaja', {(P, 'C10'): 1, (P, 'C11'): 1, (P, 'C12'): 1, (P, 'K53'): 'Kyllä', (P, 'K22'): 'Pörssihinta'}, synth),
         ('oma_data_oma_lampotila', own, None),

@@ -1,6 +1,6 @@
 # Maatilan hybridienergialaskuri – esittely, käyttö ja jatkokehitys
 
-Ohje versiolle 0.11.0. Päivitetty 6.11.2026.
+Ohje versiolle 0.12.0. Päivitetty 9.11.2026.
 
 ## Mikä laskuri on?
 
@@ -69,7 +69,7 @@ Tarkista myös **Vuosikassavirta**-välilehden laitekohtaiset tukikelpoiset kust
 
 Taulukko on esimerkki vertailujärjestyksestä. Tee myös muita yhdistelmiä: laitteiden yhteiskäyttö voi muuttaa yksittäisen laitteen arvoa. Makroversion **Optimointi**-välilehti tekee saman järjestelmällisesti annetuilla ehdokasarvoilla (koordinaattihaku). Tarkista haun jälkeen hakuloki ja lähiarvot; haku ei takaa parasta mahdollista yhdistelmää.
 
-CHP-tarkastelussa (rivi 15) sähkön osuus päälämmön tuotosta, €/kWe-hinta, ylläpito ja käyttöikä (**K65–K67**) ovat omia oletuksia. Korvaa ne laitetoimittajan tiedoilla ennen johtopäätöksiä.
+CHP-tarkastelussa (rivi 15) ORC on Enogia ENO-40LT -tyyppinen (40 kWe). Sen sähkö riippuu paluupiirin lämpötilasta (**K72**), ja se käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (**K76**, 450 kWth). €/kWe-hinta, ylläpito, käyttöikä (**K65–K67**), viiteolosuhde ja omakäyttö ovat omia oletuksia. Korvaa ne laitetoimittajan tiedoilla ennen johtopäätöksiä.
 
 Akun ohjaus valitaan **K26**-solussa. *Vain PV-ylijäämä* hyödyntää aurinkosähkön ylijäämää. *Pörssiohjattu* sallii lisäksi verkkolatauksen valittuina edullisina tunteina ja purun kalliina tunteina. Jälkimmäinen edellyttää pörssihintoja. Ohjaus on sääntöpohjainen, eikä se takaa pienintä mahdollista sähkölaskua.
 
@@ -97,7 +97,7 @@ Tallenna vertailun yhteyteen laskurin versio, lähtötietojen lähteet ja vuodet
 - Esimerkkikulutus on synteettistä. Sää- ja PV-referenssin täydellinen alkuperäketju ei ole tiedossa. Paikallisen tuotannon arvio edellyttää sijainnin, suuntauksen ja varjostuksen huomioimista.
 - Lämpöpumpun ja kattilan toimintaa yksinkertaistetaan. Menoveden lämpötila, sulatukset, osakuorma ja käynnistykset eivät sisälly malliin yksityiskohtaisina laitemalleina.
 - Akku ja reservi sisältävät käyttäjän oletuksia käyttöiästä, aktivointienergiasta ja saatavuudesta. Laskenta ei korvaa akun tai reservitoimittajan teknistä hyväksyntää.
-- CHP on sähköosuusmalli: sähkö = osuus × päälämmön tuotto ja lisäpolttoaine kattilan hyötysuhteella. Laitekohtaisia hyötysuhteita, minimikuormaa tai käynnistyksiä ei mallinneta.
+- CHP on lämpöohjattu ORC-malli: hyötysuhde skaalataan Carnot-kertoimella menoveden ja paluupiirin lämpötilasta, ja ORC käy vain pienimmän lämpötehon yläpuolella. Osakuorman hyötysuhdetta, käynnistyksiä ja lauhdutusajoa ei mallinneta.
 - Kokoonpanon optimointi on koordinaattihaku käyttäjän antamasta ruudukosta, ei globaali optimi. Ohjaussäännöt ja hinnat pysyvät haun aikana samoina.
 - Pythonin MILP-optimointi käyttää horisontilla ennakkotietoa. Sen ohjaus ja varaajahäviömalli eroavat Excelin sääntöohjauksesta. Tulos ei ole suoraan käytännössä saavutettava tai koko vuoden globaali optimi.
 
@@ -122,7 +122,7 @@ Laskurin avoin lisenssi ei muuta ulkoisen datan ehtoja. Esimerkiksi ladatun pör
 
 Lähdeviitteen voi muodostaa näin:
 
-> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.11.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
+> Karirinne, S. & Jääskeläinen, M. (2026). Maatilan hybridienergialaskuri, versio 0.12.0. EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Seinäjoen ammattikorkeakoulu. https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri. Laskuri ja dokumentaatio: CC BY 4.0. Python-koodi: MIT.
 
 Lisää muokattuun versioon tieto omista muutoksistasi ja niiden päivämäärästä. Koneellisesti luettava viittaus on tiedostossa [CITATION.cff](../CITATION.cff).
 
@@ -143,7 +143,7 @@ Seuraavat kohteet ovat ehdotettu kehitysjärjestys. Ne eivät ole nykyversion om
 | 7 | Monivuotisuus ja epävarmuus | Useita sää-/hintavuosia, ikääntyminen ja herkkyysajojen automatisointi | Yhden NPV-luvun rinnalla esitetään oletusten vaikutus ja vaihtoehtojen järjestyksen vaihtuminen. |
 | 8 | Saavutettavuus ja uudet käyttötavat | Selkeämpi syöttönäkymä, tuontityökalu tai yhteiseen laskentaytimeen perustuva verkkosovellus | Uusi käyttöliittymä läpäisee samat laskentatapaukset; lähteet, versio ja oletukset näkyvät käyttäjälle. |
 
-Päästölaskentaa voi kehittää yhtenäiseksi elinkaarivertailuksi, kun sähkölle, polttoaineille ja laitteille on yhteensopivat aineistot ja järjestelmärajat. Nykyistä CHP-sähköosuusmallia voi tarkentaa laitekohtaisella sähköhyötysuhteella, minimikuormalla ja käyntiajoilla. Biokaasuprosessin lisääminen vaatii oman sähkö-/lämpötaseensa, hyötysuhteensa, polttoainevirtansa ja käyttökustannuksensa. Näitä laajennuksia ei tule toteuttaa pelkkänä uutena käyttöliittymävalintana.
+Päästölaskentaa voi kehittää yhtenäiseksi elinkaarivertailuksi, kun sähkölle, polttoaineille ja laitteille on yhteensopivat aineistot ja järjestelmärajat. ORC-mallia voi tarkentaa valmistajan osakuormakäyrillä, lauhdutusajolla (esim. kuivajäähdytin tai maalämpövarasto) ja pörssiohjatuilla käyntiajoilla. Biokaasuprosessin lisääminen vaatii oman sähkö-/lämpötaseensa, hyötysuhteensa, polttoainevirtansa ja käyttökustannuksensa. Näitä laajennuksia ei tule toteuttaa pelkkänä uutena käyttöliittymävalintana.
 
 ## Käytännön ohje kehittäjälle
 

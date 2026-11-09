@@ -1,5 +1,22 @@
 # Muutosloki
 
+## 0.12.0 (2026-11-09): Veto Cont 500e, ORC ja lämpötase
+
+**Muutettua**
+- Päälämmityksen teho (D14) oletuksena 500 kW: Veljekset Ala-Talkkari Veto Cont 500e -tyyppinen tuorehakelämpökeskus. Oletusesimerkin tulokset eivät muutu, koska 300 kW riitti jo.
+- CHP (rivi 15) on ORC-malli: D15 = bruttosähköteho (Enogia ENO-40LT 40 kWe), investointi = D15 × F15. Asetukset K69–K79: nimellinen lämpöteho 640 kWth, menovesi 110 °C, paluupiiri 30 °C, viiteolosuhde 110/25 °C, omakäyttö 10 %, pienin lämpöteho 450 kWth. Nettosähköhyötysuhde skaalataan Carnot-kertoimella viiteolosuhteesta; brutto ei ylitä D15:tä. Lämpöohjattu: sähkö = K79 × päälämpö, enintään K78, vain kun ORC:n lämpöteho ≥ K76.
+- Aiempi sähköosuus (D15 = 0,15) poistui. Optimoinnin CHP-ehdokkaat ovat nyt kWe (0, 40).
+- Python-malli: sim(chp_max, chp_min_heat) ja orc_params(); oletuskattila 500 kW.
+
+**Uutta**
+- Tuntitase BS (päälämpö ORC:n kautta) ja Kuukausikoonti Y:AA (lämmöntarve, päälämpö ORC:n kautta, lämpövaje).
+- Selainversio: *Lämmön kulutus ja tuotanto kuukausittain* sähkökuvaajan rinnalle; ORC-sähkö sähkökuvaajaan; ORC samalla värillä molemmissa. Kuvaajat avautuvat klikkaamalla suurena omaan ikkunaan kuukausi-, päivä- tai tuntitasolla (ponnahdusikkunan estyessä samalle sivulle).
+- Testit: ORC-tapaukset Excel–Python (ei käy sikalalla, broileri 1 300 MWh, paluu 45 °C ja tehoraja, toimitettu lämpö, virheelliset asetukset) ja Excel–selain (2 uutta yksityiskohtaista tapausta, kuukausikoonti C–AA).
+
+**Lähteet**
+- [Enogia ENO-40LT datasheet 2019](https://www.hydroscot-energies.co.uk/wp-content/uploads/2020/04/Datasheet-ENO-40LT_2019-EN.pdf): lämmönlähde 70–120 °C, 450–640 kWth, 40 kWe brutto, jäähdytysvesi 0–60 °C.
+
+
 ## 0.11.0 (2026-11-06): Rakennushaku osaksi laskuria
 
 **Uutta**

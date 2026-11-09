@@ -1,7 +1,7 @@
 # Maatilan hybridienergialaskuri – Excel-mallin käyttöohje
 
-**Mallin versio:** 0.11.0  
-**Ohje päivitetty:** 6.11.2026  
+**Mallin versio:** 0.12.0  
+**Ohje päivitetty:** 9.11.2026  
 **Työkirjat:** Maatilan_hybridienergialaskuri.xlsx (ilman makroja) ja Maatilan_hybridienergialaskuri.xlsm (lisäksi kokoonpanon optimointi)  
 **Tekijät:** Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä  
 **Hanke:** EIP CHP Energiaälykäs eteläpohjalainen maatila
@@ -24,7 +24,7 @@ Keskeiset tulokset ovat verkosta ostettu ja verkkoon myyty sähkö, aurinkosähk
 4. Varmista **Kaavat → Laskenta-asetukset → Automaattinen**. Tarvittaessa käynnistä täysi uudelleenlaskenta näppäimillä **Ctrl+Alt+F9**. Laskenta voi kestää.
 5. Aloita välilehdeltä **Ohjauspaneeli ja Tulokset**. Muokkaa keltaisia syöttösoluja ja säilytä laskentasolujen kaavat.
 
-Version 0.11.0 työkirjojen kaavat ovat samat kuin versiossa 0.10.0, jonka työkirjat on laskettu uudelleen LibreOffice Calcissa ja tarkistettu riippumattomalla kaavatulkitsimella. Microsoft Excelin omaa avaamista ja makron ajoa ei ole testattu tässä tarkistuksessa. Jos sovellus ilmoittaa tiedoston korjauksesta tai kaavavirheistä, selvitä ilmoitus ennen tulosten käyttöä.
+Version 0.12.0 työkirjat on laskettu uudelleen LibreOffice Calcissa ja tarkistettu riippumattomalla kaavatulkitsimella. Microsoft Excelin omaa avaamista ja makron ajoa ei ole testattu tässä tarkistuksessa. Jos sovellus ilmoittaa tiedoston korjauksesta tai kaavavirheistä, selvitä ilmoitus ennen tulosten käyttöä.
 
 ## 3. Välilehdet
 
@@ -44,7 +44,7 @@ Version 0.11.0 työkirjojen kaavat ovat samat kuin versiossa 0.10.0, jonka työk
 
 ## 4. Syötä tilan kulutus ja nykyinen lämmitys
 
-Valitse Ohjauspaneelin solusta **D4** tuotantosuunta ja solusta **D5** päälämmitysmuoto. Tarkista nykyisen kattilan teho **D14**-solusta. Vertailun molemmissa vaihtoehdoissa lämmön toimituskyvyn pitää riittää samaan tarpeeseen.
+Valitse Ohjauspaneelin solusta **D4** tuotantosuunta ja solusta **D5** päälämmitysmuoto. Tarkista nykyisen kattilan teho **D14**-solusta (oletus 500 kW, Veto Cont 500e -tyyppinen). Vertailun molemmissa vaihtoehdoissa lämmön toimituskyvyn pitää riittää samaan tarpeeseen.
 
 ### Vaihtoehto A: käytössä on vain vuosikulutus
 
@@ -84,10 +84,11 @@ Tarkista seuraavat asetukset:
 | Sähkökattilan verkkolataus | K53 | Valitse, saako varaajaa ladata verkosta ostetulla sähköllä. |
 | Lämpöpumpun ohjaus | K54 | Taloudellinen ohjaus tai lämpöpumpun etusijakäyttö. |
 | COP-parametrit ja käyttörajat | K55–K60 | Sovita arvot laitteen, menoveden lämpötilan ja käyttöolosuhteiden tietoihin. |
-| CHP: sähköosuus, €/kWe | D15, F15 | Sähköteho = D15 × kattilan teho D14. Korvaa toimittajan tiedoilla. |
+| CHP: ORC bruttoteho, €/kWe | D15, F15 | Enogia ENO-40LT -tyyppinen 40 kWe. Investointi = D15 × F15. |
+| ORC-asetukset | K69–K76 | Lämpöteho 640 kWth, menovesi 110 °C, paluupiiri 30 °C, viiteolosuhde 110/25 °C (oma oletus), omakäyttö 10 % (oma oletus), pienin lämpöteho 450 kWth. Tulokset K77–K79. |
 | CHP: ylläpito, käyttöikä, uusiminen | K65–K67 | €/MWh sähköä, vuodet ja uusimisen osuus nykyhinnasta ovat omia oletuksia. |
 
-**CHP (rivi 15).** CHP-sähkö = D15 × päälämmön tuotto joka tunti. Se kattaa ensin tilan sähköntarpeen; ylijäämä myydään. Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26, ja se näkyy polttoainekustannuksessa ja päästöissä. Vuotuinen tuotanto näkyy solussa K68 ja rivillä 43. CHP ei toimi eikä sen investointia lasketa, jos K62 = *Toimitettu lämpö*. Malli ei huomioi CHP-laitteen sähköhyötysuhdetta, minimikuormaa eikä käynnistyksiä.
+**CHP: ORC (rivi 15).** ORC-sähkö = K79 × päälämmön tuotto joka tunti, enintään K78, ja vain tunteina, joina ORC:n lämpöteho on vähintään K76. K79 lasketaan menoveden K71 ja paluupiirin K72 lämpötilasta (Carnot-skaalaus viiteolosuhteesta). Se kattaa ensin tilan sähköntarpeen; ylijäämä myydään. Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26, ja se näkyy polttoainekustannuksessa ja päästöissä. Vuotuinen tuotanto näkyy solussa K68 ja rivillä 43. CHP ei toimi eikä sen investointia lasketa, jos K62 = *Toimitettu lämpö*. Malli ei huomioi osakuorman hyötysuhdetta, käynnistyksiä eikä lauhdutusajoa.
 
 Pidä kustannusten arvonlisäverokäsittely yhtenäisenä. Laskuri ei laske vero- tai rahoituskassavirtoja. Tukiprosentti on laskentaoletus, ei vahvistus tuen myöntämisestä.
 
@@ -137,7 +138,7 @@ Tee vertailu aina myös ilman reservituloa. Käyttöhistoria ei takaa tulevaa hi
 
 1. Aseta ensin kaikki muut lähtötiedot: tila, lämmitys, hinnat, korko ja ohjaustavat.
 2. Valitse mittari solussa **C5**: *NPV (suurin)*, *Takaisinmaksuaika (lyhin)* tai *Vuotuinen säästö (suurin)*.
-3. Kirjoita ehdokasarvot soluihin **D8:D13** pilkuin eroteltuna. Arvo 0 tarkoittaa, että laite on pois päältä. CHP-osuus kirjoitetaan desimaalina pisteellä, esimerkiksi 0.15.
+3. Kirjoita ehdokasarvot soluihin **D8:D13** pilkuin eroteltuna. Arvo 0 tarkoittaa, että laite on pois päältä. ORC:n ehdokkaat kirjoitetaan kWe:inä, esimerkiksi 0, 40.
 4. Paina hakupainiketta. Haku muuttaa yhden laitteen kokoa kerrallaan, laskee koko laskurin uudelleen ja jättää voimaan parhaan arvon. Kierroksia tehdään, kunnes tulos ei parane, enintään neljä.
 5. Paras kokoonpano kirjoitetaan Ohjauspaneelin riveille 9–13 ja 15. Rivillä 18 on paras tulos ja riveiltä 25 alkaen jokainen laskettu kokoonpano (Sija-sarake: 1 = paras).
 
@@ -177,7 +178,8 @@ Seuraavat arvot ovat **mallin oletuksia**, eivät lähdeluettelon vahvistamia la
 | Varaaja | 46,5 kWh/m³, häviö 100 W, purkuteho 300 kW | Vesitilavuus, lämpötilaero, häviö ja lämmönsiirto |
 | Reservi | Odotettu aktivointi 0,01 h/h, saatavuus 95 %, tilan osuus 50 %, vähimmäispalkkio 12 €/kk, kyllästyneen markkinan vuosimuutos −10 % | Toteutuva käyttö, aggregaattorin sopimus ja kustannukset |
 | Valmistuspäästöt | PV 700 kg/kWp, akku 90 kg/kWh, lämpöpumppu 100 kg/kW, varaaja 300 kg/m³ | Tuote- ja järjestelmäkohtaiset elinkaaritiedot |
-| CHP | Sähköosuus 15 % päälämmön tuotosta, 3 000 €/kWe, ylläpito 15 €/MWh, käyttöikä 15 v, uusiminen 80 % | Laitteen sähköhyötysuhde, minimikuorma, huolto ja hinta |
+| Päälämmitys | Veto Cont 500e -tyyppinen, 500 kW, hyötysuhde 0,85 | Oman kattilan teho ja hyötysuhde |
+| CHP: ORC | ENO-40LT-tyyppinen 40 kWe, 3 000 €/kWe, viiteolosuhde 110/25 °C, omakäyttö 10 %, ylläpito 15 €/MWh, käyttöikä 15 v, uusiminen 80 % | Toimittajan teho- ja hyötysuhdetiedot, hinta ja huolto |
 | Polttoaineiden päästöarviot | Hake 13 ja biokaasu 15 kg CO₂e/MWh polttoainetta | Toimitusketju, metaanipäästöt ja laskennan rajaus |
 
 Sää- ja PV-esimerkkien alkuperäistä havaintovuotta, havaintoasemaa, lähdepalvelua ja muunnosketjua ei ole toimitetussa aineistossa täysin dokumentoitu. Myös synteettisten kulutusprofiilien muodostus ja validointi ovat puutteellisesti dokumentoituja. Niille ei siksi nimetä varmistamatonta lähdettä. Eri vuosien kulutus, sää ja hinnat muodostavat herkkyysskenaarion, eivät toteutuneen vuoden jälkilaskentaa.
@@ -268,7 +270,7 @@ Laskuri on laadittu EIP CHP Energiaälykäs eteläpohjalainen maatila -hankkeess
 
 Excel-laskuria ja tätä ohjetta voi käyttää, muokata ja jakaa **CC BY 4.0** -lisenssillä [13], kun tekijät ja lähde mainitaan, lisenssiin viitataan ja muutoksista ilmoitetaan. Säilytä mukana toimitetut lisenssi- ja tekijätiedot. Laskuri toimitetaan ilman takuuta.
 
-Lähdeviite: Karirinne, S. & Jääskeläinen, M. (2026). *Maatilan hybridienergialaskuri*, versio 0.11.0. Seinäjoen ammattikorkeakoulu, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke. CC BY 4.0.
+Lähdeviite: Karirinne, S. & Jääskeläinen, M. (2026). *Maatilan hybridienergialaskuri*, versio 0.12.0. Seinäjoen ammattikorkeakoulu, EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke. CC BY 4.0.
 
 ## 13. Tekoäly laskurin kehittämisessä ja käytössä
 

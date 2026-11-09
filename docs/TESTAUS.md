@@ -1,3 +1,17 @@
+# Version 0.12.0 tarkistukset — 9.11.2026
+
+| Tarkistus | Tulos |
+|---|---|
+| LibreOffice Calc, täysi uudelleenlaskenta (.xlsm) ja välimuistiarvojen siirto | 440 522 kaavaa, ei virhearvoja; rakenne- ja virhetarkistus läpäisty (.xlsm ja .xlsx) |
+| Excel–Python-regressio (malli/test_excel.py) | kaikki tapaukset, tuntiero enintään 1,1 × 10⁻¹³; uudet ORC-tapaukset: ei käy sikalalla (huippu 46 kW), broileri 1 300 MWh/v (NPV −114 588 €), paluu 45 °C + K70 300 kWth + pörssi (tehoraja K78 sitoo), toimitettu lämpö (ei ORC:tä), virheellinen omakäyttö ja liian kuuma paluu |
+| Selainversio vs. työkirja (node web/testi.js) | 11 tapausta ja 3 puutetilaa sekä 3 694 yksityiskohtaista arvoa seitsemässä tapauksessa täsmäävät (mukana K77–K79, G15 ja Kuukausikoonti C–AA) |
+| Python-yksikkötestit (malli/test_regressiot.py, scripts/) | läpäisty |
+| Käyttöliittymä Chromiumissa | lämpökuvaaja ja ORC-sähkö näkyvät, ORC samalla värillä; suuri näkymä avautuu omaan ikkunaan kuukausi-, päivä- ja tuntitasolla, jaksovalinta ja arvojen luku toimivat; ei skriptivirheitä |
+
+Esimerkkisikalan tulokset eivät muutu (300 kW riitti jo). Veto Cont 500e:n ja ENO-40LT:n mallikohtaisia osakuormatietoja ei ollut käytettävissä; ORC-malli perustuu datasheetin rajoihin ja Carnot-skaalaukseen (docs/MENETELMA.md).
+
+---
+
 # Version 0.11.0 tarkistukset — 6.11.2026
 
 | Tarkistus | Tulos |

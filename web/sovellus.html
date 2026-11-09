@@ -117,6 +117,15 @@ dialog.rh[open] { display: flex; flex-direction: column }
 dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; border: 0; background: #fff }
 @media (max-width: 640px) { .rh-bar span { display: none } dialog.rh { width: 100vw; height: 100vh; border-radius: 0 } }
 .rh-sum { margin: 6px 0 0; padding-left: 1.1em; font-size: .85rem }
+svg.zoom { cursor: zoom-in }
+svg.zoom:focus-visible { outline: 3px solid var(--pelto); outline-offset: 2px }
+.zoom-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin: -4px 0 14px }
+.zoom-btns { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .85rem; color: var(--muted) }
+.zoom-btns button { padding: 4px 10px; font-size: .85rem }
+dialog.big .big-body { flex: 1 1 auto; overflow: auto; background: var(--surface) }
+dialog.big .big-body .bv-head { background: transparent; border: 0; padding: 8px 18px }
+dialog.big .big-body .bv-head h1 { display: none }
+dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(--ink); border-color: var(--line) }
 </style>
 
 <div class="stripe" aria-hidden="true"></div>
@@ -125,7 +134,7 @@ dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; b
     <h1>Maatilan hybridienergialaskuri</h1>
     <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja, CHP ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
   </div>
-  <div class="ver">Versio 0.11.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
+  <div class="ver">Versio 0.12.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
 <div class="toolbar" role="toolbar" aria-label="Tallennus ja jakaminen">
   <button type="button" id="tSave">Tallenna lähtötiedot</button>
@@ -151,10 +160,17 @@ dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; b
   <div class="tabs" role="tablist" id="tabs"></div>
 
   <div class="panel" id="p-yhteenveto">
-    <div class="card"><h2>Sähkön osto kuukausittain</h2>
-      <div class="tw"><svg id="kaavio" viewBox="0 0 760 240" width="100%" role="img" aria-label="Verkko-osto ilman investointia ja investoinnin kanssa sekä aurinkosähkön tuotanto kuukausittain"></svg></div>
-      <div class="legend"><span><i style="background:var(--lila-soft);border:1px solid var(--lila)"></i>Osto ilman investointia</span><span><i style="background:var(--lila)"></i>Osto hybridillä</span><span><i style="background:var(--keltainen);border:1px solid var(--muted)"></i>Aurinkosähkö</span></div>
+    <div class="two charts">
+      <div class="card"><h2>Sähkön osto ja tuotanto kuukausittain</h2>
+        <div class="tw"><svg id="kaavio" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Sähkön osto ilman investointia ja hybridillä, aurinkosähkö ja ORC-sähkö kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
+        <div class="legend" id="kaavioLeg"></div>
+      </div>
+      <div class="card"><h2>Lämmön kulutus ja tuotanto kuukausittain</h2>
+        <div class="tw"><svg id="kaavioL" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Lämmöntarve sekä päälämmitys suoraan ja ORC:n kautta, lämpöpumppu ja varaaja kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
+        <div class="legend" id="kaavioLLeg"></div>
+      </div>
     </div>
+    <div class="zoom-bar"><span class="hint" id="orcNote"></span><span class="zoom-btns">Avaa suurena omaan ikkunaan: <button type="button" data-big="kk">Kuukausi</button><button type="button" data-big="pv">Päivä</button><button type="button" data-big="h">Tunti</button></span></div>
     <div class="two">
       <div class="card"><h2>Energiatase</h2><div class="tw"><table id="tEnergia"></table></div></div>
       <div class="card"><h2>Kustannukset ja säästö</h2><div class="tw"><table id="tTalous"></table></div></div>
@@ -194,7 +210,7 @@ dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; b
         <label for="oEk">Sähkökattila, kW</label><input type="text" id="oEk" value="0, 15, 30, 60">
         <label for="oVar">Vesivaraaja, m³</label><input type="text" id="oVar" value="0, 2, 5, 10, 20">
         <label for="oAkku">Akku, kWh</label><input type="text" id="oAkku" value="0, 15, 30, 60, 100, 150">
-        <label for="oChp">CHP-osuus</label><input type="text" id="oChp" value="0, 0.05, 0.1, 0.15, 0.2">
+        <label for="oChp">ORC, kWe brutto</label><input type="text" id="oChp" value="0, 40">
       </div>
       <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button type="button" id="oRun">Etsi paras kokoonpano</button><span class="hint" id="oTila"></span></div>
       <div class="tw" style="margin-top:8px"><table id="tOpt"></table></div>
@@ -240,6 +256,10 @@ dialog.rh iframe { display: block; width: 100%; flex: 1 1 auto; min-height: 0; b
   <div>Laskuri ja dokumentaatio CC BY 4.0, koodi MIT. Fingridin avoin data CC BY 4.0, lähde Fingrid Oyj. Excel-versio, menetelmä ja palaute: <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri" target="_blank" rel="noopener">github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri</a></div>
 </footer>
 
+<dialog class="rh big" id="bigDialog" aria-label="Sähkö ja lämpö suurena">
+  <div class="rh-bar"><div><strong>Sähkö ja lämpö</strong> <span>Ponnahdusikkuna estettiin, joten näkymä avautui tähän.</span></div><button type="button" id="bigClose">Sulje</button></div>
+  <div class="big-body"></div>
+</dialog>
 <dialog class="rh" id="rhDialog" aria-labelledby="rhTitle">
   <div class="rh-bar">
     <div><strong id="rhTitle">Rakennushaku</strong> <span>Tilan rakennukset, kulutus, säätiedot ja pörssihinnat. Laske tuntiprofiili ja paina <em>Siirrä laskuriin</em>.</span></div>
