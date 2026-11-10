@@ -8,6 +8,8 @@
 
 Laskurista on myös selainversio samalla laskennalla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/. Tilan oman kulutusprofiilin voi tehdä Rakennushaulla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html
 
+**Käyttäjän vastuu.** Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista. Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan.
+
 ## 1. Mihin laskuria käytetään?
 
 Maatilan hybridienergialaskuri auttaa vertailemaan aurinkosähkön, sähköakun, lämpöpumpun, sähkökattilan ja lämpövaraajan käyttöä maatilan olemassa olevan hake- tai biokaasulämmityksen rinnalla. Se laskee sähkön ja lämmön käytön tunti tunnilta koko vuodelle ja näyttää, miten käyttäjän valitsemat laitteet vaikuttavat energiavirtoihin, kustannuksiin ja päästöarvioihin.

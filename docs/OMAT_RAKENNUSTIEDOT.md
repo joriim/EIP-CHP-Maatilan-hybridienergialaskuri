@@ -4,6 +4,8 @@ Tämä ohje kertoo, miten tilan omista rakennuksista ja omista sähkö-, lämpö
 
 Menetelmät, oletukset ja lähteet: Rakennushaun ohjeen *Menetelmät, oletukset ja lähteet* -osio ja [MENETELMA.md](MENETELMA.md#rakennushaku).
 
+**Käyttäjän vastuu.** Käyttäjä vastaa Rakennushakuun syöttämistään tiedoista: rakennusten aloista ja käytöstä, kulutustiedoista sekä polttoaineen määrästä, energiasisällöstä ja kattilan hyötysuhteesta. Laskurissa käyttäjä vastaa lisäksi investointi- ja käyttökustannuksista sekä siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa teknis-taloudellisen mallinnuksen tai ennusteen.
+
 ## Periaate lyhyesti
 
 Rakennushaku tekee profiilin kahdesta osasta:

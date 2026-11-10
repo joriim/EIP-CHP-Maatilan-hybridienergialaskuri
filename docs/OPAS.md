@@ -12,6 +12,8 @@ Työkalu soveltuu erityisesti sika- ja siipikarjatilojen alustavaan tarkasteluun
 
 Laskurin tavoite on tehdä vaihtoehtojen oletukset ja vaikutukset näkyviksi. Se auttaa tunnistamaan jatkoselvitystä vaativat ratkaisut sekä tarkistamaan, mistä laskettu hyöty syntyy. Investointipäätös edellyttää lisäksi kohdekohtaisia mittauksia, laitetarjouksia, teknistä suunnittelua ja sopimusehtojen tarkistamista.
 
+**Käyttäjän vastuu.** Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista. Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan.
+
 ## Mitä laskuri kertoo?
 
 | Tarkastelu | Laskurin tulos | Tulkinnassa huomioitavaa |

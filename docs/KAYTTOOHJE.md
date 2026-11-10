@@ -4,6 +4,8 @@ Laskurin tarkoitus, tulosten tulkinta, avoimet lisenssit ja jatkokehitys: [esitt
 
 Tämä ohje käy laskurin läpi vaihe vaiheelta. Laskuri on kahtena tasavertaisena versiona: selaimessa (https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/ tai web/index.html) ja Excelissä (suositus Microsoft 365 / Excel 2019 tai uudempi, myös LibreOffice Calc). Versiot laskevat samat tulokset. Työkirja 0.10.0 on avattu ja uudelleenlaskettu LibreOffice Calcissa. Microsoft Excelin omaa avaamista ei ole testattu tässä ympäristössä; varmista uudelleenlaskenta avatessasi tiedoston. MAXIFS ei ole kaikissa Excel 2016 -asennuksissa saatavilla.
 
+**Käyttäjän vastuu.** Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista. Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan.
+
 ## Kaksi tiedostoa
 
 | Tiedosto | Käyttö |

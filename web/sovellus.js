@@ -20,7 +20,7 @@
     ['tila', '1. Tila ja kulutus', true, [
       ['tuotanto', 'Tuotantosuunta', '', 'D4', ['Lihasikala', 'Broilerikasvattamo', 'Oma data']],
       ['lammitys', 'Päälämmitys', '', 'D5', ['Hakekattila', 'Biokaasu']],
-      ['kattila', 'Päälämmityksen teho (oletus Veto Cont 500e -tyyppinen, 500 kW)', 'kW', 'D14', N(10, 0)],
+      ['kattila', 'Päälämmityksen teho', 'kW', 'D14', N(10, 0)],
       ['skaalaSahko', 'Sähkö vuodessa (0 = profiilin taso)', 'kWh', 'K7', N(1000, 0)],
       ['skaalaLampo', 'Lämpö vuodessa (0 = profiilin taso)', 'kWh', 'L7', N(1000, 0)],
     ], 'ownFiles'],
@@ -131,7 +131,7 @@
           html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit ? ', ' + unit : ''}</label>` +
             `<input type="number" id="${size}" min="0" step="1"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
         });
-        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho (oletus 40 kWe), hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
+        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho, hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
       }
       fields.forEach(f => { html += row(f); });

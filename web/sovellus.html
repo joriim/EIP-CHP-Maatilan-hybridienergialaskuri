@@ -90,7 +90,7 @@ svg text { fill: var(--muted); font-size: 11px; font-family: var(--body) }
 .note { background: var(--olki-soft); border-radius: 4px; padding: 8px 12px; font-size: .88rem }
 .opt-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 6px 10px; align-items: center; font-size: .9rem }
 footer { max-width: 1320px; margin: 24px auto 0; color: var(--muted); font-size: .85rem; display: grid; gap: 6px }
-footer a { color: var(--energia) }
+footer a, .hint a, .note a, .method a { color: var(--energia) }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 
 .toolbar { max-width: 1320px; margin: 0 auto 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
@@ -248,7 +248,7 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
     </div>
   </div>
 
-  <div class="note">Suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus. Tarkista hinnat, tuet ja tekniset ratkaisut toimittajilta ja neuvojalta. Laskenta tehdään selaimessa; tiedostot eivät lähde koneeltasi.</div>
+  <div class="note">Suuntaa-antava suunnittelutyökalu, ei investointi-, rahoitus- tai verosuositus. <strong>Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista.</strong> Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan. Tarkista hinnat, tuet ja tekniset ratkaisut toimittajilta ja neuvojalta. Laskenta tehdään selaimessa; tiedostot eivät lähde koneeltasi.</div>
 </section>
 </main>
 
