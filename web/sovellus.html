@@ -136,7 +136,7 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
 <header class="top">
   <div>
     <h1>Maatilan hybridienergialaskuri</h1>
-    <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja, CHP ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
+    <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
   </div>
   <div class="ver">Versio 0.13.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
@@ -166,15 +166,15 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
   <div class="panel" id="p-yhteenveto">
     <div class="two charts">
       <div class="card"><h2>Sähkön osto ja tuotanto kuukausittain</h2>
-        <div class="tw"><svg id="kaavio" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Sähkön osto ilman investointia ja hybridillä, aurinkosähkö ja ORC-sähkö kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
+        <div class="tw"><svg id="kaavio" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Sähkön osto ilman investointia ja hybridillä, ja aurinkosähkö kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
         <div class="legend" id="kaavioLeg"></div>
       </div>
       <div class="card"><h2>Lämmön kulutus ja tuotanto kuukausittain</h2>
-        <div class="tw"><svg id="kaavioL" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Lämmöntarve sekä päälämmitys suoraan ja ORC:n kautta, lämpöpumppu ja varaaja kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
+        <div class="tw"><svg id="kaavioL" class="zoom" tabindex="0" viewBox="0 0 520 300" width="100%" role="img" aria-label="Lämmöntarve sekä päälämmitys, lämpöpumppu ja varaaja kuukausittain. Avaa suurena päivä- tai tuntitasolla."></svg></div>
         <div class="legend" id="kaavioLLeg"></div>
       </div>
     </div>
-    <div class="zoom-bar"><span class="hint" id="orcNote"></span><span class="zoom-btns">Avaa suurena omaan ikkunaan: <button type="button" data-big="kk">Kuukausi</button><button type="button" data-big="pv">Päivä</button><button type="button" data-big="h">Tunti</button></span></div>
+    <div class="zoom-bar"><span></span><span class="zoom-btns">Avaa suurena omaan ikkunaan: <button type="button" data-big="kk">Kuukausi</button><button type="button" data-big="pv">Päivä</button><button type="button" data-big="h">Tunti</button></span></div>
     <div class="two">
       <div class="card"><h2>Energiatase</h2><div class="tw"><table id="tEnergia"></table></div></div>
       <div class="card"><h2>Kustannukset ja säästö</h2><div class="tw"><table id="tTalous"></table></div></div>
@@ -214,7 +214,6 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
         <label for="oEk">Sähkökattila, kW</label><input type="text" id="oEk" value="0, 15, 30, 60">
         <label for="oVar">Vesivaraaja, m³</label><input type="text" id="oVar" value="0, 2, 5, 10, 20">
         <label for="oAkku">Akku, kWh</label><input type="text" id="oAkku" value="0, 15, 30, 60, 100, 150">
-        <label for="oChp">ORC, kWe brutto</label><input type="text" id="oChp" value="0, 40">
       </div>
       <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button type="button" id="oRun">Etsi paras kokoonpano</button><span class="hint" id="oTila"></span></div>
       <div class="tw" style="margin-top:8px"><table id="tOpt"></table></div>
@@ -230,13 +229,13 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
   <div class="panel method" id="p-menetelma" hidden>
     <div class="card"><h2>Menetelmä ja lähteet</h2>
       <h3>Laskenta</h3>
-      <p>Laskuri käy vuoden läpi 8 760 tuntia kiinteässä EET-ajassa (UTC+2). Aurinkosähkö palvelee ensin kiinteistön sähkökuormaa, sitten akkua, lämpöpumppua, sähkökattilaa ja myyntiä. Akun lataushyötysuhde on 0,9 ja teho 0,5C. Lämpöpumpun COP = a + b·T rajattuna ala- ja ylärajaan; taloudellinen ohjaus vertaa sähkön hintaa/COP päälämmön muuttuvaan hintaan. Päälämpö kattaa jäljelle jäävän lämmöntarpeen kattilan tehoon asti; vajaus estää kannattavuusvertailun. CHP-sähkö on osuus päälämmön tuotosta, ja lisäpolttoaine lasketaan kattilan hyötysuhteella.</p>
+      <p>Laskuri käy vuoden läpi 8 760 tuntia kiinteässä EET-ajassa (UTC+2). Aurinkosähkö palvelee ensin kiinteistön sähkökuormaa, sitten akkua, lämpöpumppua, sähkökattilaa ja myyntiä. Akun lataushyötysuhde on 0,9 ja teho 0,5C. Lämpöpumpun COP = a + b·T rajattuna ala- ja ylärajaan; taloudellinen ohjaus vertaa sähkön hintaa/COP päälämmön muuttuvaan hintaan. Päälämpö kattaa jäljelle jäävän lämmöntarpeen kattilan tehoon asti; vajaus estää kannattavuusvertailun.</p>
       <p>FCR-D ylös myy akun purkutehon ja FCR-D alas lataustehon aggregaattorin kautta. Tarjontaa rajaavat varaus, vapaa tila, teho ja energianhallinnan tehoreservi. Tilan tuotto vähentää aggregaattorin osuuden ja vähimmäispalkkion.</p>
-      <p>NPV sisältää ylläpidon sekä akun, invertterin ja CHP:n uusimiset; uusitun laitteen jäljellä oleva käyttöikä hyvitetään. Selainversion laskenta on sama kuin Excel-työkirjassa ja Python-mallissa; testi vertaa lähes 3 000 arvoa kuudessa tapauksessa.</p>
+      <p>NPV sisältää ylläpidon sekä akun ja invertterin uusimiset; uusitun laitteen jäljellä oleva käyttöikä hyvitetään. Selainversion laskenta on sama kuin Excel-työkirjassa ja Python-mallissa; testi vertaa lähes 3 000 arvoa kuudessa tapauksessa.</p>
       <h3>Oletukset ja rajat</h3>
       <ul>
         <li>Esimerkkikulutus on synteettistä. Sää ja aurinkosähkö ovat Etelä-Pohjanmaan referenssivuosi; oma ulkolämpötila (esim. Rakennushaun vienti) korvaa lämpöpumpun laskennan lämpötilan.</li>
-        <li>COP, akun ikä, reservin aktivointi, CHP-arvot ja valmistuspäästöt ovat omia oletuksia. Korvaa ne laite- ja sopimustiedoilla.</li>
+        <li>COP, akun ikä, reservin aktivointi, päästökertoimet ja valmistuspäästöt ovat omia oletuksia. Korvaa ne laite- ja sopimustiedoilla.</li>
         <li>Yksi tuntivuosi toistetaan koko pitoajan. Hintoja tai säätä ei ennusteta.</li>
       </ul>
       <h3>Lähteet</h3>

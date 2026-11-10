@@ -137,7 +137,7 @@ Tee vertailu aina myös ilman reservituloa. Toteutunut tuotto vaihtelee kuukausi
 
 ## Selainversio
 
-Selainversio sisältää samat syötteet ja tulokset kuin työkirja. Syötteiden kohdalla näkyy vastaava Excel-solu (vie hiiri rivin päälle).
+Selainversio sisältää samat syötteet ja tulokset kuin työkirja, paitsi että CHP/ORC-asetukset (rivi 15, K65–K97) ja päästökertoimet (K36–K48) eivät ole selainversiossa muokattavissa: ORC on pois päältä ja päästöt lasketaan oletuskertoimilla. Laskentakorko (C27) on kohdassa 2 investointituen alla prosentteina. Syötteiden kohdalla näkyy vastaava Excel-solu (vie hiiri rivin päälle).
 
 - **Rakennushaku:** kohta 1, *Hae tila Rakennushaulla*. Hae tila kiinteistötunnuksella, osoitteella tai kartalta (Maanmittauslaitoksen ilmainen API-avain), valitse rakennukset, anna kulutus laskuilta tai mittareilta, valitse säätiedot ja hae halutessa pörssihinnat. Paina *Laske tuntiprofiili* ja sitten *Siirrä laskuriin*. Laskuri ottaa käyttöön Oma data -profiilin, ulkolämpötilan ja hinnat, ja kohdan 1 alle tulee luettelo siirretyistä tiedoista. Tarkista sen jälkeen päälämmitys (D5), polttoaineen hinta ja hinnoittelu (kohta 3). Erillinen Rakennushaku: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html (*Avaa laskurissa*). Vaiheittainen ohje omien rakennus-, sähkö-, lämpö- ja polttoainetietojen antamiseen: [OMAT_RAKENNUSTIEDOT.md](OMAT_RAKENNUSTIEDOT.md).
 - **Oma kulutus ja Rakennushaun CSV:** kohta 1, tiedosto *Oma kulutusdata tai Rakennushaun vienti*. Rakennushaun `oma_kulutusdata_<vuosi>.csv` tuo sähkön, lämmön, ulkolämpötilan ja vuoden pörssihinnat kerralla. Muu CSV: 8 760 riviä, kaksi viimeistä saraketta sähkö ja lämpö kWh/h.

@@ -21,7 +21,7 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 
 ## Uutta versiossa 0.13.0
 
-- **ORC:n täystehoajo valittuina kuukausina: kattila syöttää ORC:lle valitun tehon (oletus 500 kW) lämmöntarpeesta riippumatta, ja ylijäämälämpö menee ensin varaajaan ja sitten jäähdyttimeen.** Valinta on selainversiossa ORC-laitteen alla (kohta 2) ja Excelissä Ohjauspaneelin soluissa K80–K94; tulokset K95–K97 ja Tuntitase BT–BW. Muina kuukausina ORC on lämpöohjattu kuten ennen. Oletuksena pois, joten aiemmat tulokset eivät muutu.
+- **ORC:n täystehoajo valittuina kuukausina: kattila syöttää ORC:lle valitun tehon (oletus 500 kW) lämmöntarpeesta riippumatta, ja ylijäämälämpö menee ensin varaajaan ja sitten jäähdyttimeen.** Valinta on Excelissä Ohjauspaneelin soluissa K80–K94 (selainversiossa ORC-syötteet eivät ole näkyvissä); tulokset K95–K97 ja Tuntitase BT–BW. Muina kuukausina ORC on lämpöohjattu kuten ennen. Oletuksena pois, joten aiemmat tulokset eivät muutu.
 
 ## Uutta versiossa 0.12.0
 

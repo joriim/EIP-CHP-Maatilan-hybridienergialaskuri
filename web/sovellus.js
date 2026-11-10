@@ -40,7 +40,6 @@
       ['biokaasu', 'Biokaasulämmön hinta', '€/MWh', 'C25', N(1, 0)],
       ['hyotysuhde', 'Kattilan hyötysuhde', 'osuus', 'C26', N(0.01, 0.1, 1)],
       ['lammonPeruste', 'Päälämmön hinnan peruste', '', 'K62', ['Polttoaine', 'Toimitettu lämpö']],
-      ['korko', 'Laskentakorko', 'osuus', 'C27', N(0.005, 0)],
       ['pitoaika', 'Pitoaika', 'v', 'C28', N(1, 1, 100)],
       ['aloitusvuosi', 'Tarkastelun aloitusvuosi', '', 'K64', N(1, 2023, 2060)],
       ['yllapito', 'Ylläpito', 'osuus invest./v', 'K34', N(0.005, 0)],
@@ -57,7 +56,7 @@
       ['minEro', 'Vuorokauden vähimmäishintaero', 'c/kWh', 'K29', N(0.5, 0)],
       ['kuluminen', 'Akun kulumiskustannus ohjauksessa', 'c/kWh', 'K61', N(0.5, 0)],
     ]],
-    ['lampo', '6. Lämpöpumppu, varaaja ja CHP (ORC)', false, [
+    ['lampo', '6. Lämpöpumppu ja varaaja', false, [
       ['lpOhjaus', 'Lämpöpumpun ohjaus', '', 'K54', ['Taloudellinen', 'Etusija']],
       ['copA', 'COP-käyrän vakiotermi a', '', 'K55', N(0.1)],
       ['copB', 'COP-käyrän lämpötilakerroin b', '1/K', 'K56', N(0.01)],
@@ -68,16 +67,6 @@
       ['varaajaHavio', 'Varaajan seisontahäviö', 'kW', 'K51', N(0.05, 0)],
       ['varaajaPurku', 'Varaajan suurin purkuteho', 'kW', 'K52', N(10, 0)],
       ['ekVerkko', 'Sähkökattilan verkkolataus', '', 'K53', YES],
-      ['chpYllapito', 'CHP: ylläpito', '€/MWh sähköä', 'K65', N(1, 0)],
-      ['chpIka', 'CHP: käyttöikä', 'v', 'K66', N(1, 1)],
-      ['chpUusiminen', 'CHP: uusiminen, osuus nykyhinnasta', 'osuus', 'K67', N(0.05, 0)],
-      ['orcLampo', 'ORC: nimellinen lämpöteho sisään', 'kWth', 'K70', N(10, 1)],
-      ['orcMeno', 'ORC: kattilan menoveden lämpötila', '°C', 'K71', N(1, 70, 120)],
-      ['orcPaluu', 'ORC: paluupiirin lämpötila (lauhdutinvesi sisään)', '°C', 'K72', N(1, 0, 60)],
-      ['orcRefMeno', 'ORC: viiteolosuhteen menovesi', '°C', 'K73', N(1, 70, 120)],
-      ['orcRefPaluu', 'ORC: viiteolosuhteen paluuvesi', '°C', 'K74', N(1, 0, 60)],
-      ['orcOmakaytto', 'ORC: omakäyttö (pumput, jäähdytys)', 'osuus', 'K75', N(0.01, 0, 0.99)],
-      ['orcMinimi', 'ORC: pienin lämpöteho sisään', 'kW', 'K76', N(10, 0)],
     ]],
     ['reservi', '7. FCR-D-reservimarkkina', false, [
       ['reservi', 'Osallistuminen', '', 'Res. C6', YES],
@@ -99,25 +88,11 @@
       ['kyllAlas', 'Kyllästynyt markkina: alas', '€/MW,h', 'Res. C41', N(0.1, 0)],
       ['kyllMuutos', 'Kyllästynyt markkina: vuosimuutos', 'osuus/v', 'Res. C42', N(0.01)],
     ]],
-    ['co2', '8. Päästökertoimet', false, [
-      ['co2Kotimainen', 'Kotimaisen sähköntuotannon kerroin', 'g CO₂/kWh', 'K36', N(1, 0)],
-      ['co2Hake', 'Hake: toimitusketju + CH4/N2O', 'kg CO₂e/MWh', 'K38', N(1, 0)],
-      ['co2Biokaasu', 'Biokaasu: toimitusketju', 'kg CO₂e/MWh', 'K39', N(1, 0)],
-      ['puuBiogeeninen', 'Puun biogeeninen CO₂ (muistio)', 'kg/MWh', 'K40', N(1, 0)],
-      ['biokaasuBiogeeninen', 'Biokaasun biogeeninen CO₂ (muistio)', 'kg/MWh', 'K48', N(1, 0)],
-      ['pvValmistus', 'PV:n valmistus', 'kg CO₂e/kWp', 'K41', N(10, 0)],
-      ['pvIka', 'PV:n käyttöikä', 'v', 'K42', N(1, 1)],
-      ['akkuValmistus', 'Akun valmistus', 'kg CO₂e/kWh', 'K43', N(5, 0)],
-      ['lpValmistus', 'Lämpöpumpun valmistus', 'kg CO₂e/kW', 'K44', N(5, 0)],
-      ['lpIka', 'Lämpöpumpun käyttöikä', 'v', 'K45', N(1, 1)],
-      ['varValmistus', 'Varaajan valmistus', 'kg CO₂e/m³', 'K46', N(10, 0)],
-      ['varIka', 'Varaajan käyttöikä', 'v', 'K47', N(1, 1)],
-    ]],
   ];
   const DEVICES = [
     ['pvOn', 'pv', 'pvHinta', 'Aurinkosähkö', 'kWp', 'C9:F9'], ['akkuOn', 'akku', 'akkuHinta', 'Akku', 'kWh', 'C13:F13'],
     ['lpOn', 'lp', 'lpHinta', 'Lämpöpumppu', 'kW lämpöä', 'C10:F10'], ['ekOn', 'ek', 'ekHinta', 'Sähkökattila', 'kW', 'C11:F11'],
-    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'], ['chpOn', 'chpKwe', 'chpHinta', 'CHP: ORC (40 kWe)', 'kWe brutto', 'C15:F15'],
+    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'],
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -131,13 +106,9 @@
           html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit ? ', ' + unit : ''}</label>` +
             `<input type="number" id="${size}" min="0" step="1"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
         });
-        html += row(['orcTays', 'ORC: täystehoajo valittuina kuukausina', '', 'K80', YES]);
-        html += row(['orcTaysTeho', 'ORC: täystehoajon kattilateho', 'kW', 'K81', N(10, 0)]);
-        html += '<fieldset class="kk-grid" title="Excel: K83:K94"><legend>Täystehoajon kuukaudet</legend>' +
-          KK.map((m, i) => `<label><input type="checkbox" id="orcKk${i + 1}">${m}</label>`).join('') + '</fieldset>';
-        html += '<p class="hint">Täystehoajossa kattila syöttää ORC:lle valitun tehon lämmöntarpeesta riippumatta. Lämpö menee ensin tilan tarpeeseen, sitten varaajaan; loput jäähdytetään. Muina kuukausina ORC on lämpöohjattu.</p>';
-        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho, hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
+        html += '<p class="hint">Sähkökattila tarvitsee varaajan.</p>';
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
+        html += row(['korko', 'Laskentakorko (nettonykyarvo, NPV)', '%', 'C27', N(0.5, 0)]);
       }
       fields.forEach(f => { html += row(f); });
       if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin. <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/OMAT_RAKENNUSTIEDOT.md" target="_blank" rel="noopener">Ohje omien tietojen antamiseen</a>.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
@@ -156,11 +127,12 @@
     return `<div class="row" title="Excel: ${ref}"><label for="${key}">${label}${unit ? `<span class="u">${unit}</span>` : ''}</label>${input}</div>`;
   }
   const allKeys = () => Object.keys(L.DEFAULTS).filter(k => $(k));
-  function setInputs(p) { allKeys().forEach(k => { const el = $(k); if (el.type === 'checkbox') el.checked = !!p[k]; else el.value = p[k]; }); }
+  const PCT = { korko: 1 }; // lomakkeella %, mallissa osuus
+  function setInputs(p) { allKeys().forEach(k => { const el = $(k); if (el.type === 'checkbox') el.checked = !!p[k]; else el.value = PCT[k] ? +(p[k] * 100).toFixed(6) : p[k]; }); }
   function readInputs() {
     const p = {};
     allKeys().forEach(k => { const el = $(k); if (el.type === 'checkbox') p[k] = el.checked ? 1 : 0;
-      else if (el.type === 'number') { const v = parseFloat(el.value); p[k] = Number.isFinite(v) ? v : L.DEFAULTS[k]; }
+      else if (el.type === 'number') { const v = parseFloat(el.value); p[k] = Number.isFinite(v) ? (PCT[k] ? v / 100 : v) : L.DEFAULTS[k]; }
       else p[k] = el.value; });
     return p;
   }
@@ -183,7 +155,7 @@
     'Kulutusdata puuttuu': 'Lataa oma tuntidata (8 760 riviä) tai valitse esimerkkiprofiili.',
     'Hintadata puuttuu': 'Lataa pörssihinnat (kohta 3) tai valitse kiinteä hinta.',
     'Reservihinta puuttuu': 'Valitulle skenaariolle ei ole kaikkia reservihintoja.',
-    'Virhe parametreissa': 'Tarkista pitoaika, ORC-asetukset (paluu vähintään 22 K menovettä kylmempi, omakäyttö < 1), hyötysuhde, akun ikä, COP-rajat ja ohjaustuntien summa.',
+    'Virhe parametreissa': 'Tarkista pitoaika, hyötysuhde, akun ikä, COP-rajat ja ohjaustuntien summa.',
   };
   const KK = ['tammi', 'helmi', 'maalis', 'huhti', 'touko', 'kesä', 'heinä', 'elo', 'syys', 'loka', 'marras', 'joulu'];
 
@@ -208,7 +180,7 @@
       { k: 'chp', label: 'ORC-sähkö', fill: C.orc, stroke: '#5d5766' },
     ];
     const HEAT = [
-      { k: 'mainDirect', label: 'Päälämmitys suoraan', fill: C.kattila, stroke: '#5d5766' },
+      { k: 'mainDirect', label: 'Päälämmitys', fill: C.kattila, stroke: '#5d5766' },
       { k: 'mainOrc', label: 'Päälämmitys ORC:n kautta', fill: C.orc, stroke: '#5d5766' },
       { k: 'hp', label: 'Lämpöpumppu', fill: C.lp, stroke: '#5d5766' },
       { k: 'td', label: 'Varaajan purku', fill: C.varaaja, stroke: '#5d5766' },
@@ -325,12 +297,6 @@
     const e = KIT.draw('elec', d, 'kk', 0, 8760, 520, 300), h = KIT.draw('heat', d, 'kk', 0, 8760, 520, 300);
     $('kaavio').innerHTML = e.svg; $('kaavioLeg').innerHTML = e.legend;
     $('kaavioL').innerHTML = h.svg; $('kaavioLLeg').innerHTML = h.legend;
-    const O = r.orc, en = r.energy;
-    $('orcNote').textContent = r.p.chpOn
-      ? (en.chp > 0 ? `ORC (vihreä molemmissa kuvaajissa): ${f0(en.chp / 1000)} MWh sähköä ${f0(sum(r.o.mainOrc) / 1000)} MWh:n lämmöstä, nettohyötysuhde ${nf1.format(O.eta * 100)} %, enintään ${nf1.format(O.max)} kWe.` +
-          (en.fullHours > 0 ? ` Täystehoajo ${f0(en.fullHours)} h: ylijäämästä ${f0(en.orcTank / 1000)} MWh varaajaan ja ${f0(en.orcDump / 1000)} MWh jäähdyttimeen.` : '')
-        : `ORC ei käy: tilan lämmöntarpeen huippu ${f0(en.peakHeat)} kW jää alle ORC:n pienimmän lämpötehon ${f0(O.min)} kW.`)
-      : '';
   }
   const sum = a => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s; };
 
@@ -451,9 +417,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       ['Päälämmityksen tuotanto', f0(en.mainBase), f0(en.mainHyb)],
       ['Polttoaine, MWh', f1(en.fuelMWhBase), f1(en.fuelMWhHyb)],
       ['Hake, i-m³', en.chipBase == null ? '–' : f0(en.chipBase), en.chipHyb == null ? '–' : f0(en.chipHyb)],
-      ['ORC-sähkö', '0', f0(en.chp)], ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
-      ...(en.fullHours > 0 ? [['ORC:n täystehoajo, h', '–', f0(en.fullHours)], ['ORC-ylijäämä varaajaan', '–', f0(en.orcTank)],
-        ['ORC-ylijäämä jäähdyttimeen', '–', f0(en.orcDump)]] : []),
+      ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
       ['Lämmön huipputeho, kW', f0(en.peakHeat), f0(en.peakHeat)],
       ['Akun syklit / käyttöikä', '–', p.akkuOn ? `${f0(en.cycles)} / ${f1(en.life)} v` : '–'],
     ]);
@@ -467,15 +431,14 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     const inv = e.inv, rep = e.replacements;
     table('tInv', ['€', 'Summa'], [
       ['Aurinkosähkö', f0(inv.pv)], ['Akku', f0(inv.akku)], ['Lämpöpumppu', f0(inv.lp)], ['Sähkökattila', f0(inv.ek)],
-      ['Vesivaraaja', f0(inv.varaaja)], ['ORC', f0(inv.chp)], ['Investointi brutto', f0(e.gross)], ['Tuki', '−' + f0(e.subsidy)],
+      ['Vesivaraaja', f0(inv.varaaja)], ['Investointi brutto', f0(e.gross)], ['Tuki', '−' + f0(e.subsidy)],
       ['Nettoinvestointi', f0(e.net)], ['Invertterin vaihto, nykyarvo', f0(rep.invRep)], ['Akun uusimiset, nykyarvo', f0(rep.batRep)],
-      ['CHP:n uusiminen, nykyarvo', f0(rep.chpRep)],
-    ], [, , , , , , , , 'total']);
+    ], [, , , , , , , 'total']);
     const m = r.monthly, sumM = k => m.reduce((a, x) => a + x[k], 0), maxM = k => Math.max(...m.map(x => x[k]));
     const MC = [['base', 'Osto, lähtö'], ['buy', 'Osto, hybridi'], ['saving', 'Säästö kWh'], ['pv', 'PV'], ['selfUse', 'PV omakäyttö'],
       ['sell', 'Myynti'], ['dis', 'Akun purku'], ['hp', 'LP lämpö'], ['eb', 'SK lämpö'], ['mainBase', 'Päälämpö, lähtö'], ['main', 'Päälämpö, hybridi'],
       ['costBase', 'Osto €, lähtö'], ['costHyb', 'Osto €, hybridi'], ['sales', 'Myynti €'], ['peakBase', 'Huippu kW, lähtö'], ['peakHyb', 'Huippu kW, hybridi'],
-      ['co2Base', 'CO₂ kg, lähtö'], ['co2Hyb', 'CO₂ kg, hybridi'], ['curt', 'PV katkaistu'], ['gridch', 'Akun verkkolataus'], ['chp', 'ORC-sähkö'], ['chpsell', 'ORC myynti'], ['heat', 'Lämmöntarve'], ['mainOrc', 'Päälämpö ORC:n kautta'], ['unmet', 'Lämpövaje, hybridi']];
+      ['co2Base', 'CO₂ kg, lähtö'], ['co2Hyb', 'CO₂ kg, hybridi'], ['curt', 'PV katkaistu'], ['gridch', 'Akun verkkolataus'], ['heat', 'Lämmöntarve'], ['unmet', 'Lämpövaje, hybridi']];
     table('tKk', ['Kuukausi', ...MC.map(c => c[1])],
       [...m.map((x, i) => [KK[i], ...MC.map(([k]) => f0(x[k]))]),
         ['Vuosi', ...MC.map(([k]) => f0(k.startsWith('peak') ? maxM(k) : sumM(k)))]], { 12: 'total' });
@@ -645,7 +608,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     [['Kassasäästö ylläpidon jälkeen', e.cash, '€/v'], ['NPV', e.npv, '€'], ['Takaisinmaksuaika', e.payback, 'v'], ['Investointi brutto', e.gross, '€'],
       ['Tuki', e.subsidy, '€'], ['Nettoinvestointi', e.net, '€'], ['Energiasäästö', e.energySaving, '€/v'], ['Reservituotto', e.reserve.farm, '€/v'],
       ['Ylläpito', e.om, '€/v'], ['Sähkön osto, lähtö', en.buyBase, 'kWh/v'], ['Sähkön osto, hybridi', en.buyHyb, 'kWh/v'], ['PV-tuotanto', en.pv, 'kWh/v'],
-      ['PV-myynti', en.sell, 'kWh/v'], ['CHP-sähkö', en.chp, 'kWh/v']].forEach(x => out.push(x));
+      ['PV-myynti', en.sell, 'kWh/v']].forEach(x => out.push(x));
     out.push([], ['KUUKAUDET', 'Osto lähtö kWh', 'Osto hybridi kWh', 'PV kWh', 'Myynti kWh', 'Akun purku kWh', 'LP lämpö kWh', 'Päälämpö kWh', 'Osto hybridi €', 'Myynti €', 'Huippu kW']);
     r.monthly.forEach((m, i) => out.push([KK[i], m.base, m.buy, m.pv, m.sell, m.dis, m.hp, m.main, m.costHyb, m.sales, m.peakHyb]));
     out.push([], ['VUODET', 'Kalenterivuosi', 'Energiasäästö €', 'Ylläpito €', 'Reservi €', 'Käyttökassavirta €', 'Nykyarvo €', 'Uusimiset €', 'Kertynyt €']);
@@ -657,7 +620,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
   function hourlyCsv(r) {
     const o = r.o, keys = [['buy', 'Verkko-osto kWh'], ['sell', 'Myynti kWh'], ['pv', 'PV kWh'], ['dis', 'Akun purku kWh'], ['ch', 'Akun lataus PV kWh'],
       ['gridch', 'Akun verkkolataus kWh'], ['soc', 'Akun varaus kWh'], ['hp', 'LP lämpö kWh'], ['hpel', 'LP sähkö kWh'], ['eb', 'Sähkökattila kWh'],
-      ['main', 'Päälämpö kWh'], ['unmet', 'Lämpövaje kWh'], ['chp', 'CHP kWh'], ['orcTank', 'ORC-ylijäämä varaajaan kWh'], ['orcDump', 'ORC-ylijäämä jäähdyttimeen kWh'], ['r', 'FCR-D ylös kW'], ['rdown', 'FCR-D alas kW'], ['buyP', 'Ostohinta €/kWh'], ['sellP', 'Myyntihinta €/kWh']];
+      ['main', 'Päälämpö kWh'], ['unmet', 'Lämpövaje kWh'], ['r', 'FCR-D ylös kW'], ['rdown', 'FCR-D alas kW'], ['buyP', 'Ostohinta €/kWh'], ['sellP', 'Myyntihinta €/kWh']];
     const out = [['Tunti', ...keys.map(k => k[1])]];
     for (let t = 0; t < 8760; t++) out.push([t + 1, ...keys.map(([k]) => o[k][t])]);
     return csvRows(out);
@@ -680,7 +643,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
   function describe(p) {
     const parts = [];
     if (p.pvOn) parts.push(`PV ${p.pv}`); if (p.akkuOn) parts.push(`akku ${p.akku}`); if (p.lpOn) parts.push(`LP ${p.lp}`);
-    if (p.ekOn) parts.push(`SK ${p.ek}`); if (p.varOn) parts.push(`varaaja ${p.varaaja}`); if (p.chpOn) parts.push(`ORC ${p.chpKwe} kWe, paluu ${p.orcPaluu} °C`);
+    if (p.ekOn) parts.push(`SK ${p.ek}`); if (p.varOn) parts.push(`varaaja ${p.varaaja}`);
     if (p.reservi === 'Kyllä') parts.push('FCR-D ' + p.skenaario);
     if (p.hinnoittelu === 'Pörssihinta') parts.push('pörssi ' + p.hintavuosi);
     if (p.tuotanto !== 'Lihasikala') parts.push(p.tuotanto.toLowerCase());
@@ -753,16 +716,16 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     });
     $('oRun').addEventListener('click', () => {
       const parse = s => s.split(',').map(x => parseFloat(x.trim())).filter(Number.isFinite);
-      const lists = ['oPv', 'oLp', 'oEk', 'oVar', 'oAkku', 'oChp'].map(k => parse($(k).value));
+      const lists = ['oPv', 'oLp', 'oEk', 'oVar', 'oAkku'].map(k => parse($(k).value)).concat([[0]]);
       $('oRun').disabled = true; $('oTila').textContent = 'Lasketaan…';
       setTimeout(() => {
         const t0 = performance.now();
         const res = L.optimise(readInputs(), data, own, Object.keys(prices).length ? prices : null, lists, $('oMetric').value);
-        const b = res.best, map = { pv: ['pvOn', 'pv'], lp: ['lpOn', 'lp'], ek: ['ekOn', 'ek'], varaaja: ['varOn', 'varaaja'], akku: ['akkuOn', 'akku'], chpKwe: ['chpOn', 'chpKwe'] };
+        const b = res.best, map = { pv: ['pvOn', 'pv'], lp: ['lpOn', 'lp'], ek: ['ekOn', 'ek'], varaaja: ['varOn', 'varaaja'], akku: ['akkuOn', 'akku'] };
         Object.entries(map).forEach(([k, [on, size]]) => { if (b[k] > 0) { $(on).checked = true; $(size).value = b[k]; } else $(on).checked = false; });
         const log = res.log.filter(x => x.score != null).sort((a, c) => c.score - a.score).slice(0, 10);
-        table('tOpt', ['#', 'PV kWp', 'LP kW', 'SK kW', 'Varaaja m³', 'Akku kWh', 'CHP', 'Netto €', 'Säästö €/v', 'Takaisinm. v', 'NPV €'],
-          log.map((x, i) => [i + 1, ...x.cfg.map(v => String(v).replace('.', ',')), f0(x.net), f0(x.cash), f1(x.payback), f0(x.npv)]), ['sel']);
+        table('tOpt', ['#', 'PV kWp', 'LP kW', 'SK kW', 'Varaaja m³', 'Akku kWh', 'Netto €', 'Säästö €/v', 'Takaisinm. v', 'NPV €'],
+          log.map((x, i) => [i + 1, ...x.cfg.slice(0, 5).map(v => String(v).replace('.', ',')), f0(x.net), f0(x.cash), f1(x.payback), f0(x.npv)]), ['sel']);
         $('oTila').textContent = `${res.log.length} kokoonpanoa, ${res.passes} kierrosta, ${nf1.format((performance.now() - t0) / 1000)} s. Paras asetettu syötteisiin; taulukossa 10 parasta.`;
         $('oRun').disabled = false; render();
       }, 30);
