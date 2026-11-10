@@ -8,7 +8,7 @@
 | Python-yksikkötestit (malli/test_regressiot.py, scripts/) | läpäisty |
 | Käyttöliittymä Chromiumissa | lämpökuvaaja ja ORC-sähkö näkyvät, ORC samalla värillä; suuri näkymä avautuu omaan ikkunaan kuukausi-, päivä- ja tuntitasolla, jaksovalinta ja arvojen luku toimivat; ei skriptivirheitä |
 
-Esimerkkisikalan tulokset eivät muutu (300 kW riitti jo). Veto Cont 500e:n ja ENO-40LT:n mallikohtaisia osakuormatietoja ei ollut käytettävissä; ORC-malli perustuu datasheetin rajoihin ja Carnot-skaalaukseen (docs/MENETELMA.md).
+Esimerkkisikalan tulokset eivät muutu (300 kW riitti jo). Veto Cont 500e:n ja ORC-moduulin mallikohtaisia osakuormatietoja ei ollut käytettävissä; ORC-malli perustuu datasheetin rajoihin ja Carnot-skaalaukseen (docs/MENETELMA.md).
 
 ---
 

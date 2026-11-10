@@ -140,12 +140,12 @@ def annual_cost(o, *, fuel=16, eta_b=.85, delivered_heat=False, pch=0,
 
 def orc_params(gross_kwe=40., heat_in=640., supply=110., ret=30., ref_supply=110., ref_ret=25.,
                own_use=.10, min_heat=450., dt_evap=10., dt_cond=12.):
-    """Enogia ENO-40LT type ORC on the main boiler (workbook K69-K79).
+    """40 kWe ORC module on the main boiler (workbook K69-K79).
 
     Gross efficiency at the reference temperatures = gross_kwe / heat_in and scales with the
     Carnot factor 1 - (ret + dt_cond) / (supply - dt_evap) (kelvin). Returns the electricity
     per delivered heat (chp_share), net maximum (chp_max, kW) and minimum heat input (kW;
-    the ENO-40LT datasheet operating range is 450-640 kWth).
+    the manufacturer's datasheet operating range is 450-640 kWth).
     """
     carnot = lambda m, r: 1 - (r + dt_cond + 273.15) / (m - dt_evap + 273.15)
     ratio = carnot(supply, ret) / carnot(ref_supply, ref_ret)

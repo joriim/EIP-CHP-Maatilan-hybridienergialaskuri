@@ -40,7 +40,7 @@ def main():
         ('tasahintainen_porssi',{(panel,'K22'):'Pörssihinta',(panel,'K26'):'Pörssiohjattu'},dict(pricing='spot',spot=prices,battery_mode='spot')),
         ('kiintea_porssivalinnalla',{(panel,'K26'):'Pörssiohjattu'},dict(spot=prices,battery_mode='spot')),
         ('lampo_ja_varaaja',{(panel,'C10'):1,(panel,'C11'):1,(panel,'C12'):1,(panel,'K53'):'Kyllä',(panel,'K22'):'Pörssihinta'},dict(HP=10,EB=30,TANK=5,eb_grid=True,pricing='spot',spot=prices)),
-        # ORC (Enogia ENO-40LT type): only runs when the ORC heat input reaches K76, so the sikala example
+        # ORC (40 kWe module): only runs when the ORC heat input reaches K76, so the sikala example
         # (heat peak 46 kW) gives no electricity; broiler heat scaled to 1 300 MWh/v reaches 450 kW.
         ('orc_sikala_ei_kay',{(panel,'C15'):1},dict(**orc_kw())),
         ('orc_broileri_1300MWh',{**BROILER,(panel,'C15'):1},dict(heat_override='broiler',**orc_kw())),

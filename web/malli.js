@@ -17,7 +17,7 @@
     akkuOn: 1, akku: 60, akkuHinta: 450,
     kattila: 500, // Veljekset Ala-Talkkari Veto Cont 500e -tyyppinen tuorehakelämpökeskus
     chpOn: 0, chpKwe: 40, chpHinta: 3000,
-    // Enogia ENO-40LT -tyyppinen ORC (Ohjauspaneeli K70–K76)
+    // 40 kWe:n ORC-moduuli (Ohjauspaneeli K70–K76)
     orcLampo: 640, orcMeno: 110, orcPaluu: 30, orcRefMeno: 110, orcRefPaluu: 25, orcOmakaytto: 0.1, orcMinimi: 450,
     tuki: 0.4,
     ostoKiintea: 12, myyntiKiintea: 4, hake: 16, biokaasu: 12, hyotysuhde: 0.85,

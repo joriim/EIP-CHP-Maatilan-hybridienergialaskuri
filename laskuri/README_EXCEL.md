@@ -84,7 +84,7 @@ Tarkista seuraavat asetukset:
 | Sähkökattilan verkkolataus | K53 | Valitse, saako varaajaa ladata verkosta ostetulla sähköllä. |
 | Lämpöpumpun ohjaus | K54 | Taloudellinen ohjaus tai lämpöpumpun etusijakäyttö. |
 | COP-parametrit ja käyttörajat | K55–K60 | Sovita arvot laitteen, menoveden lämpötilan ja käyttöolosuhteiden tietoihin. |
-| CHP: ORC bruttoteho, €/kWe | D15, F15 | Enogia ENO-40LT -tyyppinen 40 kWe. Investointi = D15 × F15. |
+| CHP: ORC bruttoteho, €/kWe | D15, F15 | 40 kWe:n ORC-moduuli. Investointi = D15 × F15. |
 | ORC-asetukset | K69–K76 | Lämpöteho 640 kWth, menovesi 110 °C, paluupiiri 30 °C, viiteolosuhde 110/25 °C (oma oletus), omakäyttö 10 % (oma oletus), pienin lämpöteho 450 kWth. Tulokset K77–K79. |
 | CHP: ylläpito, käyttöikä, uusiminen | K65–K67 | €/MWh sähköä, vuodet ja uusimisen osuus nykyhinnasta ovat omia oletuksia. |
 
@@ -179,7 +179,7 @@ Seuraavat arvot ovat **mallin oletuksia**, eivät lähdeluettelon vahvistamia la
 | Reservi | Odotettu aktivointi 0,01 h/h, saatavuus 95 %, tilan osuus 50 %, vähimmäispalkkio 12 €/kk, kyllästyneen markkinan vuosimuutos −10 % | Toteutuva käyttö, aggregaattorin sopimus ja kustannukset |
 | Valmistuspäästöt | PV 700 kg/kWp, akku 90 kg/kWh, lämpöpumppu 100 kg/kW, varaaja 300 kg/m³ | Tuote- ja järjestelmäkohtaiset elinkaaritiedot |
 | Päälämmitys | Veto Cont 500e -tyyppinen, 500 kW, hyötysuhde 0,85 | Oman kattilan teho ja hyötysuhde |
-| CHP: ORC | ENO-40LT-tyyppinen 40 kWe, 3 000 €/kWe, viiteolosuhde 110/25 °C, omakäyttö 10 %, ylläpito 15 €/MWh, käyttöikä 15 v, uusiminen 80 % | Toimittajan teho- ja hyötysuhdetiedot, hinta ja huolto |
+| CHP: ORC | 40 kWe:n ORC-moduuli, 3 000 €/kWe, viiteolosuhde 110/25 °C, omakäyttö 10 %, ylläpito 15 €/MWh, käyttöikä 15 v, uusiminen 80 % | Toimittajan teho- ja hyötysuhdetiedot, hinta ja huolto |
 | Polttoaineiden päästöarviot | Hake 13 ja biokaasu 15 kg CO₂e/MWh polttoainetta | Toimitusketju, metaanipäästöt ja laskennan rajaus |
 
 Sää- ja PV-esimerkkien alkuperäistä havaintovuotta, havaintoasemaa, lähdepalvelua ja muunnosketjua ei ole toimitetussa aineistossa täysin dokumentoitu. Myös synteettisten kulutusprofiilien muodostus ja validointi ovat puutteellisesti dokumentoituja. Niille ei siksi nimetä varmistamatonta lähdettä. Eri vuosien kulutus, sää ja hinnat muodostavat herkkyysskenaarion, eivät toteutuneen vuoden jälkilaskentaa.

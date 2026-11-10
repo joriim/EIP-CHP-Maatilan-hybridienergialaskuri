@@ -12,8 +12,9 @@
   --bg: #f7f6f9; --surface: #ffffff; --ink: #1b1620; --muted: #5d5766; --line: #dcd8e2;
   --pelto: var(--seamk-lila); --pelto-soft: var(--seamk-lila-15); --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
   --energia: var(--seamk-lila); --energia-soft: var(--seamk-vaaleansininen); --lila: var(--seamk-lila); --lila-soft: var(--seamk-lila-25);
-  --keltainen: var(--seamk-keltainen); --input: var(--seamk-keltainen-25); --olki-soft: var(--seamk-keltainen-25); --ilmasto: #46566A;
-  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #6b4e00; --bad: #000000; --on-accent: #ffffff;
+  --keltainen: var(--seamk-keltainen); --input: var(--seamk-keltainen-25); --olki-soft: var(--seamk-keltainen-25);
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --bad: #000000; --on-accent: #ffffff;
+  --chart-edge: var(--seamk-lila); /* kaavion lilan sarjan reuna; tummassa teemassa vaalennettu, jotta erottuu taustasta */
   --display: "Alte DIN 1451 Mittelschrift", "Barlow Condensed", "Arial Narrow", sans-serif;
   --body: Arial, Helvetica, sans-serif;
 }
@@ -21,14 +22,14 @@
   --bg: #141118; --surface: #1d1922; --ink: #ece8f0; --muted: #aaa2b4; --line: #3a3343;
   --pelto: var(--seamk-lila-50); --pelto-soft: #2c2338; --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
   --energia: var(--seamk-lila-50); --energia-soft: #22303a; --lila: var(--seamk-lila-50); --lila-soft: #3a2f4a;
-  --keltainen: #e9dc2a; --input: #2e2b1a; --olki-soft: #34301c; --ilmasto: #a9b6c6;
-  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #e2b54a; --bad: #000000; --on-accent: #141118; color-scheme: dark } }
+  --keltainen: var(--seamk-keltainen); --input: #2e2b1a; --olki-soft: #34301c;
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --bad: #000000; --on-accent: #141118; --chart-edge: var(--seamk-lila-50); color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #141118; --surface: #1d1922; --ink: #ece8f0; --muted: #aaa2b4; --line: #3a3343;
   --pelto: var(--seamk-lila-50); --pelto-soft: #2c2338; --lampo: #000000; --lampo-soft: var(--seamk-pinkki);
   --energia: var(--seamk-lila-50); --energia-soft: #22303a; --lila: var(--seamk-lila-50); --lila-soft: #3a2f4a;
-  --keltainen: #e9dc2a; --input: #2e2b1a; --olki-soft: #34301c; --ilmasto: #a9b6c6;
-  --ok: #000000; --ok-soft: var(--seamk-vihrea); --warn: #e2b54a; --bad: #000000; --on-accent: #141118; color-scheme: dark }
+  --keltainen: var(--seamk-keltainen); --input: #2e2b1a; --olki-soft: #34301c;
+  --ok: #000000; --ok-soft: var(--seamk-vihrea); --bad: #000000; --on-accent: #141118; --chart-edge: var(--seamk-lila-50); color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.45;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0 48px }

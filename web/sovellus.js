@@ -117,7 +117,7 @@
   const DEVICES = [
     ['pvOn', 'pv', 'pvHinta', 'Aurinkosähkö', 'kWp', 'C9:F9'], ['akkuOn', 'akku', 'akkuHinta', 'Akku', 'kWh', 'C13:F13'],
     ['lpOn', 'lp', 'lpHinta', 'Lämpöpumppu', 'kW lämpöä', 'C10:F10'], ['ekOn', 'ek', 'ekHinta', 'Sähkökattila', 'kW', 'C11:F11'],
-    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'], ['chpOn', 'chpKwe', 'chpHinta', 'CHP: ORC (Enogia ENO-40LT -tyyppinen)', 'kWe brutto', 'C15:F15'],
+    ['varOn', 'varaaja', 'varHinta', 'Vesivaraaja', 'm³', 'C12:F12'], ['chpOn', 'chpKwe', 'chpHinta', 'CHP: ORC (40 kWe)', 'kWe brutto', 'C15:F15'],
   ];
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
@@ -131,11 +131,11 @@
           html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit ? ', ' + unit : ''}</label>` +
             `<input type="number" id="${size}" min="0" step="1"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
         });
-        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho (ENO-40LT 40 kWe), hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
+        html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho (oletus 40 kWe), hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
       }
       fields.forEach(f => { html += row(f); });
-      if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
+      if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin. <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/OMAT_RAKENNUSTIEDOT.md" target="_blank" rel="noopener">Ohje omien tietojen antamiseen</a>.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
       if (extra === 'priceFiles') html += `<div class="file"><label for="fPrice">Pörssihinnat (CSV €/MWh, alv 0)</label><input type="file" id="fPrice" accept=".csv,.txt" multiple>` +
         `<div class="row"><label for="fPriceYear">Vuosi, jos tiedostossa on yksi hintasarake</label><select id="fPriceYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>` +
         `<p class="hint" id="priceInfo">Ei hintoja. Rakennushaun hintahistoria_2023-2026.csv tai scripts/hae_porssihinnat.py-tiedosto.</p><button type="button" class="ghost" id="fPriceClear">Tyhjennä hinnat</button></div>`;
@@ -197,16 +197,16 @@
     const nf0 = new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 0 }), nf1 = new Intl.NumberFormat('fi-FI', { maximumFractionDigits: 1 });
     const C = { lila: '#542583', lilaSoft: '#D4C8E0', keltainen: '#FFF023', orc: '#ACD195', kattila: '#C7E6F7', lp: '#E8A7C6', varaaja: '#FFF891' };
     const ELEC = [
-      { k: 'base', label: 'Osto ilman investointia', fill: C.lilaSoft, stroke: C.lila },
-      { k: 'buy', label: 'Osto hybridillä', fill: C.lila },
+      { k: 'base', label: 'Osto ilman investointia', fill: C.lilaSoft, stroke: 'var(--chart-edge,#542583)' },
+      { k: 'buy', label: 'Osto hybridillä', fill: C.lila, stroke: 'var(--chart-edge,#542583)' },
       { k: 'pv', label: 'Aurinkosähkö', fill: C.keltainen, stroke: '#5d5766' },
-      { k: 'chp', label: 'ORC-sähkö', fill: C.orc, stroke: '#2f5a1c' },
+      { k: 'chp', label: 'ORC-sähkö', fill: C.orc, stroke: '#5d5766' },
     ];
     const HEAT = [
-      { k: 'mainDirect', label: 'Päälämmitys suoraan', fill: C.kattila, stroke: '#3c6e8a' },
-      { k: 'mainOrc', label: 'Päälämmitys ORC:n kautta', fill: C.orc, stroke: '#2f5a1c' },
-      { k: 'hp', label: 'Lämpöpumppu', fill: C.lp, stroke: '#7a3b5a' },
-      { k: 'td', label: 'Varaajan purku (sähkökattila)', fill: C.varaaja, stroke: '#6b6200' },
+      { k: 'mainDirect', label: 'Päälämmitys suoraan', fill: C.kattila, stroke: '#5d5766' },
+      { k: 'mainOrc', label: 'Päälämmitys ORC:n kautta', fill: C.orc, stroke: '#5d5766' },
+      { k: 'hp', label: 'Lämpöpumppu', fill: C.lp, stroke: '#5d5766' },
+      { k: 'td', label: 'Varaajan purku (sähkökattila)', fill: C.varaaja, stroke: '#5d5766' },
       { k: 'unmet', label: 'Toimittamaton lämpö', fill: '#ffffff', stroke: '#1b1620', dash: true },
     ];
     function niceTop(max) {
@@ -288,7 +288,7 @@
             s += `<polygon points="${pts.join(' ')}" ${st(d)} fill-opacity="0.85"/>`;
           });
           active.filter(d => d.k === 'base' || d.k === 'buy').forEach(d => {
-            s += `<polyline fill="none" stroke="${C.lila}" stroke-width="${d.k === 'base' ? 1.2 : 2}"${d.k === 'base' ? ' stroke-dasharray="4 3"' : ''} points="${vals.map((v, i) => `${X(i)},${y(v[d.k])}`).join(' ')}"/>`;
+            s += `<polyline fill="none" stroke="var(--chart-edge,#542583)" stroke-width="${d.k === 'base' ? 1.2 : 2}"${d.k === 'base' ? ' stroke-dasharray="4 3"' : ''} points="${vals.map((v, i) => `${X(i)},${y(v[d.k])}`).join(' ')}"/>`;
           });
         }
       }
@@ -322,8 +322,8 @@
   const sum = a => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i]; return s; };
 
   /* Large view: own window (preferred for a large display), in-page dialog when pop-ups are blocked. */
-  const BIG_CSS = `:root{--ink:#1b1620;--muted:#5d5766;--line:#dcd8e2;--bg:#fff;--lila:#542583}
-@media (prefers-color-scheme: dark){:root{--ink:#ece8f0;--muted:#aaa2b4;--line:#3a3343;--bg:#1d1922;--lila:#AA92C1}}
+  const BIG_CSS = `:root{--ink:#1b1620;--muted:#5d5766;--line:#dcd8e2;--bg:#fff;--lila:#542583;--chart-edge:#542583}
+@media (prefers-color-scheme: dark){:root{--ink:#ece8f0;--muted:#aaa2b4;--line:#3a3343;--bg:#1d1922;--lila:#AA92C1;--chart-edge:#AA92C1}}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
 
 .bv-head{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;padding:10px 18px;background:#542583;color:#fff;border-bottom:4px solid #FFF023}

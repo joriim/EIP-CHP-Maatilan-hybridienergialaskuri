@@ -69,7 +69,7 @@ Tarkista myös **Vuosikassavirta**-välilehden laitekohtaiset tukikelpoiset kust
 
 Taulukko on esimerkki vertailujärjestyksestä. Tee myös muita yhdistelmiä: laitteiden yhteiskäyttö voi muuttaa yksittäisen laitteen arvoa. Makroversion **Optimointi**-välilehti tekee saman järjestelmällisesti annetuilla ehdokasarvoilla (koordinaattihaku). Tarkista haun jälkeen hakuloki ja lähiarvot; haku ei takaa parasta mahdollista yhdistelmää.
 
-CHP-tarkastelussa (rivi 15) ORC on Enogia ENO-40LT -tyyppinen (40 kWe). Sen sähkö riippuu paluupiirin lämpötilasta (**K72**), ja se käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (**K76**, 450 kWth). €/kWe-hinta, ylläpito, käyttöikä (**K65–K67**), viiteolosuhde ja omakäyttö ovat omia oletuksia. Korvaa ne laitetoimittajan tiedoilla ennen johtopäätöksiä.
+CHP-tarkastelussa (rivi 15) ORC on 40 kWe:n moduuli. Sen sähkö riippuu paluupiirin lämpötilasta (**K72**), ja se käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (**K76**, 450 kWth). €/kWe-hinta, ylläpito, käyttöikä (**K65–K67**), viiteolosuhde ja omakäyttö ovat omia oletuksia. Korvaa ne laitetoimittajan tiedoilla ennen johtopäätöksiä.
 
 Akun ohjaus valitaan **K26**-solussa. *Vain PV-ylijäämä* hyödyntää aurinkosähkön ylijäämää. *Pörssiohjattu* sallii lisäksi verkkolatauksen valittuina edullisina tunteina ja purun kalliina tunteina. Jälkimmäinen edellyttää pörssihintoja. Ohjaus on sääntöpohjainen, eikä se takaa pienintä mahdollista sähkölaskua.
 

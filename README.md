@@ -20,7 +20,7 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 ## Uutta versiossa 0.12.0
 
 - **Päälämmityksen oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus**, nimellislämpöteho 500 kW (aiemmin 300 kW).
-- **CHP on nyt ORC-malli** (Enogia ENO-40LT -tyyppinen, 40 kWe brutto, lämpöteho 450–640 kWth; suurin Enogia-malli, joka sopii 500 kW:n kattilaan). Sähkö riippuu kattilan menoveden ja **paluupiirin lämpötilasta**; ORC käy vain, kun tilan lämmöntarve riittää sen pienimpään lämpötehoon. CHP on edelleen oletuksena pois.
+- **CHP on nyt ORC-malli** (40 kWe:n ORC-moduuli, lämpöteho 450–640 kWth; koko sopii 500 kW:n kattilaan). Sähkö riippuu kattilan menoveden ja **paluupiirin lämpötilasta**; ORC käy vain, kun tilan lämmöntarve riittää sen pienimpään lämpötehoon. CHP on edelleen oletuksena pois.
 - **Lämmön kulutus ja tuotanto kuukausittain** sähkökuvaajan rinnalla. ORC näkyy molemmissa samalla värillä: sähkö ja ORC:n läpi kulkenut lämpö.
 - **Kuvaajat suurena omaan ikkunaan** kuukausi-, päivä- tai tuntitasolla (kuukausi- tai viikkojaksoin).
 - Excelissä: ORC-asetukset Ohjauspaneelin K69–K79, Tuntitase BS ja Kuukausikoonti Y:AA (lämmöntarve, ORC:n kautta kulkenut lämpö, lämpövaje).
@@ -77,7 +77,7 @@ Mallin osakokonaisuudet ja niiden yhteydet: [konseptikuva](docs/KONSEPTIKUVA.md)
 3. Täytä Ohjauspaneelin **keltaiset solut**: tuotantosuunta, laitteiden koot ja hinnat.
 4. Lue tulokset Ohjauspaneelin osista 3–6.
 
-Tarkempi ohje: [docs/KAYTTOOHJE.md](docs/KAYTTOOHJE.md).
+Tarkempi ohje: [docs/KAYTTOOHJE.md](docs/KAYTTOOHJE.md). Oman tilan rakennukset ja sähkö-, lämpö- ja polttoainetiedot Rakennushaulla: [docs/OMAT_RAKENNUSTIEDOT.md](docs/OMAT_RAKENNUSTIEDOT.md).
 
 Excel-tiedoston mukana erikseen jaettava käyttöohje ja lähdeluettelo: [laskuri/README_EXCEL.md](laskuri/README_EXCEL.md).
 
