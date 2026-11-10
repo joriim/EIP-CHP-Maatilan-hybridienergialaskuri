@@ -1,4 +1,4 @@
-# Menetelmä 0.12.0
+# Menetelmä 0.13.0
 
 ## Aika ja järjestelmäraja
 
@@ -41,6 +41,18 @@ Bruttosähköhyötysuhde viiteolosuhteessa (oletus menovesi 110 °C, paluu 25 °
 jossa 10 K on höyrystimen ja 12 K lauhduttimen lämpötilaero (omat oletukset). Paluupiirin lämpötila K72 on tilan lämmitysverkon paluuvesi, joka jäähdyttää lauhduttimen: lattialämmitys noin 25–30 °C, patterit 40–50 °C. Oletuksilla (110/30 °C) nettohyötysuhde on 5,2 % ja nettoteho enintään 33,1 kWe. Datasheet ei kerro mitoitusolosuhteita eikä nettotehoa, joten viiteolosuhde ja omakäyttö ovat omia oletuksia.
 
 ORC on lämpöohjattu: sähkö tunnilla t = K79 × Y_t, enintään K78, kun ORC:n lämpöteho Y_t × (1 + K79) on vähintään K76 (450 kWth, datasheetin alaraja) ja CHP ja päälämmitys ovat päällä eikä K62 = Toimitettu lämpö. Lauhdutusajoa (lämmön hukkaamista jäähdyttimeen) ei mallinneta. Siksi ORC ei käy tilalla, jonka lämmöntarve jää alle noin 430 kW (esim. esimerkkisikalan huippu 46 kW). Sähkö kattaa ensin tilan jäljellä olevan sähköntarpeen (perussähkö PV:n ja akun jälkeen sekä LP:n verkkosähkö); akun tai vastuksen verkkolataukseen sitä ei kohdisteta. Ylijäämä myydään tunnin myyntihinnalla; negatiivisella hinnalla myyntitulo on 0, jos K25 = Kyllä.
+
+### Täystehoajo (K80–K97)
+
+Kun K80 = Kyllä, ORC ajetaan valittuina kuukausina (K83:K94 = 1) täydellä teholla lämmöntarpeesta riippumatta. Tunnilla t kattila syöttää ORC:lle B = min(D14, K81) (oletus 500 kW); sähkö = min(K78, K77 × B) ja ORC:n lämpö ulos H = B − sähkö (Tuntitase BU). Lämpö jaetaan tunneittain:
+
+1. tilan tarve L_t − lämpöpumppu S_t (lämpöpumppu kattaa vain osan max(0, L_t − H)),
+2. varaajan lataus BV_t = min(ylijäämä, vapaa tila D12 × 46,5 − W_(t−1) + häviö) (varaajan purku X_t vain, jos tarve ylittää H:n),
+3. jäähdytin BW_t = loput.
+
+Päälämpö Y_t = H, joten polttoaine (D41) ja päästöt laskevat myös jäähdytetyn lämmön, joka on maksettu mutta hyödytön. Sähkökattila ei lataa varaajaa täystehotunteina. Täystehoajo edellyttää, että CHP ja päälämmitys ovat päällä, K62 ≠ Toimitettu lämpö, K77 > 0 ja B ≥ K76. Muina kuukausina ORC on lämpöohjattu.
+
+Rajaukset: ORC:n hyötysuhde lasketaan samalla paluulämpötilalla K72 kuin lämpöohjatussa ajossa, vaikka jäähdyttimen lauhtumislämpötila voi poiketa siitä. Jäähdyttimen sähkönkulutusta, investointia tai tehorajaa ei mallinneta (omakäyttö K75 sisältää pumput ja jäähdytyksen), eikä varaajan latausteholle ole rajaa. Kattilan osakuorman hyötysuhde on vakio C26.
 
 Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26. Malli olettaa siis, että sähkö syntyy samalla kokonaishyötysuhteella kuin lämpö eikä lämmöntuotanto muutu. Osakuorman hyötysuhteen muutos ja käynnistykset eivät mallinnu. Investointi = D15 × F15 (€/kWe brutto). Ylläpito = K65 €/MWh sähköä. Käyttöikä K66; jos se on lyhyempi kuin tarkasteluaika, laite uusitaan kerran hintaan K67 × investointi ja uusitun laitteen jäännösarvo hyvitetään (Vuosikassavirta T2:U7). Tukiosuus Vuosikassavirta rivi 8. Päästöissä lisäpolttoaine on mukana toimitusketjun ja biogeenisen CO2:n riveillä.
 

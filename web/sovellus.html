@@ -88,6 +88,9 @@ tr.sel td { background: var(--energia-soft); font-weight: 600 }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px }
 svg text { fill: var(--muted); font-size: 11px; font-family: var(--body) }
 .note { background: var(--olki-soft); border-radius: 4px; padding: 8px 12px; font-size: .88rem }
+.kk-grid { border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px 8px; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 8px; font-size: .85rem }
+.kk-grid legend { font-size: .85rem; color: var(--muted); padding: 0 4px }
+.kk-grid label { display: flex; gap: 5px; align-items: center }
 .opt-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 6px 10px; align-items: center; font-size: .9rem }
 footer { max-width: 1320px; margin: 24px auto 0; color: var(--muted); font-size: .85rem; display: grid; gap: 6px }
 footer a, .hint a, .note a, .method a { color: var(--energia) }
@@ -135,7 +138,7 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
     <h1>Maatilan hybridienergialaskuri</h1>
     <p class="lead">Aurinkosähkö, akku, lämpöpumppu, sähkökattila, varaaja, CHP ja FCR-D-reservi hake- tai biokaasulämmityksen rinnalla. Tuntitase 8 760 h, sama laskenta kuin Excel-versiossa.</p>
   </div>
-  <div class="ver">Versio 0.12.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
+  <div class="ver">Versio 0.13.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
 <div class="toolbar" role="toolbar" aria-label="Tallennus ja jakaminen">
   <button type="button" id="tSave">Tallenna lähtötiedot</button>

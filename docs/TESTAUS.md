@@ -1,3 +1,12 @@
+# Version 0.13.0 tarkistukset — 10.11.2026
+
+| Tarkistus | Tulos |
+|---|---|
+| Excel–Python-regressio (malli/test_excel.py) | kaikki tapaukset läpäisty; uudet täystehoajon tapaukset tuntiero enintään 4,6 × 10⁻¹³: broileri 1 300 MWh + 5 m³ varaaja (5 088 h, jäähdyttimeen 1 310 MWh/v, NPV −342 615 €), sikala + lämpöpumppu 20 kW + sähkökattila + 10 m³ varaaja, myös kesäkuukaudet |
+| Selainversio vs. työkirja (node web/testi.js) | 9 yksityiskohtaista tapausta täsmäävät, joista 2 uutta täystehoajon tapausta (525 arvoa kumpikin, myös K95–K97 ja kuukausi- ja vuositaulukot) |
+| LibreOffice Calc, uudelleenlaskenta (.xlsx) | oletus ja täystehoajo: ei virhearvoja; tulokset samat kuin selain- ja Python-mallissa (kassasäästö −13 864,90 €/v, K96 1 310 038,6 kWh) |
+| Oletusesimerkki | ennallaan (kassasäästö 17 493 €/v, NPV 57 994 €) |
+
 # Version 0.12.0 tarkistukset — 9.11.2026
 
 | Tarkistus | Tulos |

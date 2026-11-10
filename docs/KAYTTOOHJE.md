@@ -63,6 +63,8 @@ Taulukossa rivit 9–15: kytke laite päälle (1) tai pois (0), syötä koko ja 
 
 **CHP: ORC (rivi 15, oletuksena pois).** Päälämmityskattilan yhteyteen voi lisätä 40 kWe:n ORC-moduulin. D15 on bruttosähköteho (40 kWe) ja investointi D15 × F15 (€/kWe). Asetukset ovat K69–K79: syötä ainakin **paluupiirin lämpötila K72** (lattialämmitys noin 25–30 °C, patterit 40–50 °C) ja kattilan menovesi K71. Laskettu nettohyötysuhde, nettoteho ja sähkö/lämpö-suhde näkyvät K77–K79. ORC käy vain tunteina, joina lämmöntarve riittää sen pienimpään lämpötehoon K76 (450 kWth). CHP-sähkö käytetään ensin tilan omaan kulutukseen, ylijäämä myydään. Lisäpolttoaine on CHP-sähkö / kattilan hyötysuhde C26. Ylläpito K65 (€/MWh sähköä), käyttöikä K66 ja uusimiskustannus K67. CHP ei toimi, jos K62 = *Toimitettu lämpö*. Hinta, ylläpito, viiteolosuhde ja omakäyttö ovat omia oletuksia; korvaa ne laitetoimittajan tiedoilla.
 
+**ORC:n täystehoajo (K80–K97, oletuksena pois).** Valitse K80 = *Kyllä*, anna kattilateho K81 (oletus 500 kW, enintään D14) ja merkitse K83:K94 kuukaudet, joina ORC ajetaan täydellä teholla (1 = päällä). Näinä kuukausina kattila tuottaa ORC:lle koko tehon lämmöntarpeesta riippumatta: lämpö kattaa ensin tilan tarpeen, sitten lataa vesivaraajan (rivi 12) ja loput jäähdytetään. K95–K97 näyttävät varaajaan ja jäähdyttimeen menneen lämmön ja täystehotunnit. Jäähdytetty lämpö on maksettua polttoainetta, joten tarkista, kattaako lisäsähkön arvo sen. Selainversiossa valinnat ovat kohdassa 2 ORC-laitteen alla.
+
 ## 4. Hinnat ja korko
 
 - **C22–C23:** kiinteä ostohinta (sisältää energian, siirron ja veron) ja myyntihinta, c/kWh
@@ -143,6 +145,10 @@ Selainversio sisältää samat syötteet ja tulokset kuin työkirja. Syötteiden
 - **Kuvaajat:** Yhteenvedossa sähkö ja lämpö kuukausittain rinnakkain; ORC on molemmissa vihreä. Klikkaa kuvaajaa tai valitse *Kuukausi*, *Päivä* tai *Tunti*, niin kuvaajat avautuvat suurena omaan ikkunaan. Ikkunassa voi vaihtaa aikatarkkuutta ja jaksoa (kuukausi, tuntitasolla myös viikko) ja nähdä arvot viemällä hiiren kuvaajan päälle.
 - **Tulokset:** välilehdet Yhteenveto, Kuukaudet, Kassavirta, Päästöt, Reservi, Optimointi, Vertailu sekä Menetelmä ja lähteet.
 - **Tallennus:** *Tallenna lähtötiedot* (JSON), *Avaa lähtötiedot*, *Kopioi jakolinkki* (lähtötiedot linkissä; ladatut tiedostot eivät kulje linkissä), *Lataa tulokset* ja *Lataa tuntitase* (CSV, puolipiste ja desimaalipilkku). *Lisää vertailuun* tallentaa laskelman vertailutaulukkoon tähän selaimeen.
+
+## Muutokset version 0.13.0 käyttöön
+
+- Uudet syötteet K80–K94 (ORC:n täystehoajo) ja tulokset K95–K97; Tuntitase BT–BW. Oletuksena pois, joten aiemmat tulokset eivät muutu.
 
 ## Muutokset version 0.12.0 käyttöön
 

@@ -1,4 +1,4 @@
-"""Hourly rule dispatch 0.12.0; all flows kWh per one-hour step.
+"""Hourly rule dispatch 0.13.0; all flows kWh per one-hour step.
 
 SOC is usable AC discharge energy; charge efficiency 0.9, discharge efficiency 1.
 Reserve activation is an expected-energy scenario, not frequency replay.
@@ -16,7 +16,11 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
         eb_grid=False, curtail_negative=False, reserve=False, reserve_first=False,
         reserve_target=.5, reserve_hours=1/3, activation_hours=.01,
         availability=.95, recovery_power=.2, chp_share=0., reserve_up=True,
-        reserve_down=True, chp_max=np.inf, chp_min_heat=0.):
+        reserve_down=True, chp_max=np.inf, chp_min_heat=0., full_load_kw=0., full_months=()):
+    """full_load_kw > 0: ORC full-power mode (workbook K80-K94, Tuntitase BT-BW) in the months full_months
+    (1-12). The boiler feeds the ORC with B = min(main_max, full_load_kw); electricity = min(chp_max,
+    eta_net x B) and the heat out B - electricity serves the load first, then charges the tank; the rest goes
+    to the dry cooler. The heat pump only covers demand above the ORC heat, the electric boiler is off."""
     if gridcharge is not None:
         raise ValueError('Use spot=..., pricing="spot", battery_mode="spot" instead of gridcharge.')
     el, heat, pv1, T = [np.asarray(x, dtype=float) for x in (el, heat, pv1, T)]
@@ -27,7 +31,7 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
         raise ValueError('Load, heat and PV reference must be nonnegative.')
     if not 0 < eta <= 1 or not 0 < eta_b <= 1 or min(PV,BESS,HP,EB,TANK,main_max,tank_loss_kw,tank_discharge_kw,activation_hours)<0:
         raise ValueError('Invalid capacity, loss or efficiency.')
-    if not 0 <= chp_share <= 1 or chp_max < 0 or chp_min_heat < 0:
+    if not 0 <= chp_share <= 1 or chp_max < 0 or chp_min_heat < 0 or full_load_kw < 0:
         raise ValueError('CHP electricity share must be between 0 and 1; limits nonnegative.')
     if not 0 < reserve_hours or not 0 <= reserve_target <= 1 or not 0 <= availability <= 1:
         raise ValueError('Invalid reserve parameters.')
@@ -48,6 +52,12 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
            'chp chpload chpsell chprevenue rdown activation_down').split()
     out={k:np.zeros(n) for k in names};soc=tsoc=0.;Et=TANK*46.5;P=crate*BESS
     fuelc=fuel/1000/(1 if delivered_heat else eta_b)
+    hours_in_month=[744,672,744,720,744,720,744,744,720,744,720,744]
+    month=np.repeat(np.arange(1,13),hours_in_month)[:n]
+    full_b=min(main_max,full_load_kw);eta_net=chp_share/(1+chp_share)
+    full_on=full_load_kw>0 and chp_share>0 and not delivered_heat and main_max>0 and full_b>=chp_min_heat-1e-9
+    full_e=min(chp_max,eta_net*full_b);full_h=full_b-full_e
+    for k in ('full','orc_tank','orc_dump'):out[k]=np.zeros(n)
     for t in range(n):
         p=PV*pv1[t];L=el[t];Q=heat[t];d=min(p,L);surplus=p-d
         arbi=pricing=='spot' and battery_mode=='spot'
@@ -82,21 +92,25 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
             pv_economic=max(0,surplus-ch) if max(0,sellprice[t])/cop<fuelc else 0.
             allowed_el=php if buyprice[t]/cop<fuelc else pv_economic
             qhp=min(qhp,allowed_el*cop);php=qhp/cop;hppv=min(max(0,surplus-ch),php)
+        full=full_on and int(month[t]) in full_months;H=full_h if full else 0.
+        if full:qhp=min(qhp,max(0,Q-H));php=qhp/cop;hppv=min(max(0,surplus-ch),php)
         loss=min(tsoc,tank_loss_kw) if TANK else 0.
         available=max(0,tsoc-loss)
-        td=min(max(0,Q-qhp),available,tank_discharge_kw) if TANK else 0.
-        epv=min(max(0,surplus-ch-php),EB,max(0,Et-available)) if EB and TANK else 0.
+        td=min(max(0,Q-qhp-H),available,tank_discharge_kw) if TANK else 0.
+        epv=min(max(0,surplus-ch-php),EB,max(0,Et-available)) if EB and TANK and not full else 0.
         eg=0.
-        if eb_grid and EB and TANK and buyprice[t]<fuelc:
+        if eb_grid and EB and TANK and not full and buyprice[t]<fuelc:
             eg=max(0,min(EB-epv,Et-available-epv))
-        newtsoc=available+epv+eg-td
-        main=min(main_max,max(0,Q-qhp-td));unmet=max(0,Q-qhp-td-main)
+        orc_tank=min(max(0,H-max(0,Q-qhp)),max(0,Et-available)) if full and TANK else 0.
+        orc_dump=max(0,H-max(0,Q-qhp)-orc_tank) if full else 0.
+        newtsoc=available+epv+eg-td+orc_tank
+        main=H if full else min(main_max,max(0,Q-qhp-td));unmet=max(0,Q-qhp-td-main)
         base_main=min(main_max,Q)
         gross_sell=max(0,surplus-ch-php-epv)
         curtail=gross_sell if pricing=='spot' and curtail_negative and sellprice[t]<0 else 0.
         # CHP/ORC, heat-led: electricity = ratio x main-boiler heat, capped at the ORC net maximum,
         # off below the ORC minimum heat input (not with delivered-heat pricing). See orc_params().
-        chp=0. if delivered_heat or main*(1+chp_share)<chp_min_heat-1e-9 else min(chp_share*main,chp_max)
+        chp=full_e if full else 0. if delivered_heat or main*(1+chp_share)<chp_min_heat-1e-9 else min(chp_share*main,chp_max)
         chpload=min(chp,max(0,L-d-dis)+max(0,php-hppv));chpsell=chp-chpload
         chprev=0. if pricing=='spot' and curtail_negative and sellprice[t]<0 else chpsell*sellprice[t]
         buy=max(0,L-d-dis)+max(0,php-hppv)+gc+eg-chpload+act_down
@@ -105,7 +119,7 @@ def sim(el, heat, pv1, T, PV=200, BESS=60, HP=0, EB=0, TANK=0,
                   base_main=base_main,base_unmet=Q-base_main,tankloss=loss,ebgrid=eg,r=offered,
                   activation=activation,activation_revenue=activation*sellprice[t],pv=p,cop=cop,
                   buyprice=buyprice[t],sellprice=sellprice[t],chp=chp,chpload=chpload,chpsell=chpsell,
-                  chprevenue=chprev,rdown=offd,activation_down=act_down)
+                  chprevenue=chprev,rdown=offd,activation_down=act_down,full=float(full),orc_tank=orc_tank,orc_dump=orc_dump)
         for k,v in vals.items():out[k][t]=v
         soc,tsoc=newsoc,newtsoc
     return out

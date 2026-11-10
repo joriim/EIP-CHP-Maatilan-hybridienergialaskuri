@@ -61,6 +61,9 @@ if (require.main === module) {
     orc_paluu45_k70_300: [{ tuotanto: 'Broilerikasvattamo', skaalaLampo: 1300000, chpOn: 1, orcPaluu: 45, orcLampo: 300, orcMinimi: 200 }, null, null],
     lampo_ja_varaaja: [{ lpOn: 1, ekOn: 1, varOn: 1, ekVerkko: 'Kyllä', hinnoittelu: 'Pörssihinta' }, null, synth],
     oma_data_oma_lampotila: [{ tuotanto: 'Oma data', lpOn: 1, lp: 30 }, ownData, null],
+    orc_taysteho_varaaja: [{ tuotanto: 'Broilerikasvattamo', skaalaLampo: 1300000, chpOn: 1, varOn: 1, orcTays: 'Kyllä' }, null, null],
+    orc_taysteho_lp_kesa: [{ chpOn: 1, varOn: 1, varaaja: 10, lpOn: 1, lp: 20, ekOn: 1, orcTays: 'Kyllä', orcTaysTeho: 480, orcKk6: 1, orcKk7: 1,
+      hinnoittelu: 'Pörssihinta' }, null, synth],
     broileri_biokaasu_25v: [{ tuotanto: 'Broilerikasvattamo', lammitys: 'Biokaasu', pitoaika: 25, kattila: 400 }, null, null],
   };
   const pick = r => {
@@ -71,7 +74,7 @@ if (require.main === module) {
       D46: c.elHyb, D47: c.sales, C48: c.fuelBase, D48: c.fuelHyb, C49: c.costBase, D49: c.costHyb, E49: c.energySaving,
       E50: c.reserve.farm, E51: c.cash, E52: c.payback, E53: c.paybackGross, E54: c.npv, E55: c.npvSimple, G16: c.gross,
       G17: c.subsidy, G18: c.net, C59: e.cycles, C60: e.life, C61: c.om, C62: rep.invRep, C63: rep.batRep,
-      C64: rep.invRep + rep.batRep + rep.chpRep, K37: q.impactFactor, K68: e.chp, K77: r.orc.eta, K78: r.orc.max, K79: r.orc.share, G15: c.inv.chp,
+      C64: rep.invRep + rep.batRep + rep.chpRep, K37: q.impactFactor, K68: e.chp, K95: e.orcTank, K96: e.orcDump, K97: e.fullHours, K77: r.orc.eta, K78: r.orc.max, K79: r.orc.share, G15: c.inv.chp,
     };
     [['domestic', 68], ['hourly', 69], ['impact', 70], ['heat', 71], ['manufacturing', 72], ['opDomestic', 73], ['opHourly', 74],
       ['impact', 75], ['biogenic', 76]].forEach(([k, row]) => { m['C' + row] = q[k][0]; m['D' + row] = q[k][1]; });

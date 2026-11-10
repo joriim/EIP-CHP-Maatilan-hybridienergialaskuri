@@ -1,7 +1,7 @@
 # Maatilan hybridienergialaskuri – Excel-mallin käyttöohje
 
-**Mallin versio:** 0.12.0  
-**Ohje päivitetty:** 9.11.2026  
+**Mallin versio:** 0.13.0  
+**Ohje päivitetty:** 10.11.2026  
 **Työkirjat:** Maatilan_hybridienergialaskuri.xlsx (ilman makroja) ja Maatilan_hybridienergialaskuri.xlsm (lisäksi kokoonpanon optimointi)  
 **Tekijät:** Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), Maatalous ja energia -tutkimusryhmä  
 **Hanke:** EIP CHP Energiaälykäs eteläpohjalainen maatila
@@ -87,8 +87,11 @@ Tarkista seuraavat asetukset:
 | Lämpöpumpun ohjaus | K54 | Taloudellinen ohjaus tai lämpöpumpun etusijakäyttö. |
 | COP-parametrit ja käyttörajat | K55–K60 | Sovita arvot laitteen, menoveden lämpötilan ja käyttöolosuhteiden tietoihin. |
 | CHP: ORC bruttoteho, €/kWe | D15, F15 | 40 kWe:n ORC-moduuli. Investointi = D15 × F15. |
+| ORC:n täystehoajo | K80–K94 | K80 Kyllä/Ei, K81 kattilateho (oletus 500 kW), K83:K94 kuukaudet (1 = päällä). Tulokset K95–K97. |
 | ORC-asetukset | K69–K76 | Lämpöteho 640 kWth, menovesi 110 °C, paluupiiri 30 °C, viiteolosuhde 110/25 °C (oma oletus), omakäyttö 10 % (oma oletus), pienin lämpöteho 450 kWth. Tulokset K77–K79. |
 | CHP: ylläpito, käyttöikä, uusiminen | K65–K67 | €/MWh sähköä, vuodet ja uusimisen osuus nykyhinnasta ovat omia oletuksia. |
+
+**ORC:n täystehoajo (K80–K97).** Valittuina kuukausina kattila syöttää ORC:lle tehon min(D14, K81) lämmöntarpeesta riippumatta. Lämpö kattaa ensin tarpeen, sitten lataa varaajan; loput jäähdytetään (Tuntitase BT–BW).
 
 **CHP: ORC (rivi 15).** ORC-sähkö = K79 × päälämmön tuotto joka tunti, enintään K78, ja vain tunteina, joina ORC:n lämpöteho on vähintään K76. K79 lasketaan menoveden K71 ja paluupiirin K72 lämpötilasta (Carnot-skaalaus viiteolosuhteesta). Se kattaa ensin tilan sähköntarpeen; ylijäämä myydään. Lisäpolttoaine = CHP-sähkö / kattilan hyötysuhde C26, ja se näkyy polttoainekustannuksessa ja päästöissä. Vuotuinen tuotanto näkyy solussa K68 ja rivillä 43. CHP ei toimi eikä sen investointia lasketa, jos K62 = *Toimitettu lämpö*. Malli ei huomioi osakuorman hyötysuhdetta, käynnistyksiä eikä lauhdutusajoa.
 

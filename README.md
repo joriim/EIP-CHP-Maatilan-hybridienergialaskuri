@@ -1,4 +1,4 @@
-# Maatilan hybridienergialaskuri 0.12.0
+# Maatilan hybridienergialaskuri 0.13.0
 
 Excel-laskuri, jolla sika- tai siipikarjatila voi arvioida, kannattaako olemassa olevan hake- tai biokaasulämmityksen rinnalle hankkia aurinkosähköä, sähköakkua, lämpöpumppua, sähkökattilaa, lämpövaraajaa tai CHP-sähköntuotantoa.
 
@@ -18,6 +18,10 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 **Laskurin kehittämisessä on hyödynnetty tekoälyä** laskentakaavojen ja koodin tarkastelussa, dokumentoinnissa sekä vaihtoehtojen luonnostelussa. Tekoälyä voi käyttää myös oman tilan lähtötietojen jäsentämiseen ja syötön valmisteluun. Suosittelemme kokeilemaan Microsoft Copilotia Excelissä, OpenAI:n ChatGPT for Excel -lisäosaa tai Anthropicin Claude for Excel -lisäosaa. Asennuslähteet, käyttörajojen täsmennykset ja valmiit esimerkkikehotteet ovat [Excel-käyttöohjeen tekoälyosiossa](laskuri/README_EXCEL.md#13-tekoäly-laskurin-kehittämisessä-ja-käytössä). Saatavuus riippuu palvelusta, tilauksesta ja organisaation asetuksista.
 
 **[Lue esittely, käyttö- ja kehitysopas](docs/OPAS.md).** Opas kertoo, mitä laskuri laskee, miten oman tilan tiedot syötetään, miten vaihtoehtoja vertaillaan ja miten laskuria voi kehittää avoimilla lisensseillä. Käyttäjä valitsee laitteiden koot tai antaa makroversion etsiä parhaan kokoonpanon antamistaan vaihtoehdoista. CHP on yksinkertaistettu sähköosuusmalli; laitoksen prosessia tai biokaasuprosessia ei mallinneta.
+
+## Uutta versiossa 0.13.0
+
+- **ORC:n täystehoajo valittuina kuukausina: kattila syöttää ORC:lle valitun tehon (oletus 500 kW) lämmöntarpeesta riippumatta, ja ylijäämälämpö menee ensin varaajaan ja sitten jäähdyttimeen.** Valinta on selainversiossa ORC-laitteen alla (kohta 2) ja Excelissä Ohjauspaneelin soluissa K80–K94; tulokset K95–K97 ja Tuntitase BT–BW. Muina kuukausina ORC on lämpöohjattu kuten ennen. Oletuksena pois, joten aiemmat tulokset eivät muutu.
 
 ## Uutta versiossa 0.12.0
 

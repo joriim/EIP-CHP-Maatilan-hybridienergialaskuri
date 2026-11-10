@@ -20,7 +20,8 @@ def main():
     columns={'Z':'buy','AA':'sell','P':'ch','Q':'soc','R':'dis','S':'hp','U':'hpel','Y':'main',
              'V':'eb','W':'tsoc','AH':'gridch','AU':'r','AV':'unmet','AW':'base_main',
              'AX':'base_unmet','AY':'tankloss','AZ':'ebgrid','BA':'activation','BB':'activation_revenue',
-             'BD':'chp','BE':'chpload','BF':'chpsell','BG':'chprevenue','BH':'rdown','BI':'activation_down'}
+             'BD':'chp','BE':'chpload','BF':'chpsell','BG':'chprevenue','BH':'rdown','BI':'activation_down',
+             'BT':'full','BV':'orc_tank','BW':'orc_dump'}
     fcr=pd.read_csv(Path(__file__).resolve().parent.parent/'data/fingrid_fcr_d_ylos_tuntihinnat.csv')['fcr_d_ylos_2025_eur_mw_h'].values
     fcr_dn=pd.read_csv(Path(__file__).resolve().parent.parent/'data/fingrid_fcr_d_alas_tuntihinnat.csv')['fcr_d_alas_2025_eur_mw_h'].values
     prices=np.tile(np.r_[np.zeros(12),np.ones(12)*.2],365)
@@ -46,6 +47,12 @@ def main():
         ('orc_broileri_1300MWh',{**BROILER,(panel,'C15'):1},dict(heat_override='broiler',**orc_kw())),
         ('orc_paluu45_k70_300_porssi',{**BROILER,(panel,'C15'):1,(panel,'K72'):45,(panel,'K70'):300,(panel,'K76'):200,(panel,'K22'):'Pörssihinta',(panel,'K25'):'Kyllä'},
          dict(heat_override='broiler',pricing='spot',spot=prices,curtail_negative=True,**orc_kw(ret=45,heat_in=300,min_heat=200))),
+        # ORC full-power mode: boiler 500 kW to the ORC in the flagged months, surplus to tank then dry cooler.
+        ('orc_taysteho_varaaja',{**BROILER,(panel,'C15'):1,(panel,'C12'):1,(panel,'K80'):'Kyllä'},
+         dict(heat_override='broiler',TANK=5,full_load_kw=500,full_months={1,2,3,4,10,11,12},**orc_kw())),
+        ('orc_taysteho_lp_kesa',{(panel,'C15'):1,(panel,'C12'):1,(panel,'D12'):10,(panel,'C10'):1,(panel,'D10'):20,(panel,'C11'):1,
+          (panel,'K80'):'Kyllä',(panel,'K81'):480,(panel,'K88'):1,(panel,'K89'):1},
+         dict(TANK=10,HP=20,EB=30,full_load_kw=480,full_months={1,2,3,4,6,7,10,11,12},**orc_kw())),
         ('orc_toimitettu_lampo',{**BROILER,(panel,'C15'):1,(panel,'K62'):'Toimitettu lämpö'},dict(heat_override='broiler',delivered_heat=True,**orc_kw())),
     ]
     # Own data with own outdoor temperature (Rakennushaku export, Oma kulutusdata E-G).
@@ -103,6 +110,9 @@ def main():
                              chp_cost=chp_cost,chp_kwh=expected['chp'].sum())
             assert abs(model.get(panel,'K68')-expected['chp'].sum())<1e-6
             assert abs(result['npv']-expected_npv)<1e-6,(result['npv'],expected_npv)
+        if name.startswith('orc_taysteho'):
+            assert expected['orc_dump'].sum()>0 and expected['orc_tank'].sum()>0
+            assert abs(model.get(panel,'K96')-expected['orc_dump'].sum())<1e-6 and abs(model.get(panel,'K97')-expected['full'].sum())<1e-9
         if name=='orc_toimitettu_lampo':assert model.get(panel,'G15')==0 and model.get(panel,'K68')==0
     # Boundary changes must expose incomplete service and missing input.
     for name,overrides,want in [

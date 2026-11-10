@@ -1,4 +1,4 @@
-/* Maatilan hybridienergialaskuri 0.12.0 – laskentamalli selaimeen.
+/* Maatilan hybridienergialaskuri 0.13.0 – laskentamalli selaimeen.
  * Sama tuntitase kuin Excel-työkirjassa ja malli/sim.py:ssä (8 760 h, kiinteä EET).
  * Tekijät: Suvi Karirinne, Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK),
  * Maatalous ja energia -tutkimusryhmä. Lisenssi: MIT (LICENSE-CODE).
@@ -19,6 +19,9 @@
     chpOn: 0, chpKwe: 40, chpHinta: 3000,
     // 40 kWe:n ORC-moduuli (Ohjauspaneeli K70–K76)
     orcLampo: 640, orcMeno: 110, orcPaluu: 30, orcRefMeno: 110, orcRefPaluu: 25, orcOmakaytto: 0.1, orcMinimi: 450,
+    // ORC:n täystehoajo valittuina kuukausina (K80–K94): kattila ajoteholla, ylijäämälämpö varaajaan ja sitten jäähdyttimeen
+    orcTays: 'Ei', orcTaysTeho: 500,
+    orcKk1: 1, orcKk2: 1, orcKk3: 1, orcKk4: 1, orcKk5: 0, orcKk6: 0, orcKk7: 0, orcKk8: 0, orcKk9: 0, orcKk10: 1, orcKk11: 1, orcKk12: 1,
     tuki: 0.4,
     ostoKiintea: 12, myyntiKiintea: 4, hake: 16, biokaasu: 12, hyotysuhde: 0.85,
     korko: 0.08, pitoaika: 20,
@@ -89,6 +92,11 @@
     const adder = p.lisa / 100, sellfee = p.myyntipalkkio / 100, deg = p.kuluminen / 100;
     const fuelc = fuelPrice(p) / 1000 / (delivered(p) ? 1 : p.hyotysuhde);
     const O = orc(p), chpOnHere = p.chpOn && !delivered(p);
+    // Täystehoajo (Tuntitase BT–BW): kattila tuottaa ORC:lle B = min(D14, K81); sähkö = min(K78, K77 × B), lämpö ulos = B − sähkö.
+    const fullB = Math.min(mainMax, p.orcTaysTeho);
+    const fullOn = chpOnHere && mainMax > 0 && p.orcTays === 'Kyllä' && fullB >= O.min - 1e-9;
+    const fullE = Math.min(O.max, O.eta * fullB), fullH = fullB - fullE;
+    const fullMonth = Array.from({ length: 12 }, (_, m) => +p['orcKk' + (m + 1)] === 1);
     const curtailNeg = spotMode && p.katkaise === 'Kyllä';
     const buyP = new Float64Array(n), sellP = new Float64Array(n);
     for (let t = 0; t < n; t++) {
@@ -104,7 +112,8 @@
       for (let k = s; k < s + 24; k++) dayMax[k] = mx;
     }
     const keys = ['buy', 'sell', 'main', 'dis', 'ch', 'hp', 'eb', 'hpel', 'gridch', 'soc', 'unmet', 'baseMain',
-      'baseUnmet', 'r', 'act', 'actRev', 'pv', 'chp', 'chpload', 'chpsell', 'chprev', 'rdown', 'actDown', 'curt', 'direct', 'mainOrc', 'td'];
+      'baseUnmet', 'r', 'act', 'actRev', 'pv', 'chp', 'chpload', 'chpsell', 'chprev', 'rdown', 'actDown', 'curt', 'direct', 'mainOrc', 'td',
+      'full', 'orcTank', 'orcDump'];
     const o = {}; keys.forEach(k => { o[k] = new Float64Array(n); });
     o.buyP = buyP; o.sellP = sellP;
     let soc = 0, tsoc = 0; const Et = TANK * 46.5;
@@ -145,19 +154,23 @@
         const allowed = buyP[t] / cop < fuelc ? php : pvEcon;
         qhp = Math.min(qhp, allowed * cop); php = qhp / cop; hppv = Math.min(Math.max(0, surplus - ch), php);
       }
+      const full = fullOn && fullMonth[MONTH[t]], H = full ? fullH : 0;
+      if (full) { qhp = Math.min(qhp, Math.max(0, Q - H)); php = qhp / cop; hppv = Math.min(Math.max(0, surplus - ch), php); }
       const loss = TANK ? Math.min(tsoc, p.varaajaHavio) : 0;
       const available = Math.max(0, tsoc - loss);
-      const td = TANK ? Math.min(Math.max(0, Q - qhp), available, p.varaajaPurku) : 0;
-      const epv = EB && TANK ? Math.min(Math.max(0, surplus - ch - php), EB, Math.max(0, Et - available)) : 0;
+      const td = TANK ? Math.min(Math.max(0, Q - qhp - H), available, p.varaajaPurku) : 0;
+      const epv = EB && TANK && !full ? Math.min(Math.max(0, surplus - ch - php), EB, Math.max(0, Et - available)) : 0;
       let eg = 0;
-      if (p.ekVerkko === 'Kyllä' && EB && TANK && buyP[t] < fuelc) eg = Math.max(0, Math.min(EB - epv, Et - available - epv));
-      const newtsoc = available + epv + eg - td;
-      const main = Math.min(mainMax, Math.max(0, Q - qhp - td));
+      if (p.ekVerkko === 'Kyllä' && EB && TANK && !full && buyP[t] < fuelc) eg = Math.max(0, Math.min(EB - epv, Et - available - epv));
+      const orcTank = full && TANK ? Math.min(Math.max(0, H - Math.max(0, Q - qhp)), Math.max(0, Et - available)) : 0;
+      const orcDump = full ? Math.max(0, H - Math.max(0, Q - qhp) - orcTank) : 0;
+      const newtsoc = available + epv + eg - td + orcTank;
+      const main = full ? H : Math.min(mainMax, Math.max(0, Q - qhp - td));
       const unmet = Math.max(0, Q - qhp - td - main);
       const grossSell = Math.max(0, surplus - ch - php - epv);
       const negative = curtailNeg && sellP[t] < 0;
       const curt = negative ? grossSell : 0;
-      const chp = chpOnHere && main * (1 + O.share) >= O.min - 1e-9 ? Math.min(O.share * main, O.max) : 0;
+      const chp = full ? fullE : chpOnHere && main * (1 + O.share) >= O.min - 1e-9 ? Math.min(O.share * main, O.max) : 0;
       const chpload = Math.min(chp, Math.max(0, L - d - dis) + Math.max(0, php - hppv));
       const chpsell = chp - chpload;
       const buy = Math.max(0, L - d - dis) + Math.max(0, php - hppv) + gc + eg - chpload + actDown;
@@ -167,6 +180,7 @@
       o.actRev[t] = act * sellP[t]; o.pv[t] = pv; o.direct[t] = d; o.chp[t] = chp; o.chpload[t] = chpload;
       o.chpsell[t] = chpsell; o.chprev[t] = negative ? 0 : chpsell * sellP[t]; o.rdown[t] = down; o.actDown[t] = actDown;
       o.mainOrc[t] = chp > 0 ? main : 0; o.td[t] = td;
+      o.full[t] = full ? 1 : 0; o.orcTank[t] = orcTank; o.orcDump[t] = orcDump;
       soc = newsoc; tsoc = newtsoc;
     }
     return o;
@@ -250,7 +264,7 @@
     const spot = resolveSpot(prices, p.hintavuosi);
     if (spotMode && (!spot || count(spot) < 8760)) return { status: 'Hintadata puuttuu', p };
     if (p.pitoaika < 1 || p.pitoaika > 100 || p.chpKwe < 0 || p.orcLampo <= 0 || p.orcMeno - 10 <= p.orcPaluu + 12 ||
-        p.orcRefMeno - 10 <= p.orcRefPaluu + 12 || p.orcOmakaytto < 0 || p.orcOmakaytto >= 1 || p.orcMinimi < 0 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24 ||
+        p.orcRefMeno - 10 <= p.orcRefPaluu + 12 || p.orcOmakaytto < 0 || p.orcOmakaytto >= 1 || p.orcMinimi < 0 || p.orcTaysTeho < 0 || p.hyotysuhde <= 0 || p.halvat + p.kalliit > 24 ||
         p.kalenteriIka < 1 || p.copMax < p.copMin || p.copMin <= 0)
       return { status: 'Virhe parametreissa', p };
     const o = simulate(p, data, l, spotMode ? spot : null);
@@ -368,6 +382,7 @@
         elDemand: sum(l.el), heatDemand: sum(l.heat), buyBase, buyHyb, pv: pvSum,
         selfUse: pvSum > 0 ? (pvSum - sold - sum(o.curt)) / pvSum : 0, sell: sold, dis: sum(o.dis),
         hp: sum(o.hp), eb: sum(o.eb), mainBase: baseMain, mainHyb: hybMain, chp: chpKwh, unmet, baseUnmet,
+        fullHours: sum(o.full), orcTank: sum(o.orcTank), orcDump: sum(o.orcDump),
         peakHeat: Math.max(...l.heat), peakEl: Math.max(...l.el), cycles, life,
         fuelMWhBase: baseMain / (p.hyotysuhde * 1000), fuelMWhHyb: (hybMain + chpKwh) / (p.hyotysuhde * 1000),
         chipBase: p.lammitys === 'Hakekattila' ? baseMain / (p.hyotysuhde * 1000 * p.hakeTiheys) : null,

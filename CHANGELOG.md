@@ -1,5 +1,17 @@
 # Muutosloki
 
+## 0.13.0 (2026-11-10): ORC:n täystehoajo
+
+**Uutta**
+- ORC:n täystehoajo valittuina kuukausina (Ohjauspaneeli K80 Kyllä/Ei, K81 kattilateho 500 kW, K83:K94 kuukausiliput, oletus tammi–huhti ja loka–joulu). Täystehotunnilla kattila syöttää ORC:lle B = min(D14, K81); sähkö = min(K78, K77 × B) ja lämpö ulos B − sähkö. Lämpö kattaa ensin tilan tarpeen, sitten lataa varaajan; loput jäähdytetään. Lämpöpumppu kattaa vain ORC-lämmön ylittävän tarpeen, sähkökattila ei lataa varaajaa. Ehto: CHP ja päälämmitys päällä, K62 ≠ Toimitettu lämpö, B ≥ K76.
+- Tuntitase BT (täystehoajo päällä), BU (ORC-lämpö ulos), BV (ylijäämä varaajaan), BW (ylijäämä jäähdyttimeen); muutetut kaavat S, V, W, X, Y, AZ ja BD. Päälämpö Y sisältää täystehotunteina koko tuotetun lämmön, joten polttoaine ja päästöt sisältävät myös jäähdytetyn lämmön. Tulokset K95–K97.
+- Selainversio: valinnat ORC-laitteen alla (kohta 2), lämpökuvaajaan ORC-ylijäämä varaajaan ja jäähdyttimeen, energiataseeseen täystehotunnit ja ylijäämät, tuntitase-CSV:hen ylijäämäsarakkeet.
+- Python-malli: sim(full_load_kw, full_months).
+- Testit: täystehoajo Excel–Python (broileri 1 300 MWh + varaaja; sikala, lämpöpumppu, sähkökattila, 10 m³ varaaja ja kesäkuukaudet) ja Excel–selain (sama kaksi tapausta, 525 arvoa kumpikin).
+
+**Korjattua**
+- Ohjauspaneelin solu K77 (ORC:n nettohyötysuhde) jäi yhdistetyn alueen H77:M77 alle piiloon; yhdistely rajattu H77:I77:een.
+
 ## 0.12.0 (2026-11-09): 500 kW:n päälämmitys, ORC ja lämpötase
 
 **Muutettua**

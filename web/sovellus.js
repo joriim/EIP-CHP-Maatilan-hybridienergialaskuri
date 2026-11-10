@@ -131,6 +131,11 @@
           html += `<div class="dev" title="Excel: ${ref}"><input type="checkbox" id="${on}" aria-label="${label} mukana"><label for="${size}">${label}${unit ? ', ' + unit : ''}</label>` +
             `<input type="number" id="${size}" min="0" step="1"><input type="number" id="${price}" min="0" aria-label="${label}, yksikköhinta"></div>`;
         });
+        html += row(['orcTays', 'ORC: täystehoajo valittuina kuukausina', '', 'K80', YES]);
+        html += row(['orcTaysTeho', 'ORC: täystehoajon kattilateho', 'kW', 'K81', N(10, 0)]);
+        html += '<fieldset class="kk-grid" title="Excel: K83:K94"><legend>Täystehoajon kuukaudet</legend>' +
+          KK.map((m, i) => `<label><input type="checkbox" id="orcKk${i + 1}">${m}</label>`).join('') + '</fieldset>';
+        html += '<p class="hint">Täystehoajossa kattila syöttää ORC:lle valitun tehon lämmöntarpeesta riippumatta. Lämpö menee ensin tilan tarpeeseen, sitten varaajaan; loput jäähdytetään. Muina kuukausina ORC on lämpöohjattu.</p>';
         html += '<p class="hint">Sähkökattila tarvitsee varaajan. ORC: koko = bruttosähköteho, hinta €/kWe. Sähkö riippuu paluupiirin lämpötilasta, ja ORC käy vain, kun lämmöntarve riittää sen pienimpään lämpötehoon (kohta 6).</p>';
         html += row(['tuki', 'Investointituki', 'osuus', 'D17', N(0.05, 0, 1)]);
       }
@@ -206,7 +211,9 @@
       { k: 'mainDirect', label: 'Päälämmitys suoraan', fill: C.kattila, stroke: '#5d5766' },
       { k: 'mainOrc', label: 'Päälämmitys ORC:n kautta', fill: C.orc, stroke: '#5d5766' },
       { k: 'hp', label: 'Lämpöpumppu', fill: C.lp, stroke: '#5d5766' },
-      { k: 'td', label: 'Varaajan purku (sähkökattila)', fill: C.varaaja, stroke: '#5d5766' },
+      { k: 'td', label: 'Varaajan purku', fill: C.varaaja, stroke: '#5d5766' },
+      { k: 'orcTank', label: 'ORC-ylijäämä varaajaan', fill: C.varaaja, stroke: '#5d5766', dash: true },
+      { k: 'orcDump', label: 'ORC-ylijäämä jäähdyttimeen', fill: '#ffffff', stroke: '#5d5766', dash: true },
       { k: 'unmet', label: 'Toimittamaton lämpö', fill: '#ffffff', stroke: '#1b1620', dash: true },
     ];
     function niceTop(max) {
@@ -225,9 +232,13 @@
       return out;
     }
     function series(data) {
-      const n = 8760, mainDirect = new Float64Array(n);
-      for (let t = 0; t < n; t++) mainDirect[t] = data.main[t] - data.mainOrc[t];
-      return Object.assign({ mainDirect }, data);
+      const n = 8760, mainDirect = new Float64Array(n), orcLoad = new Float64Array(n), orcTank = new Float64Array(n), orcDump = new Float64Array(n);
+      for (let t = 0; t < n; t++) {
+        mainDirect[t] = data.main[t] - data.mainOrc[t];
+        orcTank[t] = data.orcTank ? data.orcTank[t] : 0; orcDump[t] = data.orcDump ? data.orcDump[t] : 0;
+        orcLoad[t] = data.mainOrc[t] - orcTank[t] - orcDump[t];
+      }
+      return Object.assign({}, data, { mainDirect, mainOrc: orcLoad, orcTank, orcDump });
     }
     function agg(arr, b) { let s = 0; for (let t = b[0]; t < b[1]; t++) s += arr[t]; return s; }
     /* Returns { svg, rows } for kind 'elec' | 'heat'. Bars for month and day, lines/areas for hours. */
@@ -306,7 +317,8 @@
   const KIT = chartKit();
   function chartData(r) {
     const o = r.o;
-    return { base: r.load.el, buy: o.buy, pv: o.pv, chp: o.chp, heat: r.load.heat, main: o.main, mainOrc: o.mainOrc, hp: o.hp, td: o.td, unmet: o.unmet };
+    return { base: r.load.el, buy: o.buy, pv: o.pv, chp: o.chp, heat: r.load.heat, main: o.main, mainOrc: o.mainOrc, hp: o.hp, td: o.td, unmet: o.unmet,
+      orcTank: o.orcTank, orcDump: o.orcDump };
   }
   function barChart(r) {
     const d = chartData(r);
@@ -315,7 +327,8 @@
     $('kaavioL').innerHTML = h.svg; $('kaavioLLeg').innerHTML = h.legend;
     const O = r.orc, en = r.energy;
     $('orcNote').textContent = r.p.chpOn
-      ? (en.chp > 0 ? `ORC (vihreä molemmissa kuvaajissa): ${f0(en.chp / 1000)} MWh sähköä ${f0(sum(r.o.mainOrc) / 1000)} MWh:n lämmöstä, nettohyötysuhde ${nf1.format(O.eta * 100)} %, enintään ${nf1.format(O.max)} kWe.`
+      ? (en.chp > 0 ? `ORC (vihreä molemmissa kuvaajissa): ${f0(en.chp / 1000)} MWh sähköä ${f0(sum(r.o.mainOrc) / 1000)} MWh:n lämmöstä, nettohyötysuhde ${nf1.format(O.eta * 100)} %, enintään ${nf1.format(O.max)} kWe.` +
+          (en.fullHours > 0 ? ` Täystehoajo ${f0(en.fullHours)} h: ylijäämästä ${f0(en.orcTank / 1000)} MWh varaajaan ja ${f0(en.orcDump / 1000)} MWh jäähdyttimeen.` : '')
         : `ORC ei käy: tilan lämmöntarpeen huippu ${f0(en.peakHeat)} kW jää alle ORC:n pienimmän lämpötehon ${f0(O.min)} kW.`)
       : '';
   }
@@ -439,6 +452,8 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       ['Polttoaine, MWh', f1(en.fuelMWhBase), f1(en.fuelMWhHyb)],
       ['Hake, i-m³', en.chipBase == null ? '–' : f0(en.chipBase), en.chipHyb == null ? '–' : f0(en.chipHyb)],
       ['ORC-sähkö', '0', f0(en.chp)], ['Toimittamaton lämpö', f0(en.baseUnmet), f0(en.unmet)],
+      ...(en.fullHours > 0 ? [['ORC:n täystehoajo, h', '–', f0(en.fullHours)], ['ORC-ylijäämä varaajaan', '–', f0(en.orcTank)],
+        ['ORC-ylijäämä jäähdyttimeen', '–', f0(en.orcDump)]] : []),
       ['Lämmön huipputeho, kW', f0(en.peakHeat), f0(en.peakHeat)],
       ['Akun syklit / käyttöikä', '–', p.akkuOn ? `${f0(en.cycles)} / ${f1(en.life)} v` : '–'],
     ]);
@@ -625,7 +640,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
   const fiNum = v => (ok(v) ? String(Math.round(v * 1000) / 1000).replace('.', ',') : '');
   function csvRows(rows) { return rows.map(r => r.map(x => (typeof x === 'number' ? fiNum(x) : `"${String(x).replace(/"/g, '""')}"`)).join(';')).join('\r\n'); }
   function resultsCsv(r) {
-    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.12.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
+    const e = r.econ, en = r.energy, out = [['Maatilan hybridienergialaskuri 0.13.0', new Date().toISOString().slice(0, 10)], ['Tila', r.status], []];
     out.push(['YHTEENVETO', 'Arvo', 'Yksikkö']);
     [['Kassasäästö ylläpidon jälkeen', e.cash, '€/v'], ['NPV', e.npv, '€'], ['Takaisinmaksuaika', e.payback, 'v'], ['Investointi brutto', e.gross, '€'],
       ['Tuki', e.subsidy, '€'], ['Nettoinvestointi', e.net, '€'], ['Energiasäästö', e.energySaving, '€/v'], ['Reservituotto', e.reserve.farm, '€/v'],
@@ -642,7 +657,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
   function hourlyCsv(r) {
     const o = r.o, keys = [['buy', 'Verkko-osto kWh'], ['sell', 'Myynti kWh'], ['pv', 'PV kWh'], ['dis', 'Akun purku kWh'], ['ch', 'Akun lataus PV kWh'],
       ['gridch', 'Akun verkkolataus kWh'], ['soc', 'Akun varaus kWh'], ['hp', 'LP lämpö kWh'], ['hpel', 'LP sähkö kWh'], ['eb', 'Sähkökattila kWh'],
-      ['main', 'Päälämpö kWh'], ['unmet', 'Lämpövaje kWh'], ['chp', 'CHP kWh'], ['r', 'FCR-D ylös kW'], ['rdown', 'FCR-D alas kW'], ['buyP', 'Ostohinta €/kWh'], ['sellP', 'Myyntihinta €/kWh']];
+      ['main', 'Päälämpö kWh'], ['unmet', 'Lämpövaje kWh'], ['chp', 'CHP kWh'], ['orcTank', 'ORC-ylijäämä varaajaan kWh'], ['orcDump', 'ORC-ylijäämä jäähdyttimeen kWh'], ['r', 'FCR-D ylös kW'], ['rdown', 'FCR-D alas kW'], ['buyP', 'Ostohinta €/kWh'], ['sellP', 'Myyntihinta €/kWh']];
     const out = [['Tunti', ...keys.map(k => k[1])]];
     for (let t = 0; t < 8760; t++) out.push([t + 1, ...keys.map(([k]) => o[k][t])]);
     return csvRows(out);
@@ -716,7 +731,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       });
     });
     $('fPriceClear').addEventListener('click', () => { prices = {}; priceNames = {}; updatePriceInfo(); render(); });
-    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.12.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
+    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.13.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
     $('tOpenBtn').addEventListener('click', () => $('tOpen').click());
     $('tOpen').addEventListener('change', ev => {
       const f = ev.target.files[0]; if (!f) return;
