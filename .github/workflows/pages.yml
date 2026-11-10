@@ -30,6 +30,10 @@ jobs:
           mkdir -p _site
           cp web/index.html _site/index.html
           cp web/rakennushaku.html _site/rakennushaku.html
+          # Sama sisältö myös polussa web/, jotta linkit …/web/index.html toimivat riippumatta siitä,
+          # julkaistaanko sivusto tällä työnkululla vai suoraan haarasta (Settings → Pages → Source).
+          mkdir -p _site/web
+          cp web/index.html web/rakennushaku.html _site/web/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
