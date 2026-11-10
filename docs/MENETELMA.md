@@ -32,7 +32,7 @@ K62=Polttoaine: muuttuva lämpöhinta = polttoainehinta/(1000*hyötysuhde). K62=
 
 ## CHP ja ORC
 
-Päälämmityksen oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus, nimellislämpöteho 500 kW (D14). CHP kuvaa kattilan yhteyteen asennettavaa 40 kWe:n ORC-moduulia (valmistajan datasheet 2019, ks. LAHTEET.md): lämmönlähde 70–120 °C, lämpöteho sisään 450–640 kWth, enintään 40 kWe brutto, jäähdytysvesi 0–60 °C. Moduulikoko on valittu sopimaan 500 kW:n kattilaan.
+Päälämmityksen oletus on tuorehakelämpökeskus, nimellislämpöteho 500 kW (D14). CHP kuvaa kattilan yhteyteen asennettavaa 40 kWe:n ORC-moduulia (valmistajan datasheet 2019, ks. LAHTEET.md): lämmönlähde 70–120 °C, lämpöteho sisään 450–640 kWth, enintään 40 kWe brutto, jäähdytysvesi 0–60 °C. Moduulikoko on valittu sopimaan 500 kW:n kattilaan.
 
 Bruttosähköhyötysuhde viiteolosuhteessa (oletus menovesi 110 °C, paluu 25 °C) on D15 / K70 = 40 / 640 = 6,25 %. Muissa lämpötiloissa hyötysuhde skaalataan Carnot-kertoimella
 

@@ -59,7 +59,7 @@ Lohko **1B** näyttää käytetyt vuosikulutukset ja huipputehot. Se varoittaa, 
 
 Taulukossa rivit 9–15: kytke laite päälle (1) tai pois (0), syötä koko ja yksikköhinta. Yksikköhinnat ovat esimerkkejä; korvaa ne tarjousten hinnoilla. Investointituen osuus on solussa D17.
 
-**Päälämmitys (rivi 14).** Oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus, 500 kW. Muuta D14 oman kattilan tehoksi.
+**Päälämmitys (rivi 14).** Oletus on 500 kW:n tuorehakelämpökeskus. Muuta D14 oman kattilan tehoksi.
 
 **CHP: ORC (rivi 15, oletuksena pois).** Päälämmityskattilan yhteyteen voi lisätä 40 kWe:n ORC-moduulin. D15 on bruttosähköteho (40 kWe) ja investointi D15 × F15 (€/kWe). Asetukset ovat K69–K79: syötä ainakin **paluupiirin lämpötila K72** (lattialämmitys noin 25–30 °C, patterit 40–50 °C) ja kattilan menovesi K71. Laskettu nettohyötysuhde, nettoteho ja sähkö/lämpö-suhde näkyvät K77–K79. ORC käy vain tunteina, joina lämmöntarve riittää sen pienimpään lämpötehoon K76 (450 kWth). CHP-sähkö käytetään ensin tilan omaan kulutukseen, ylijäämä myydään. Lisäpolttoaine on CHP-sähkö / kattilan hyötysuhde C26. Ylläpito K65 (€/MWh sähköä), käyttöikä K66 ja uusimiskustannus K67. CHP ei toimi, jos K62 = *Toimitettu lämpö*. Hinta, ylläpito, viiteolosuhde ja omakäyttö ovat omia oletuksia; korvaa ne laitetoimittajan tiedoilla.
 

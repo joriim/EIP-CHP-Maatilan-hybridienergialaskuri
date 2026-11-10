@@ -46,7 +46,7 @@ Version 0.12.0 työkirjat on laskettu uudelleen LibreOffice Calcissa ja tarkiste
 
 ## 4. Syötä tilan kulutus ja nykyinen lämmitys
 
-Valitse Ohjauspaneelin solusta **D4** tuotantosuunta ja solusta **D5** päälämmitysmuoto. Tarkista nykyisen kattilan teho **D14**-solusta (oletus 500 kW, Veto Cont 500e -tyyppinen). Vertailun molemmissa vaihtoehdoissa lämmön toimituskyvyn pitää riittää samaan tarpeeseen.
+Valitse Ohjauspaneelin solusta **D4** tuotantosuunta ja solusta **D5** päälämmitysmuoto. Tarkista nykyisen kattilan teho **D14**-solusta (oletus 500 kW). Vertailun molemmissa vaihtoehdoissa lämmön toimituskyvyn pitää riittää samaan tarpeeseen.
 
 ### Vaihtoehto A: käytössä on vain vuosikulutus
 
@@ -180,7 +180,7 @@ Seuraavat arvot ovat **mallin oletuksia**, eivät lähdeluettelon vahvistamia la
 | Varaaja | 46,5 kWh/m³, häviö 100 W, purkuteho 300 kW | Vesitilavuus, lämpötilaero, häviö ja lämmönsiirto |
 | Reservi | Odotettu aktivointi 0,01 h/h, saatavuus 95 %, tilan osuus 50 %, vähimmäispalkkio 12 €/kk, kyllästyneen markkinan vuosimuutos −10 % | Toteutuva käyttö, aggregaattorin sopimus ja kustannukset |
 | Valmistuspäästöt | PV 700 kg/kWp, akku 90 kg/kWh, lämpöpumppu 100 kg/kW, varaaja 300 kg/m³ | Tuote- ja järjestelmäkohtaiset elinkaaritiedot |
-| Päälämmitys | Veto Cont 500e -tyyppinen, 500 kW, hyötysuhde 0,85 | Oman kattilan teho ja hyötysuhde |
+| Päälämmitys | Tuorehakelämpökeskus, 500 kW, hyötysuhde 0,85 | Oman kattilan teho ja hyötysuhde |
 | CHP: ORC | 40 kWe:n ORC-moduuli, 3 000 €/kWe, viiteolosuhde 110/25 °C, omakäyttö 10 %, ylläpito 15 €/MWh, käyttöikä 15 v, uusiminen 80 % | Toimittajan teho- ja hyötysuhdetiedot, hinta ja huolto |
 | Polttoaineiden päästöarviot | Hake 13 ja biokaasu 15 kg CO₂e/MWh polttoainetta | Toimitusketju, metaanipäästöt ja laskennan rajaus |
 

@@ -1,9 +1,9 @@
 # Muutosloki
 
-## 0.12.0 (2026-11-09): Veto Cont 500e, ORC ja lämpötase
+## 0.12.0 (2026-11-09): 500 kW:n päälämmitys, ORC ja lämpötase
 
 **Muutettua**
-- Päälämmityksen teho (D14) oletuksena 500 kW: Veljekset Ala-Talkkari Veto Cont 500e -tyyppinen tuorehakelämpökeskus. Oletusesimerkin tulokset eivät muutu, koska 300 kW riitti jo.
+- Päälämmityksen teho (D14) oletuksena 500 kW (tuorehakelämpökeskus). Oletusesimerkin tulokset eivät muutu, koska 300 kW riitti jo.
 - CHP (rivi 15) on ORC-malli: D15 = bruttosähköteho (40 kWe:n ORC-moduuli), investointi = D15 × F15. Asetukset K69–K79: nimellinen lämpöteho 640 kWth, menovesi 110 °C, paluupiiri 30 °C, viiteolosuhde 110/25 °C, omakäyttö 10 %, pienin lämpöteho 450 kWth. Nettosähköhyötysuhde skaalataan Carnot-kertoimella viiteolosuhteesta; brutto ei ylitä D15:tä. Lämpöohjattu: sähkö = K79 × päälämpö, enintään K78, vain kun ORC:n lämpöteho ≥ K76.
 - Aiempi sähköosuus (D15 = 0,15) poistui. Optimoinnin CHP-ehdokkaat ovat nyt kWe (0, 40).
 - Python-malli: sim(chp_max, chp_min_heat) ja orc_params(); oletuskattila 500 kW.

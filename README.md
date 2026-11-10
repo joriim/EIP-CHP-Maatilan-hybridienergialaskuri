@@ -21,7 +21,7 @@ Laskuri on tehty **EIP CHP Energiaälykäs eteläpohjalainen maatila** -hankkees
 
 ## Uutta versiossa 0.12.0
 
-- **Päälämmityksen oletus on Veljekset Ala-Talkkarin Veto Cont 500e -tyyppinen tuorehakelämpökeskus**, nimellislämpöteho 500 kW (aiemmin 300 kW).
+- **Päälämmityksen oletus on tuorehakelämpökeskus**, nimellislämpöteho 500 kW (aiemmin 300 kW).
 - **CHP on nyt ORC-malli** (40 kWe:n ORC-moduuli, lämpöteho 450–640 kWth; koko sopii 500 kW:n kattilaan). Sähkö riippuu kattilan menoveden ja **paluupiirin lämpötilasta**; ORC käy vain, kun tilan lämmöntarve riittää sen pienimpään lämpötehoon. CHP on edelleen oletuksena pois.
 - **Lämmön kulutus ja tuotanto kuukausittain** sähkökuvaajan rinnalla. ORC näkyy molemmissa samalla värillä: sähkö ja ORC:n läpi kulkenut lämpö.
 - **Kuvaajat suurena omaan ikkunaan** kuukausi-, päivä- tai tuntitasolla (kuukausi- tai viikkojaksoin).
