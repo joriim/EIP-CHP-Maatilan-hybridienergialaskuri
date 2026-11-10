@@ -154,6 +154,8 @@ Suvi Karirinne ja Miiro Jääskeläinen, Seinäjoen ammattikorkeakoulu (SEAMK), 
 
 ## Rahoitus
 
+<img src="docs/kuvat/eu-osarahoittama.png" alt="Euroopan unionin osarahoittama" width="320">
+
 EIP CHP Energiaälykäs eteläpohjalainen maatila -hanke, Euroopan unionin osarahoittama. Hankkeessa ovat mukana Seinäjoen ammattikorkeakoulu, Suomen metsäkeskus ja Veljekset Ala-Talkkari Oy.
 
 ---

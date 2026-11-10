@@ -2,6 +2,10 @@
 
 ## Julkaisematon (2026-11-10): selainversion syötteet
 
+**Uutta**
+- EU-osarahoituksen tunnus (Euroopan unionin osarahoittama) lisätty Excel-työkirjoihin (Ohjauspaneeli, rivi 83), selainversion alatunnisteeseen, README:hen ja Word-oppaisiin. Kuvatiedosto: docs/kuvat/eu-osarahoittama.png (alkuperäinen .jpg samassa kansiossa).
+- Excel: ORC-solujen lukumuodot korjattu (D15, K77, K79).
+
 **Muutettua**
 - Selainversio: ORC-syötteet (laiterivi, täystehoajo, kohdan 6 CHP/ORC-asetukset, optimoinnin ORC-ehdokkaat) ja ryhmä *8. Päästökertoimet* poistettu näkyvistä. ORC on selainversiossa pois päältä ja päästöt lasketaan oletuskertoimilla; laskentamalli (web/malli.js), Python-malli ja Excel-työkirja ovat ennallaan. Vanhan jakolinkin tai tallennetun tiedoston ORC- ja päästökerroinasetuksia ei enää lueta.
 - Selainversio: laskentakorko siirretty investointituen alle (kohta 2) ja annetaan prosentteina.
