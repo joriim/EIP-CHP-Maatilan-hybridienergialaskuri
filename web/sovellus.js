@@ -112,8 +112,8 @@
       }
       fields.forEach(f => { html += row(f); });
       if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin. <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/OMAT_RAKENNUSTIEDOT.md" target="_blank" rel="noopener">Ohje omien tietojen antamiseen</a>.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
-      if (extra === 'fuel') html += '<div class="rh-open"><button type="button" id="paOpen">Laske oma polttoaine</button>' +
-        '<span class="hint" id="paInfo">Harvennuspuu, olki ja pilaantunut vilja: seoksen hinta ja hyötysuhde hakekattilalle.</span></div>';
+      if (extra === 'fuel') html += '<div class="rh-open"><button type="button" id="paOpen">Laske oma polttopuu</button>' +
+        '<span class="hint" id="paInfo">Oma polttopuu (esim. harvennuspuu hakkeena): seoksen hinta ja hyötysuhde hakekattilalle.</span></div>';
       if (extra === 'priceFiles') html += `<div class="file"><label for="fPrice">Pörssihinnat (CSV €/MWh, alv 0)</label><input type="file" id="fPrice" accept=".csv,.txt" multiple>` +
         `<div class="row"><label for="fPriceYear">Vuosi, jos tiedostossa on yksi hintasarake</label><select id="fPriceYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>` +
         `<p class="hint" id="priceInfo">Ei hintoja. Rakennushaun hintahistoria_2023-2026.csv tai scripts/hae_porssihinnat.py-tiedosto.</p><button type="button" class="ghost" id="fPriceClear">Tyhjennä hinnat</button></div>`;
@@ -603,20 +603,17 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     } catch (e) { msg('Lataus ei onnistunut tässä näkymässä. Avaa laskuri GitHub Pagesista tai omalta koneelta.'); }
   }
   /* ------------------------------------------------------------------ oma polttoaine (web/polttoaine.js)
-   * Esikäsittely: seoksen hinta ja hyötysuhde → kohdan 4 kentät hake (C24) ja hyotysuhde (C26). */
+   * Oma polttopuu + ostohake. Esikäsittely: seoksen hinta ja hyötysuhde → kohdan 4 kentät hake (C24) ja hyotysuhde (C26). */
   const PA = window.Polttoaine, PA_STORE = 'hybridilaskuri.polttoaine';
   // [avain, otsikko, yksikkö/jae, askel]; null = ei koske jaetta
   const PA_ROWS = [
-    ['maara', 'Määrä vuodessa', { puu: 'k-m³', vilja: 't' }, 1],
-    ['ala', 'Korjuuala', { olki: 'ha' }, 1],
-    ['sato', 'Korjattava olkisato', { olki: 't/ha' }, 0.1],
-    ['kosteus', 'Kosteus saapumistilassa', { puu: 'p-%', olki: 'p-%', vilja: 'p-%' }, 1],
-    ['lampoarvo', 'Lämpöarvo kuiva-aineessa', { puu: 'MJ/kg', olki: 'MJ/kg', vilja: 'MJ/kg' }, 0.1],
+    ['maara', 'Määrä vuodessa', { puu: 'k-m³' }, 1],
+    ['kosteus', 'Kosteus saapumistilassa', { puu: 'p-%' }, 1],
+    ['lampoarvo', 'Lämpöarvo kuiva-aineessa', { puu: 'MJ/kg' }, 0.1],
     ['tiheys', 'Kuivatuoretiheys', { puu: 'kg/k-m³' }, 5],
-    ['kustannus', 'Kustannus käyttöpaikalla', { puu: '€/k-m³', olki: '€/t', vilja: '€/t' }, 1],
-    ['havikki', 'Varastohävikki', { puu: '%', olki: '%', vilja: '%' }, 1],
-    ['maxOsuus', 'Enimmäisosuus lämmöstä', { puu: '%', olki: '%', vilja: '%' }, 5],
-    ['hyotysuhde', 'Kattilan hyötysuhde', { puu: 'osuus', olki: 'osuus', vilja: 'osuus' }, 0.01],
+    ['kustannus', 'Kustannus käyttöpaikalla (korjuu, haketus, kuljetus)', { puu: '€/k-m³' }, 1],
+    ['havikki', 'Varastohävikki', { puu: '%' }, 1],
+    ['hyotysuhde', 'Kattilan hyötysuhde omalla puulla', { puu: 'osuus' }, 0.01],
   ];
   let paState = null;
   function paDefaults() {
@@ -666,9 +663,9 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       r.rivit.map(x => [x.nimi, x.key === 'osto' ? '–' : `${f1(x.maara)} ${x.yksikko}`, x.key === 'osto' ? `${f0(x.kaytetty)} MWh` : `${f1(x.kaytetty)} ${x.yksikko}`,
         f0(x.polttoaine), f0(x.lampo), pct(x.osuus), f1(x.polttoaineHinta), f1(x.lampoHinta), f0(x.kustannus), x.raja])
         .concat([['Yhteensä', '', '', f0(y.polttoaine), f0(y.lampo), pct(1), f2(y.hinta), f2(y.lampoHinta), f0(y.kustannus), '']]),
-      [, , , , 'total']);
+      [, , 'total']);
     $('paSum').textContent = y.lampo > 0
-      ? `Seoksen hinta ${f2(y.hinta)} €/MWh polttoainetta ja kattilan hyötysuhde ${nf3.format(y.hyotysuhde)}. Oma polttoaine kattaa ${pct(y.omaOsuus)} lämmöstä; ` +
+      ? `Seoksen hinta ${f2(y.hinta)} €/MWh polttoainetta ja kattilan hyötysuhde ${nf3.format(y.hyotysuhde)}. Oma puu kattaa ${pct(y.omaOsuus)} lämmöstä; ` +
         `säästö pelkkään ostohakkeeseen verrattuna ${f0(y.saasto)} €/v.` + (hake ? '' : ' Päälämmitys ei ole hakekattila, joten arvoja ei voi viedä laskuriin.')
       : 'Kattilan lämmöntuotanto on nolla: laske ensin tilan tuntitase.';
   }
@@ -682,7 +679,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     const r = paCalc(); if (!r.yhteensa) return;
     $('hake').value = +r.yhteensa.hinta.toFixed(2); $('hyotysuhde').value = +r.yhteensa.hyotysuhde.toFixed(4);
     render(); paRender();
-    const t = `Oma polttoaine käytössä: hake ${f2(r.yhteensa.hinta)} €/MWh, hyötysuhde ${nf3.format(r.yhteensa.hyotysuhde)} (oma osuus ${pct(r.yhteensa.omaOsuus)}).`;
+    const t = `Oma polttopuu käytössä: hake ${f2(r.yhteensa.hinta)} €/MWh, hyötysuhde ${nf3.format(r.yhteensa.hyotysuhde)} (oma osuus ${pct(r.yhteensa.omaOsuus)}).`;
     $('paMsg').textContent = 'Viety laskuriin.'; $('paInfo').textContent = t;
   }
 

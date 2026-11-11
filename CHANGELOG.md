@@ -3,7 +3,7 @@
 ## Julkaisematon (2026-11-10): selainversion syötteet
 
 **Uutta**
-- Polttoainemoduuli (kevyt versio): oman harvennuspuun, oljen ja pilaantuneen viljan saatavuus ja seoksen hinta hakekattilalle. Selainversion kohta 4 *Laske oma polttoaine* vie seoksen hinnan ja hyötysuhteen kenttiin C24 ja C26; sama laskenta `malli/polttoaine.py`. Lämpöarvo saapumistilassa VTT Technology 258:n kaavalla; jakeet halvimmasta alkaen, rajoitteina saatavuus ja enimmäisosuus lämmöstä. Menetelmä, oletukset ja rajaukset: docs/POLTTOAINE.md. Tallennettu lähtötietotiedosto sisältää myös polttoainetiedot.
+- Polttoainemoduuli (kevyt versio): oman polttopuun (esim. harvennuspuu hakkeena) saatavuus ja oman puun ja ostohakkeen seoksen hinta hakekattilalle. Selainversion kohta 4 *Laske oma polttopuu* vie seoksen hinnan ja hyötysuhteen kenttiin C24 ja C26; sama laskenta `malli/polttoaine.py`. Lämpöarvo saapumistilassa VTT Technology 258:n kaavalla; oma puu käytetään saatavuuden rajoissa, jos se on ostohaketta halvempaa. Menetelmä, oletukset ja rajaukset: docs/POLTTOAINE.md. Tallennettu lähtötietotiedosto sisältää myös polttoainetiedot.
 - EU-osarahoituksen tunnus (Euroopan unionin osarahoittama) lisätty Excel-työkirjoihin (Ohjauspaneeli, rivi 83), selainversion alatunnisteeseen, README:hen ja Word-oppaisiin. Kuvatiedosto: docs/kuvat/eu-osarahoittama.png (alkuperäinen .jpg samassa kansiossa).
 - Excel: ORC-solujen lukumuodot korjattu (D15, K77, K79).
 

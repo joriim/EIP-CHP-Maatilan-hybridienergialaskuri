@@ -1,50 +1,48 @@
-# Oma polttoaine: harvennuspuu, olki ja pilaantunut vilja
+# Oma polttopuu hakekattilan polttoaineena
 
-Polttoainemoduuli (kevyt versio) arvioi, kuinka suuren osan hakekattilan polttoaineesta tila voi kattaa omalla harvennuspuulla, oljella ja pilaantuneella viljalla, ja laskee seokselle vuoden painotetun hinnan ja kattilan hyötysuhteen. Tulos syötetään laskurin kenttiin *Hakkeen hinta* (C24) ja *Kattilan hyötysuhde* (C26).
+Polttoainemoduuli (kevyt versio) arvioi, kuinka suuren osan hakekattilan polttoaineesta tila voi kattaa omalla polttopuulla (esim. harvennuspuu hakkeena), ja laskee oman puun ja ostohakkeen seokselle vuoden painotetun hinnan ja kattilan hyötysuhteen. Tulos syötetään laskurin kenttiin *Hakkeen hinta* (C24) ja *Kattilan hyötysuhde* (C26).
 
-- Selainversio: kohta 4, painike **Laske oma polttoaine**. *Käytä laskurissa* vie arvot kenttiin.
+- Selainversio: kohta 4, painike **Laske oma polttopuu**. *Käytä laskurissa* vie arvot kenttiin.
 - Excel: laske arvot selainversiossa tai Pythonilla ja kirjoita ne soluihin C24 ja C26.
-- Python: `malli/polttoaine.py` (`laske(lampo, osto_hinta, osto_hyotysuhde, puu=…, olki=…, vilja=…)`).
+- Python: `malli/polttoaine.py` (`laske(lampo, osto_hinta, osto_hyotysuhde, puu=…)`).
 
-**Käyttäjän vastuu.** Käyttäjä vastaa määristä ja kustannuksista sekä siitä, soveltuuko kattila oljen tai viljan polttoon ja täyttyvätkö päästö- ja lupavaatimukset. Moduuli ei arvioi kumpaakaan.
+**Käyttäjän vastuu.** Käyttäjä vastaa puun määrästä ja kustannuksista.
 
 ## Laskenta
 
 1. **Lämpöarvo saapumistilassa** (VTT Technology 258, kaava 2.5): q_ar = q_d × (1 − M/100) − 0,02443 × M [MJ/kg], missä q_d on tehollinen lämpöarvo kuiva-aineessa ja M kosteus painoprosentteina. MWh/t = q_ar / 3,6.
-2. **Määrä.** Harvennuspuu annetaan kiintokuutioina: 1 k-m³ painaa saapumistilassa kuivatuoretiheys / (1 − M/100) kiloa. Olki = korjuuala × korjattava olkisato. Vilja annetaan tonneina. Varastohävikki pienentää käytettävää määrää.
-3. **Hinta.** Jakeen kustannus käyttöpaikalla (€/k-m³ tai €/t) jaetaan hävikin jälkeisellä energialla → €/MWh polttoainetta; jaettuna jakeen kattilahyötysuhteella → €/MWh tuotettua lämpöä.
-4. **Käyttöjärjestys.** Jakeet käytetään halvimmasta alkaen lämmön hinnan mukaan. Kunkin jakeen käyttöä rajoittaa saatavuus ja enimmäisosuus kattilan tuottamasta lämmöstä. Ostohaketta kalliimpaa omaa jaetta ei käytetä. Loppu lämmöstä tuotetaan ostohakkeella.
+2. **Määrä.** Puu annetaan kiintokuutioina: 1 k-m³ painaa saapumistilassa kuivatuoretiheys / (1 − M/100) kiloa. Varastohävikki pienentää käytettävää määrää.
+3. **Hinta.** Kustannus käyttöpaikalla (€/k-m³: korjuu, haketus, kuljetus ja puun oma arvo) jaetaan hävikin jälkeisellä energialla → €/MWh polttoainetta; jaettuna kattilan hyötysuhteella → €/MWh tuotettua lämpöä.
+4. **Käyttö.** Oma puu käytetään, jos sen lämpö on ostohaketta halvempaa. Käyttöä rajoittaa saatavuus; loppu lämmöstä tuotetaan ostohakkeella.
 5. **Tulos.** Seoksen hinta = kustannukset yhteensä / polttoaine-energia yhteensä (€/MWh). Seoksen hyötysuhde = tuotettu lämpö / polttoaine-energia. Näillä laskurin polttoainekustannus (lämpö / hyötysuhde × hinta) on sama kuin moduulin kokonaiskustannus.
 
 Lämmöntarpeena käytetään laskurin tuntitaseen päälämmön tuotantoa (nykytila tai hybridi).
 
 ## Oletusarvot
 
-| Suure | Harvennuspuu | Olki | Pilaantunut vilja | Lähde |
-|---|---|---|---|---|
-| Lämpöarvo kuiva-aineessa, MJ/kg | 19,2 | 17,4 | 17,5 | VTT T258: harvennusten kokopuuhake 19,0–19,6 (taul. 4.15); olki 16,7–17,8, keskiarvo 17,4 (taul. 7.3); viljatähteet 17,1–18,0 (taul. 7.10) |
-| Kosteus saapumistilassa, p-% | 50 | 20 | 20 | VTT T258: tuore rankahake 50; oljen polttokosteus yleensä alle 20, korjuussa enintään 25. Viljan arvo on oma oletus. |
-| Kuivatuoretiheys, kg/k-m³ | 400 | – | – | VTT T258 taul. 4.16: mänty 385, kuusi 400, koivu 475 |
-| Kustannus käyttöpaikalla | 28 €/k-m³ | 45 €/t | 10 €/t | Oma oletus, ei lähdettä |
-| Varastohävikki, % | 0 | 5 | 5 | Oma oletus, ei lähdettä |
-| Korjattava olkisato, t/ha | – | 2 | – | Oma oletus, ei lähdettä |
-| Enimmäisosuus lämmöstä, % | 100 | 20 | 10 | Oma oletus; oikea raja on kattilavalmistajan tieto |
-| Kattilan hyötysuhde | 0,85 | 0,80 | 0,80 | Oma oletus (puu = laskurin C26) |
+| Suure | Oletus | Lähde |
+|---|---|---|
+| Lämpöarvo kuiva-aineessa | 19,2 MJ/kg | VTT T258 taul. 4.15: harvennusten kokopuuhake, mänty 19,6, kuusi 19,2, koivu 19,0 |
+| Kosteus saapumistilassa | 50 p-% | VTT T258: tuore rankahake 50 |
+| Kuivatuoretiheys | 400 kg/k-m³ | VTT T258 taul. 4.16: mänty 385, kuusi 400, koivu 475 |
+| Kustannus käyttöpaikalla | 28 €/k-m³ | Oma oletus, ei lähdettä |
+| Varastohävikki | 0 % | Oma oletus, ei lähdettä |
+| Kattilan hyötysuhde omalla puulla | 0,85 | Oma oletus (= laskurin C26) |
 
-Määrät ovat oletuksena nolla, jolloin tulos on pelkkä ostohake ja laskurin arvot eivät muutu. Oletuksilla harvennuspuun energiasisältö on 1,86 MWh/k-m³ (15,0 €/MWh polttoainetta) ja oljen 3,73 MWh/t (12,7 €/MWh).
+Määrä on oletuksena nolla, jolloin tulos on pelkkä ostohake ja laskurin arvot eivät muutu. Oletuksilla puun energiasisältö on 1,86 MWh/k-m³ ja hinta 15,0 €/MWh polttoainetta.
 
 ## Rajaukset
 
-- **Vuositase, ei varastomallia.** Moduuli ei tarkista, riittääkö varasto olkea ja viljaa syksystä kevääseen, eikä kuukausittaista saatavuutta.
-- **Yksi hinta nykytilalle ja hybridille.** Laskuri käyttää samaa seoshintaa molemmissa. Hybridi vähentää ensin kalleinta jaetta (ostohake), joten keskihinnalla laskettu polttoainesäästö on todellista pienempi, kun oma polttoaine ei kata koko tarvetta.
-- **Kattilan soveltuvuus.** Oljen ja viljan tuhka sulaa puuta alemmassa lämpötilassa ja niissä on enemmän klooria ja kaliumia (VTT T258: oljen kloori keskimäärin 0,31 % ja kalium 0,99 % kuiva-aineessa; ohran ja kauran oljen tuhkan muodonmuutoslämpötila 735–765 °C). Kuonaantumista, korroosiota tai päästöjä ei mallinneta; enimmäisosuus on käyttäjän antama raja.
-- **Hyötysuhde ei riipu kosteudesta.** Kosteus vaikuttaa lämpöarvoon, mutta jaekohtainen hyötysuhde on käyttäjän antama vakio.
+- **Vuositase, ei varastomallia.** Moduuli ei tarkista kuukausittaista saatavuutta eikä varaston riittävyyttä.
+- **Yksi hinta nykytilalle ja hybridille.** Laskuri käyttää samaa seoshintaa molemmissa. Hybridi vähentää ensin kalleinta polttoainetta (ostohake), joten keskihinnalla laskettu polttoainesäästö on todellista pienempi, kun oma puu ei kata koko tarvetta.
+- **Hyötysuhde ei riipu kosteudesta.** Kosteus vaikuttaa lämpöarvoon, mutta hyötysuhde on käyttäjän antama vakio.
 - **Päästökertoimet.** Moduuli ei muuta laskurin päästökertoimia.
-- **Ei paikkatietohakua.** Metsäkuvioiden ja peltolohkojen haku kartalta ei kuulu kevyeen versioon.
+- **Ei paikkatietohakua.** Metsäkuvioiden haku kartalta ei kuulu kevyeen versioon.
+- **Vain puu.** Olki, vilja ja muut peltobiomassat eivät ole mukana.
 
 ## Testit
 
-`python -m unittest discover -s malli -p test_polttoaine.py` ja `node web/testi_polttoaine.js`. Yhteiset tapaukset ovat tiedostossa `data/polttoaine_testitapaukset.json` (päivitys: `python malli/polttoaine.py --kirjoita-testit`); selain- ja Python-laskenta täsmäävät 8 tapauksessa.
+`python -m unittest discover -s malli -p test_polttoaine.py` ja `node web/testi_polttoaine.js`. Yhteiset tapaukset ovat tiedostossa `data/polttoaine_testitapaukset.json` (päivitys: `python malli/polttoaine.py --kirjoita-testit`); selain- ja Python-laskenta täsmäävät 7 tapauksessa.
 
 ## Lähde
 

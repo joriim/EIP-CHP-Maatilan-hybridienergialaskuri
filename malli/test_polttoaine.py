@@ -7,8 +7,6 @@ from polttoaine import KEYS, TAPAUKSET, TESTIT, aja, lampoarvo_saapumistilassa, 
 
 class Polttoaine(unittest.TestCase):
     def test_lampoarvo_saapumistilassa(self):
-        # VTT T258: olki 20 %:n kosteudessa noin 13,5 MJ/kg (17,4 MJ/kg kuiva-aineessa)
-        self.assertAlmostEqual(lampoarvo_saapumistilassa(17.4, 20) * 3.6, 13.4314, places=4)
         # tuore hake 50 %: 19,2 × 0,5 − 0,02443 × 50 = 8,3785 MJ/kg
         self.assertAlmostEqual(lampoarvo_saapumistilassa(19.2, 50) * 3.6, 8.3785, places=4)
 
@@ -38,8 +36,8 @@ class Polttoaine(unittest.TestCase):
                 self.assertAlmostEqual(t['lampo'] / y['hyotysuhde'] * y['hinta'], y['kustannus'], places=6, msg=nimi)
 
     def test_rajoitteet(self):
-        r = aja(TAPAUKSET['olki_enimmaisosuus'])
-        self.assertAlmostEqual(r['rivit']['olki']['lampo'], 75, places=9)            # 15 % × 500 MWh
+        r = laske(500, 30, 0.85, puu=dict(maara=1000, maxOsuus=40))
+        self.assertAlmostEqual(r['rivit'][0]['lampo'], 200, places=9)                # 40 % × 500 MWh
         r = aja(TAPAUKSET['oma_kalliimpi'])
         self.assertEqual(r['rivit']['puu']['lampo'], 0)
         self.assertEqual(r['yhteensa']['saasto'], 0)

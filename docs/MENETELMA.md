@@ -82,9 +82,9 @@ Oman tilan tuntiprofiilit voi tuottaa Rakennushaulla (selainversion kohta 1). Ra
 
 Siirrossa laskuriin sähkösarja on muu sähkö kuin nykyinen lämmityssähkö, koska laskuri tuottaa lämmön omista lähteistään; lämmöntarve on toimitettua lämpöä. Ulkolämpötila korvaa esimerkkivuoden lämpöpumpun COP:ssa ja pakkasrajassa. Aurinkosähkön tuotto tulee edelleen esimerkkivuodesta. Lämmitysjärjestelmien tehojen summa asetetaan päälämmityksen tehoksi. Kattilan hyötysuhde ja hakkeen energiatiheys siirretään, kun tilalla on yksi kattila tai hakekattila. Pelletti-, öljy-, kaukolämpö-, sähkö- ja lämpöpumppulämmitystä laskuri ei mallinna lähtötilanteena; niistä annetaan huomautus.
 
-## Oma polttoaine
+## Oma polttopuu
 
-Polttoainemoduuli on esikäsittely, joka ei muuta tuntilaskentaa: se laskee oman harvennuspuun, oljen ja pilaantuneen viljan saatavuudesta seoksen hinnan (C24) ja kattilan hyötysuhteen (C26). Lämpöarvo saapumistilassa q_ar = q_d (1 − M/100) − 0,02443 M [MJ/kg]; jakeet käytetään halvimmasta alkaen, rajoitteina saatavuus ja enimmäisosuus lämmöstä. Kaavat, oletukset ja rajaukset: [POLTTOAINE.md](POLTTOAINE.md).
+Polttoainemoduuli on esikäsittely, joka ei muuta tuntilaskentaa: se laskee oman polttopuun saatavuudesta oman puun ja ostohakkeen seoksen hinnan (C24) ja kattilan hyötysuhteen (C26). Lämpöarvo saapumistilassa q_ar = q_d (1 − M/100) − 0,02443 M [MJ/kg]; oma puu käytetään saatavuuden rajoissa, jos sen lämpö on ostohaketta halvempaa. Kaavat, oletukset ja rajaukset: [POLTTOAINE.md](POLTTOAINE.md).
 
 ## Kaksi toteutusta
 

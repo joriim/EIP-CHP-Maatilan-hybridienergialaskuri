@@ -113,7 +113,7 @@ footer a, .hint a, .note a, .method a { color: var(--energia) }
 .small { font-size: .82rem }
 .badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 999px; background: var(--seamk-vaaleansininen); color: #000; margin-left: 6px }
 dialog.rh.pa { height: auto; max-height: calc(100vh - 24px); width: min(1100px, calc(100vw - 24px)) }
-.pa-body { padding: 14px 16px 18px; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px }
+.pa-body { padding: 14px 16px 18px; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; align-content: start; gap: 12px }
 .pa-body > * { min-width: 0; margin: 0 }
 .pa-body .scroll { overflow-x: auto }
 .pa-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 8px 24px }
@@ -277,11 +277,11 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
 </dialog>
 <dialog class="rh pa" id="paDialog" aria-labelledby="paTitle">
   <div class="rh-bar">
-    <div><strong id="paTitle">Oma polttoaine</strong> <span>Harvennuspuu, olki ja pilaantunut vilja hakekattilan polttoaineena: seoksen hinta ja hyötysuhde laskuriin.</span></div>
+    <div><strong id="paTitle">Oma polttopuu</strong> <span>Oma puu (esim. harvennuspuu hakkeena) hakekattilan polttoaineena: seoksen hinta ja hyötysuhde laskuriin.</span></div>
     <button type="button" id="paClose">Sulje</button>
   </div>
   <div class="pa-body">
-    <p class="note">Käyttäjä vastaa määristä, kustannuksista ja siitä, soveltuuko kattila oljen tai viljan polttoon. Lämpöarvot, tiheys ja kosteudet ovat kirjallisuusarvoja (VTT Technology 258); kustannukset, hävikit, olkisato, enimmäisosuudet ja jaekohtaiset hyötysuhteet ovat omia oletuksia, jotka korvataan tilan ja kattilavalmistajan tiedoilla.</p>
+    <p class="note">Käyttäjä vastaa määrästä ja kustannuksista. Lämpöarvo, tiheys ja kosteus ovat kirjallisuusarvoja (VTT Technology 258); kustannus, hävikki ja hyötysuhde ovat omia oletuksia, jotka korvataan tilan omilla tiedoilla.</p>
     <div class="pa-top">
       <div class="row"><label for="paTarve">Lämmöntarve, jonka kattila tuottaa</label><select id="paTarve"><option value="base">Nykytila</option><option value="hyb">Hybridi</option></select></div>
       <div class="row"><label for="paOsto">Ostohakkeen hinta, €/MWh</label><input type="number" id="paOsto" step="1" min="0"></div>
@@ -292,7 +292,7 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
     <div class="scroll"><table id="paOut"></table></div>
     <p class="hint" id="paSum"></p>
     <div class="pa-actions"><button type="button" id="paApply">Käytä laskurissa</button><button type="button" class="ghost" id="paReset">Palauta oletukset</button><span class="hint" id="paMsg"></span></div>
-    <p class="hint">Jakeet käytetään halvimmasta alkaen (€/MWh tuotettua lämpöä). Käyttöä rajoittavat saatavuus ja enimmäisosuus lämmöstä; loppu katetaan ostohakkeella. Lämpöarvo saapumistilassa = lämpöarvo kuiva-aineessa × (1 − kosteus) − 0,02443 MJ/kg × kosteus-%. <em>Käytä laskurissa</em> asettaa kohdan 4 hakkeen hinnan ja kattilan hyötysuhteen seoksen arvoihin.</p>
+    <p class="hint">Oma puu käytetään, jos sen lämpö on ostohaketta halvempaa (€/MWh tuotettua lämpöä). Käyttöä rajoittaa saatavuus; loppu katetaan ostohakkeella. Lämpöarvo saapumistilassa = lämpöarvo kuiva-aineessa × (1 − kosteus) − 0,02443 MJ/kg × kosteus-%. <em>Käytä laskurissa</em> asettaa kohdan 4 hakkeen hinnan ja kattilan hyötysuhteen seoksen arvoihin.</p>
   </div>
 </dialog>
 <dialog class="rh" id="rhDialog" aria-labelledby="rhTitle">

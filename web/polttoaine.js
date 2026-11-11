@@ -1,4 +1,4 @@
-/* Polttoainemoduuli (kevyt versio) – oman polttoaineen saatavuus ja seoksen hinta hakekattilalle.
+/* Polttoainemoduuli (kevyt versio) – oman polttopuun saatavuus ja seoksen hinta hakekattilalle.
  *
  * Esikäsittely laskurille: tuottaa vuoden painotetun polttoaineen hinnan (€/MWh polttoainetta) ja kattilan
  * hyötysuhteen, jotka syötetään laskurin kenttiin Hakkeen hinta (C24) ja Kattilan hyötysuhde (C26).
@@ -7,41 +7,33 @@
  *
  * Lämpöarvo saapumistilassa (VTT Technology 258, kaava 2.5):
  *   q_ar = q_d × (1 − M/100) − 0,02443 × M   [MJ/kg], M = kosteus p-%.
- * Jakeet käytetään halvimmasta alkaen (€/MWh tuotettua lämpöä); kunkin jakeen käyttöä rajoittaa saatavuus ja
- * enimmäisosuus tuotetusta lämmöstä. Loppu katetaan ostohakkeella.
+ * Oma puu käytetään, jos sen lämpö on ostohaketta halvempaa (€/MWh tuotettua lämpöä); käyttöä rajoittaa saatavuus.
+ * Loppu katetaan ostohakkeella.
  */
 (function (root) {
   'use strict';
 
   const H2O = 0.02443; // MJ/kg per kosteusprosentti (veden höyrystymislämpö, VTT T258 kaava 2.5)
 
-  /* Oletukset. Lämpöarvot, tiheys ja kosteudet: VTT Technology 258 (Alakangas ym. 2016), ks. docs/POLTTOAINE.md.
-   * Kustannukset, hävikit, olkisato, enimmäisosuudet ja jaekohtaiset hyötysuhteet ovat omia oletuksia ilman lähdettä:
-   * käyttäjä korvaa ne omilla tiedoillaan. Määrät ovat oletuksena nolla. */
+  /* Oletukset. Lämpöarvo, tiheys ja kosteus: VTT Technology 258 (Alakangas ym. 2016), ks. docs/POLTTOAINE.md.
+   * Kustannus, hävikki ja hyötysuhde ovat omia oletuksia ilman lähdettä: käyttäjä korvaa ne omilla tiedoillaan.
+   * Määrä on oletuksena nolla. */
   const DEFAULTS = {
-    puu: { nimi: 'Harvennuspuu (oma tuorehake)', yksikko: 'k-m³', maara: 0, tiheys: 400, kosteus: 50, lampoarvo: 19.2,
+    puu: { nimi: 'Oma polttopuu (tuorehake)', yksikko: 'k-m³', maara: 0, tiheys: 400, kosteus: 50, lampoarvo: 19.2,
       kustannus: 28, havikki: 0, maxOsuus: 100, hyotysuhde: 0.85 },
-    olki: { nimi: 'Olki', yksikko: 't', ala: 0, sato: 2, kosteus: 20, lampoarvo: 17.4,
-      kustannus: 45, havikki: 5, maxOsuus: 20, hyotysuhde: 0.8 },
-    vilja: { nimi: 'Pilaantunut vilja', yksikko: 't', maara: 0, kosteus: 20, lampoarvo: 17.5,
-      kustannus: 10, havikki: 5, maxOsuus: 10, hyotysuhde: 0.8 },
   };
-  const KEYS = ['puu', 'olki', 'vilja'];
+  const KEYS = ['puu'];
 
   /** Tehollinen lämpöarvo saapumistilassa, MWh/t. lampoarvo = MJ/kg kuiva-aineessa, kosteus = p-%. */
   function lampoarvoSaapumistilassa(lampoarvo, kosteus) {
     return (lampoarvo * (1 - kosteus / 100) - H2O * kosteus) / 3.6;
   }
 
-  /** Jakeen määrä omassa yksikössään (k-m³ tai t) ja energiasisältö MWh/yksikkö saapumistilassa. */
+  /** Puun määrä (k-m³) ja energiasisältö MWh/k-m³ saapumistilassa. */
   function jae(key, f) {
-    const mwhPerT = lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus);
-    if (key === 'puu') {
-      // 1 k-m³: kuiva-ainetta tiheys kg, saapumistilassa tiheys / (1 − M/100) kg
-      const tPerM3 = f.tiheys / (1 - f.kosteus / 100) / 1000;
-      return { maara: f.maara, mwhPerYksikko: mwhPerT * tPerM3, tPerYksikko: tPerM3 };
-    }
-    return { maara: key === 'olki' ? f.ala * f.sato : f.maara, mwhPerYksikko: mwhPerT, tPerYksikko: 1 };
+    // 1 k-m³: kuiva-ainetta tiheys kg, saapumistilassa tiheys / (1 − M/100) kg
+    const tPerM3 = f.tiheys / (1 - f.kosteus / 100) / 1000;
+    return { maara: f.maara, mwhPerYksikko: lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus) * tPerM3, tPerYksikko: tPerM3 };
   }
 
   function validoi(inp) {
@@ -59,14 +51,14 @@
       chk(f.maxOsuus >= 0 && f.maxOsuus <= 100, n + ': enimmäisosuus');
       chk(f.hyotysuhde > 0 && f.hyotysuhde <= 1, n + ': hyötysuhde');
       chk(jae(k, f).maara >= 0, n + ': määrä');
-      if (k === 'puu') chk(f.tiheys > 0, n + ': tiheys');
+      chk(f.tiheys > 0, n + ': tiheys');
       chk(lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus) > 0, n + ': lämpöarvo saapumistilassa');
     });
     return bad;
   }
 
   /**
-   * inp = { lampo: kattilan tuottama lämpö MWh/v, ostoHinta: €/MWh polttoainetta, ostoHyotysuhde, puu, olki, vilja }.
+   * inp = { lampo: kattilan tuottama lämpö MWh/v, ostoHinta: €/MWh polttoainetta, ostoHyotysuhde, puu }.
    * Palauttaa { virheet, rivit[], yhteensa{...} }.
    */
   function laske(input) {
