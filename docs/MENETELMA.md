@@ -82,6 +82,10 @@ Oman tilan tuntiprofiilit voi tuottaa Rakennushaulla (selainversion kohta 1). Ra
 
 Siirrossa laskuriin sähkösarja on muu sähkö kuin nykyinen lämmityssähkö, koska laskuri tuottaa lämmön omista lähteistään; lämmöntarve on toimitettua lämpöä. Ulkolämpötila korvaa esimerkkivuoden lämpöpumpun COP:ssa ja pakkasrajassa. Aurinkosähkön tuotto tulee edelleen esimerkkivuodesta. Lämmitysjärjestelmien tehojen summa asetetaan päälämmityksen tehoksi. Kattilan hyötysuhde ja hakkeen energiatiheys siirretään, kun tilalla on yksi kattila tai hakekattila. Pelletti-, öljy-, kaukolämpö-, sähkö- ja lämpöpumppulämmitystä laskuri ei mallinna lähtötilanteena; niistä annetaan huomautus.
 
+## Oma polttoaine
+
+Polttoainemoduuli on esikäsittely, joka ei muuta tuntilaskentaa: se laskee oman harvennuspuun, oljen ja pilaantuneen viljan saatavuudesta seoksen hinnan (C24) ja kattilan hyötysuhteen (C26). Lämpöarvo saapumistilassa q_ar = q_d (1 − M/100) − 0,02443 M [MJ/kg]; jakeet käytetään halvimmasta alkaen, rajoitteina saatavuus ja enimmäisosuus lämmöstä. Kaavat, oletukset ja rajaukset: [POLTTOAINE.md](POLTTOAINE.md).
+
 ## Kaksi toteutusta
 
 Sama malli on toteutettu Excel-kaavoina, JavaScriptinä (web/malli.js) ja Pythonina (malli/sim.py, talous.py). Excel ja JavaScript ovat käyttäjän versioita; Python on riippumaton vertailumalli. Testit vertaavat tuntisarjoja (Excel–Python) sekä energia-, talous-, kuukausi-, vuosi- ja päästötuloksia (Excel–JavaScript). Muutos tehdään kaikkiin kolmeen samassa muutoksessa.

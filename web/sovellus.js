@@ -48,7 +48,7 @@
       ['kalenteriIka', 'Akun kalenteri-ikä', 'v', 'K50', N(1, 1)],
       ['akkuUusiminen', 'Akun uusiminen, osuus nykyhinnasta', 'osuus', 'K32', N(0.05, 0)],
       ['hakeTiheys', 'Hakkeen energiatiheys', 'MWh/i-m³', 'K35', N(0.05, 0.1)],
-    ]],
+    ], 'fuel'],
     ['ohjaus', '5. Akun ohjaus', false, [
       ['akunOhjaus', 'Akun ohjaus', '', 'K26', ['Vain PV-ylijäämä', 'Pörssiohjattu']],
       ['halvat', 'Verkkolataus halvimpina tunteina', 'h/vrk', 'K27', N(1, 0, 24)],
@@ -112,6 +112,8 @@
       }
       fields.forEach(f => { html += row(f); });
       if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin. <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/OMAT_RAKENNUSTIEDOT.md" target="_blank" rel="noopener">Ohje omien tietojen antamiseen</a>.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
+      if (extra === 'fuel') html += '<div class="rh-open"><button type="button" id="paOpen">Laske oma polttoaine</button>' +
+        '<span class="hint" id="paInfo">Harvennuspuu, olki ja pilaantunut vilja: seoksen hinta ja hyötysuhde hakekattilalle.</span></div>';
       if (extra === 'priceFiles') html += `<div class="file"><label for="fPrice">Pörssihinnat (CSV €/MWh, alv 0)</label><input type="file" id="fPrice" accept=".csv,.txt" multiple>` +
         `<div class="row"><label for="fPriceYear">Vuosi, jos tiedostossa on yksi hintasarake</label><select id="fPriceYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>` +
         `<p class="hint" id="priceInfo">Ei hintoja. Rakennushaun hintahistoria_2023-2026.csv tai scripts/hae_porssihinnat.py-tiedosto.</p><button type="button" class="ghost" id="fPriceClear">Tyhjennä hinnat</button></div>`;
@@ -144,6 +146,7 @@
   const nf2 = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const ok = v => v != null && Number.isFinite(v);
   const f0 = v => (ok(v) ? nf0.format(v) : '–'), f1 = v => (ok(v) ? nf1.format(v) : '–'), f2 = v => (ok(v) ? nf2.format(v) : '–');
+  const nf3 = new Intl.NumberFormat('fi-FI', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
   const pct = v => (ok(v) ? nf0.format(v * 100) + ' %' : '–');
   function table(id, head, rows, cls) {
     $(id).innerHTML = '<thead><tr>' + head.map(x => `<th>${x}</th>`).join('') + '</tr></thead><tbody>' +
@@ -599,6 +602,90 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       msg(`Tallennettu ${name}.`);
     } catch (e) { msg('Lataus ei onnistunut tässä näkymässä. Avaa laskuri GitHub Pagesista tai omalta koneelta.'); }
   }
+  /* ------------------------------------------------------------------ oma polttoaine (web/polttoaine.js)
+   * Esikäsittely: seoksen hinta ja hyötysuhde → kohdan 4 kentät hake (C24) ja hyotysuhde (C26). */
+  const PA = window.Polttoaine, PA_STORE = 'hybridilaskuri.polttoaine';
+  // [avain, otsikko, yksikkö/jae, askel]; null = ei koske jaetta
+  const PA_ROWS = [
+    ['maara', 'Määrä vuodessa', { puu: 'k-m³', vilja: 't' }, 1],
+    ['ala', 'Korjuuala', { olki: 'ha' }, 1],
+    ['sato', 'Korjattava olkisato', { olki: 't/ha' }, 0.1],
+    ['kosteus', 'Kosteus saapumistilassa', { puu: 'p-%', olki: 'p-%', vilja: 'p-%' }, 1],
+    ['lampoarvo', 'Lämpöarvo kuiva-aineessa', { puu: 'MJ/kg', olki: 'MJ/kg', vilja: 'MJ/kg' }, 0.1],
+    ['tiheys', 'Kuivatuoretiheys', { puu: 'kg/k-m³' }, 5],
+    ['kustannus', 'Kustannus käyttöpaikalla', { puu: '€/k-m³', olki: '€/t', vilja: '€/t' }, 1],
+    ['havikki', 'Varastohävikki', { puu: '%', olki: '%', vilja: '%' }, 1],
+    ['maxOsuus', 'Enimmäisosuus lämmöstä', { puu: '%', olki: '%', vilja: '%' }, 5],
+    ['hyotysuhde', 'Kattilan hyötysuhde', { puu: 'osuus', olki: 'osuus', vilja: 'osuus' }, 0.01],
+  ];
+  let paState = null;
+  function paDefaults() {
+    const s = { tarve: 'base', ostoHinta: null, ostoHyotysuhde: null };
+    PA.KEYS.forEach(k => { s[k] = {}; PA_ROWS.forEach(([key]) => { if (key in PA.DEFAULTS[k]) s[k][key] = PA.DEFAULTS[k][key]; }); });
+    return s;
+  }
+  function paLoad(obj) {
+    const s = paDefaults();
+    if (obj && typeof obj === 'object') {
+      if (obj.tarve === 'hyb') s.tarve = 'hyb';
+      ['ostoHinta', 'ostoHyotysuhde'].forEach(k => { if (Number.isFinite(+obj[k]) && obj[k] !== null) s[k] = +obj[k]; });
+      PA.KEYS.forEach(k => Object.keys(s[k]).forEach(key => { const v = obj[k] && obj[k][key]; if (Number.isFinite(+v) && v !== null && v !== '') s[k][key] = +v; }));
+    }
+    return s;
+  }
+  function paSave() { try { localStorage.setItem(PA_STORE, JSON.stringify(paState)); } catch (e) { /* storage unavailable */ } }
+  function paBuild() {
+    $('paIn').innerHTML = '<thead><tr><th>Lähtötieto</th>' + PA.KEYS.map(k => `<th>${PA.DEFAULTS[k].nimi}</th>`).join('') + '</tr></thead><tbody>' +
+      PA_ROWS.map(([key, label, units, step]) => `<tr><td>${label}</td>` + PA.KEYS.map(k => units[k]
+        ? `<td><input type="number" id="pa_${k}_${key}" step="${step}" min="0" aria-label="${PA.DEFAULTS[k].nimi}: ${label}, ${units[k]}"> ${units[k]}</td>`
+        : '<td class="na">–</td>').join('') + '</tr>').join('') + '</tbody>';
+  }
+  function paFill() {
+    $('paTarve').value = paState.tarve; $('paOsto').value = paState.ostoHinta; $('paOstoEta').value = paState.ostoHyotysuhde;
+    PA.KEYS.forEach(k => Object.keys(paState[k]).forEach(key => { $(`pa_${k}_${key}`).value = paState[k][key]; }));
+  }
+  function paRead() {
+    const num = (el, d) => { const v = parseFloat(el.value); return Number.isFinite(v) ? v : d; };
+    paState.tarve = $('paTarve').value;
+    paState.ostoHinta = num($('paOsto'), paState.ostoHinta); paState.ostoHyotysuhde = num($('paOstoEta'), paState.ostoHyotysuhde);
+    PA.KEYS.forEach(k => Object.keys(paState[k]).forEach(key => { paState[k][key] = num($(`pa_${k}_${key}`), PA.DEFAULTS[k][key]); }));
+  }
+  function paCalc() {
+    const e = last && last.energy;
+    const lampo = e ? (paState.tarve === 'hyb' ? e.mainHyb : e.mainBase) / 1000 : 0;
+    return PA.laske(Object.assign({ lampo, ostoHinta: paState.ostoHinta, ostoHyotysuhde: paState.ostoHyotysuhde },
+      Object.fromEntries(PA.KEYS.map(k => [k, paState[k]]))));
+  }
+  function paRender() {
+    paRead(); paSave();
+    const r = paCalc(), hake = $('lammitys').value === 'Hakekattila';
+    $('paApply').disabled = !r.yhteensa || !hake;
+    if (!r.yhteensa) { $('paOut').innerHTML = ''; $('paSum').textContent = 'Tarkista: ' + r.virheet.join(', ') + '.'; return; }
+    const y = r.yhteensa;
+    table('paOut', ['Jae', 'Saatavilla', 'Käytetään', 'Polttoaine MWh', 'Lämpö MWh', 'Osuus', '€/MWh polttoaine', '€/MWh lämpö', 'Kustannus €/v', 'Rajoite'],
+      r.rivit.map(x => [x.nimi, x.key === 'osto' ? '–' : `${f1(x.maara)} ${x.yksikko}`, x.key === 'osto' ? `${f0(x.kaytetty)} MWh` : `${f1(x.kaytetty)} ${x.yksikko}`,
+        f0(x.polttoaine), f0(x.lampo), pct(x.osuus), f1(x.polttoaineHinta), f1(x.lampoHinta), f0(x.kustannus), x.raja])
+        .concat([['Yhteensä', '', '', f0(y.polttoaine), f0(y.lampo), pct(1), f2(y.hinta), f2(y.lampoHinta), f0(y.kustannus), '']]),
+      [, , , , 'total']);
+    $('paSum').textContent = y.lampo > 0
+      ? `Seoksen hinta ${f2(y.hinta)} €/MWh polttoainetta ja kattilan hyötysuhde ${nf3.format(y.hyotysuhde)}. Oma polttoaine kattaa ${pct(y.omaOsuus)} lämmöstä; ` +
+        `säästö pelkkään ostohakkeeseen verrattuna ${f0(y.saasto)} €/v.` + (hake ? '' : ' Päälämmitys ei ole hakekattila, joten arvoja ei voi viedä laskuriin.')
+      : 'Kattilan lämmöntuotanto on nolla: laske ensin tilan tuntitase.';
+  }
+  function paOpen() {
+    if (paState.ostoHinta == null) paState.ostoHinta = +$('hake').value;
+    if (paState.ostoHyotysuhde == null) paState.ostoHyotysuhde = +$('hyotysuhde').value;
+    paFill(); $('paMsg').textContent = ''; paRender();
+    const d = $('paDialog'); if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+  }
+  function paApply() {
+    const r = paCalc(); if (!r.yhteensa) return;
+    $('hake').value = +r.yhteensa.hinta.toFixed(2); $('hyotysuhde').value = +r.yhteensa.hyotysuhde.toFixed(4);
+    render(); paRender();
+    const t = `Oma polttoaine käytössä: hake ${f2(r.yhteensa.hinta)} €/MWh, hyötysuhde ${nf3.format(r.yhteensa.hyotysuhde)} (oma osuus ${pct(r.yhteensa.omaOsuus)}).`;
+    $('paMsg').textContent = 'Viety laskuriin.'; $('paInfo').textContent = t;
+  }
+
   function msg(t) { $('tMsg').textContent = t; }
   const fiNum = v => (ok(v) ? String(Math.round(v * 1000) / 1000).replace('.', ',') : '');
   function csvRows(rows) { return rows.map(r => r.map(x => (typeof x === 'number' ? fiNum(x) : `"${String(x).replace(/"/g, '""')}"`)).join(';')).join('\r\n'); }
@@ -694,11 +781,11 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       });
     });
     $('fPriceClear').addEventListener('click', () => { prices = {}; priceNames = {}; updatePriceInfo(); render(); });
-    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.13.0', lahtotiedot: diffParams(readInputs()) }, null, 2), 'application/json'));
+    $('tSave').addEventListener('click', () => download('hybridilaskuri_lahtotiedot.json', JSON.stringify({ versio: '0.13.0', lahtotiedot: diffParams(readInputs()), polttoaine: paState }, null, 2), 'application/json'));
     $('tOpenBtn').addEventListener('click', () => $('tOpen').click());
     $('tOpen').addEventListener('change', ev => {
       const f = ev.target.files[0]; if (!f) return;
-      f.text().then(t => { try { const j = JSON.parse(t); applyParams(j.lahtotiedot || j); msg(`Avattu ${f.name}.`); } catch (e) { msg(`Tiedostoa ${f.name} ei voitu lukea.`); } });
+      f.text().then(t => { try { const j = JSON.parse(t); applyParams(j.lahtotiedot || j); if (j.polttoaine) { paState = paLoad(j.polttoaine); paSave(); } msg(`Avattu ${f.name}.`); } catch (e) { msg(`Tiedostoa ${f.name} ei voitu lukea.`); } });
     });
     $('tLink').addEventListener('click', () => {
       const url = location.href.split('#')[0] + '#p=' + b64e(JSON.stringify(diffParams(readInputs())));
@@ -731,6 +818,13 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       }, 30);
     });
     $('rhOpen').addEventListener('click', openRakennushaku);
+    try { paState = paLoad(JSON.parse(localStorage.getItem(PA_STORE))); } catch (e) { paState = paLoad(null); }
+    paBuild();
+    $('paOpen').addEventListener('click', paOpen);
+    $('paClose').addEventListener('click', () => $('paDialog').close());
+    $('paDialog').addEventListener('input', paRender);
+    $('paApply').addEventListener('click', paApply);
+    $('paReset').addEventListener('click', () => { paState = paLoad({ ostoHinta: paState.ostoHinta, ostoHyotysuhde: paState.ostoHyotysuhde }); paFill(); paRender(); });
     ['kaavio', 'kaavioL'].forEach(id => { const el = $(id); el.addEventListener('click', () => openBig('pv'));
       el.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openBig('pv'); } }); });
     document.querySelectorAll('[data-big]').forEach(b => b.addEventListener('click', () => openBig(b.dataset.big)));

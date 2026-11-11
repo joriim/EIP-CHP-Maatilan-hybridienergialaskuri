@@ -19,6 +19,8 @@ jobs:
       - run: python -m unittest discover -s malli -p test_regressiot.py -v
       - run: python -m unittest discover -s scripts -p 'test_*.py' -v
       - run: node web/testi.js
+      - run: python -m unittest discover -s malli -p test_polttoaine.py -v
+      - run: node web/testi_polttoaine.js
       - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsx
       - run: python scripts/tarkista_xlsx_rakenne.py laskuri/Maatilan_hybridienergialaskuri.xlsm
       - name: web/index.html ja web/rakennushaku.html ovat ajan tasalla lähteisiin nähden

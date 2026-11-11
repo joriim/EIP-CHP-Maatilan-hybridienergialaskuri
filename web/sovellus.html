@@ -112,6 +112,15 @@ footer a, .hint a, .note a, .method a { color: var(--energia) }
 .method h3 { font-family: var(--display); font-weight: 600; font-size: 1.05rem; margin: 14px 0 4px }
 .small { font-size: .82rem }
 .badge { display: inline-block; font-size: .75rem; padding: 1px 7px; border-radius: 999px; background: var(--seamk-vaaleansininen); color: #000; margin-left: 6px }
+dialog.rh.pa { height: auto; max-height: calc(100vh - 24px); width: min(1100px, calc(100vw - 24px)) }
+.pa-body { padding: 14px 16px 18px; overflow: auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px }
+.pa-body > * { min-width: 0; margin: 0 }
+.pa-body .scroll { overflow-x: auto }
+.pa-top { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 8px 24px }
+.pa-in th:first-child, .pa-in td:first-child, #paOut th:first-child, #paOut td:first-child { text-align: left; white-space: normal }
+.pa-in input { width: 96px; text-align: right }
+.pa-in td.na { color: var(--muted) }
+.pa-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center }
 .rh-open { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px }
 dialog.rh { width: min(1500px, calc(100vw - 24px)); height: calc(100vh - 24px); max-width: none; max-height: none; padding: 0; border: 0; border-radius: 8px; background: var(--surface); color: var(--ink); overflow: hidden }
 dialog.rh::backdrop { background: rgba(27, 22, 32, .55) }
@@ -266,6 +275,26 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
   <div class="rh-bar"><div><strong>Sähkö ja lämpö</strong> <span>Ponnahdusikkuna estettiin, joten näkymä avautui tähän.</span></div><button type="button" id="bigClose">Sulje</button></div>
   <div class="big-body"></div>
 </dialog>
+<dialog class="rh pa" id="paDialog" aria-labelledby="paTitle">
+  <div class="rh-bar">
+    <div><strong id="paTitle">Oma polttoaine</strong> <span>Harvennuspuu, olki ja pilaantunut vilja hakekattilan polttoaineena: seoksen hinta ja hyötysuhde laskuriin.</span></div>
+    <button type="button" id="paClose">Sulje</button>
+  </div>
+  <div class="pa-body">
+    <p class="note">Käyttäjä vastaa määristä, kustannuksista ja siitä, soveltuuko kattila oljen tai viljan polttoon. Lämpöarvot, tiheys ja kosteudet ovat kirjallisuusarvoja (VTT Technology 258); kustannukset, hävikit, olkisato, enimmäisosuudet ja jaekohtaiset hyötysuhteet ovat omia oletuksia, jotka korvataan tilan ja kattilavalmistajan tiedoilla.</p>
+    <div class="pa-top">
+      <div class="row"><label for="paTarve">Lämmöntarve, jonka kattila tuottaa</label><select id="paTarve"><option value="base">Nykytila</option><option value="hyb">Hybridi</option></select></div>
+      <div class="row"><label for="paOsto">Ostohakkeen hinta, €/MWh</label><input type="number" id="paOsto" step="1" min="0"></div>
+      <div class="row"><label for="paOstoEta">Kattilan hyötysuhde ostohakkeella, osuus</label><input type="number" id="paOstoEta" step="0.01" min="0.1" max="1"></div>
+    </div>
+    <div class="scroll"><table id="paIn" class="pa-in"></table></div>
+    <h3>Tulos</h3>
+    <div class="scroll"><table id="paOut"></table></div>
+    <p class="hint" id="paSum"></p>
+    <div class="pa-actions"><button type="button" id="paApply">Käytä laskurissa</button><button type="button" class="ghost" id="paReset">Palauta oletukset</button><span class="hint" id="paMsg"></span></div>
+    <p class="hint">Jakeet käytetään halvimmasta alkaen (€/MWh tuotettua lämpöä). Käyttöä rajoittavat saatavuus ja enimmäisosuus lämmöstä; loppu katetaan ostohakkeella. Lämpöarvo saapumistilassa = lämpöarvo kuiva-aineessa × (1 − kosteus) − 0,02443 MJ/kg × kosteus-%. <em>Käytä laskurissa</em> asettaa kohdan 4 hakkeen hinnan ja kattilan hyötysuhteen seoksen arvoihin.</p>
+  </div>
+</dialog>
 <dialog class="rh" id="rhDialog" aria-labelledby="rhTitle">
   <div class="rh-bar">
     <div><strong id="rhTitle">Rakennushaku</strong> <span>Tilan rakennukset, kulutus, säätiedot ja pörssihinnat. Laske tuntiprofiili ja paina <em>Siirrä laskuriin</em>.</span></div>
@@ -276,4 +305,5 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
 
 <script>/*DATA*/</script>
 <script>/*MALLI*/</script>
+<script>/*POLTTOAINE*/</script>
 <script>/*SOVELLUS*/</script>

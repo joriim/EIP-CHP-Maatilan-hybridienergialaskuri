@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Kokoaa selainversion web/index.html: sivu (web/sovellus.html), malli (web/malli.js),
+"""Kokoaa selainversion web/index.html: sivu (web/sovellus.html), malli (web/malli.js), polttoainemoduuli (web/polttoaine.js),
 käyttöliittymä (web/sovellus.js) ja data (data/*.csv).
 
 Käyttö: python scripts/rakenna_web.py [--vain-sisalto POLKU]
@@ -66,8 +66,10 @@ def main():
     page = (ROOT / 'web' / 'sovellus.html').read_text(encoding='utf-8')
     malli = (ROOT / 'web' / 'malli.js').read_text(encoding='utf-8')
     ui = (ROOT / 'web' / 'sovellus.js').read_text(encoding='utf-8')
-    assert '/*DATA*/' in page and '/*MALLI*/' in page and '/*SOVELLUS*/' in page
-    body = page.replace('/*DATA*/', js).replace('/*MALLI*/', malli).replace('/*SOVELLUS*/', ui)
+    polttoaine = (ROOT / 'web' / 'polttoaine.js').read_text(encoding='utf-8')
+    assert all(k in page for k in ('/*DATA*/', '/*MALLI*/', '/*POLTTOAINE*/', '/*SOVELLUS*/'))
+    body = (page.replace('/*DATA*/', js).replace('/*MALLI*/', malli).replace('/*POLTTOAINE*/', polttoaine)
+            .replace('/*SOVELLUS*/', ui))
     full = ('<!doctype html>\n<html lang="fi">\n<head>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
             '<!-- Rakennettu: python scripts/rakenna_web.py. Muokkaa web/sovellus.html, web/sovellus.js ja web/malli.js. -->\n'

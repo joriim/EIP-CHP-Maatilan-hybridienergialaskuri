@@ -83,7 +83,7 @@ Mallin osakokonaisuudet ja niiden yhteydet: [konseptikuva](docs/KONSEPTIKUVA.md)
 3. Täytä Ohjauspaneelin **keltaiset solut**: tuotantosuunta, laitteiden koot ja hinnat.
 4. Lue tulokset Ohjauspaneelin osista 3–6.
 
-Tarkempi ohje: [docs/KAYTTOOHJE.md](docs/KAYTTOOHJE.md). Oman tilan rakennukset ja sähkö-, lämpö- ja polttoainetiedot Rakennushaulla: [docs/OMAT_RAKENNUSTIEDOT.md](docs/OMAT_RAKENNUSTIEDOT.md).
+Tarkempi ohje: [docs/KAYTTOOHJE.md](docs/KAYTTOOHJE.md). Oman tilan rakennukset ja sähkö-, lämpö- ja polttoainetiedot Rakennushaulla: [docs/OMAT_RAKENNUSTIEDOT.md](docs/OMAT_RAKENNUSTIEDOT.md). Oman harvennuspuun, oljen ja pilaantuneen viljan käyttö hakekattilassa: [docs/POLTTOAINE.md](docs/POLTTOAINE.md).
 
 Excel-tiedoston mukana erikseen jaettava käyttöohje ja lähdeluettelo: [laskuri/README_EXCEL.md](laskuri/README_EXCEL.md).
 

@@ -1,0 +1,476 @@
+{
+ "vain_ostohake": {
+  "syote": {
+   "lampo": 260,
+   "ostoHinta": 16,
+   "ostoHyotysuhde": 0.85
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 260,
+    "polttoaine": 305.88235294117646,
+    "kustannus": 4894.117647058823,
+    "hinta": 16.0,
+    "hyotysuhde": 0.85,
+    "lampoHinta": 18.823529411764707,
+    "omaOsuus": 0.0,
+    "vainOsto": 4894.117647058823,
+    "saasto": 0.0
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 15.038491376738081,
+     "lampoHinta": 17.69234279616245
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 260,
+     "polttoaine": 305.88235294117646,
+     "kaytetty": 305.88235294117646,
+     "kustannus": 4894.117647058823,
+     "polttoaineHinta": 16,
+     "lampoHinta": 18.823529411764707
+    }
+   }
+  }
+ },
+ "puu_riittaa": {
+  "syote": {
+   "lampo": 260,
+   "ostoHinta": 16,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 400,
+    "kustannus": 20
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 260,
+    "polttoaine": 305.88235294117646,
+    "kustannus": 3285.7208050015975,
+    "hinta": 10.741779554812915,
+    "hyotysuhde": 0.85,
+    "lampoHinta": 12.637387711544605,
+    "omaOsuus": 1.0,
+    "vainOsto": 4894.117647058823,
+    "saasto": 1608.396842057226
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 260.0,
+     "polttoaine": 305.88235294117646,
+     "kaytetty": 164.28604025007988,
+     "kustannus": 3285.7208050015975,
+     "polttoaineHinta": 10.741779554812915,
+     "lampoHinta": 12.637387711544607
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 16,
+     "lampoHinta": 18.823529411764707
+    }
+   }
+  }
+ },
+ "puu_ei_riita": {
+  "syote": {
+   "lampo": 1300,
+   "ostoHinta": 16,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 300,
+    "kustannus": 20
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 1300,
+    "polttoaine": 1529.4117647058824,
+    "kustannus": 21533.521568627453,
+    "hinta": 14.079610256410257,
+    "hyotysuhde": 0.85,
+    "lampoHinta": 16.564247360482657,
+    "omaOsuus": 0.3652166666666665,
+    "vainOsto": 24470.58823529412,
+    "saasto": 2937.0666666666657
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 474.7816666666666,
+     "polttoaine": 558.5666666666666,
+     "kaytetty": 300.0,
+     "kustannus": 6000.0,
+     "polttoaineHinta": 10.741779554812915,
+     "lampoHinta": 12.637387711544607
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 825.2183333333335,
+     "polttoaine": 970.8450980392158,
+     "kaytetty": 970.8450980392158,
+     "kustannus": 15533.521568627453,
+     "polttoaineHinta": 16,
+     "lampoHinta": 18.823529411764707
+    }
+   }
+  }
+ },
+ "kaikki_jakeet": {
+  "syote": {
+   "lampo": 1300,
+   "ostoHinta": 30,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 300
+   },
+   "olki": {
+    "ala": 120,
+    "sato": 2.5
+   },
+   "vilja": {
+    "maara": 40
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 1300,
+    "polttoaine": 1556.918843137255,
+    "kustannus": 28848.185815997647,
+    "hinta": 18.529023489668464,
+    "hyotysuhde": 0.8349825077461629,
+    "lampoHinta": 22.190912166152035,
+    "omaOsuus": 0.6529830256410256,
+    "vainOsto": 45882.352941176476,
+    "saasto": 17034.16712517883
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 474.7816666666666,
+     "polttoaine": 558.5666666666666,
+     "kaytetty": 300.0,
+     "kustannus": 8400.0,
+     "polttoaineHinta": 15.038491376738081,
+     "lampoHinta": 17.69234279616245
+    },
+    "olki": {
+     "lampo": 260.0,
+     "polttoaine": 325.0,
+     "kaytetty": 91.6940115973332,
+     "kustannus": 4126.230521879994,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 114.09626666666666,
+     "polttoaine": 142.62033333333332,
+     "kaytetty": 40.0,
+     "kustannus": 400.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 451.12206666666674,
+     "polttoaine": 530.731843137255,
+     "kaytetty": 530.731843137255,
+     "kustannus": 15921.955294117652,
+     "polttoaineHinta": 30,
+     "lampoHinta": 35.294117647058826
+    }
+   }
+  }
+ },
+ "olki_enimmaisosuus": {
+  "syote": {
+   "lampo": 500,
+   "ostoHinta": 30,
+   "ostoHyotysuhde": 0.85,
+   "olki": {
+    "ala": 200,
+    "sato": 3,
+    "maxOsuus": 15
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 500,
+    "polttoaine": 593.75,
+    "kustannus": 16190.25880438846,
+    "hinta": 27.267804302127935,
+    "hyotysuhde": 0.8421052631578947,
+    "lampoHinta": 32.38051760877692,
+    "omaOsuus": 0.15000000000000002,
+    "vainOsto": 17647.058823529413,
+    "saasto": 1456.800019140952
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 15.038491376738081,
+     "lampoHinta": 17.69234279616245
+    },
+    "olki": {
+     "lampo": 75.0,
+     "polttoaine": 93.75,
+     "kaytetty": 26.450195653076886,
+     "kustannus": 1190.2588043884598,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 425.0,
+     "polttoaine": 500.0,
+     "kaytetty": 500.0,
+     "kustannus": 15000.0,
+     "polttoaineHinta": 30,
+     "lampoHinta": 35.294117647058826
+    }
+   }
+  }
+ },
+ "oma_kalliimpi": {
+  "syote": {
+   "lampo": 500,
+   "ostoHinta": 12,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 200,
+    "kustannus": 40
+   },
+   "olki": {
+    "ala": 50,
+    "kustannus": 90
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 500,
+    "polttoaine": 588.2352941176471,
+    "kustannus": 7058.823529411765,
+    "hinta": 12.0,
+    "hyotysuhde": 0.85,
+    "lampoHinta": 14.117647058823529,
+    "omaOsuus": 0.0,
+    "vainOsto": 7058.823529411765,
+    "saasto": 0.0
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 21.48355910962583,
+     "lampoHinta": 25.274775423089213
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 25.39218782695381,
+     "lampoHinta": 31.74023478369226
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 500,
+     "polttoaine": 588.2352941176471,
+     "kaytetty": 588.2352941176471,
+     "kustannus": 7058.823529411765,
+     "polttoaineHinta": 12,
+     "lampoHinta": 14.117647058823529
+    }
+   }
+  }
+ },
+ "markaa_puuta_havikki": {
+  "syote": {
+   "lampo": 800,
+   "ostoHinta": 25,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 500,
+    "kosteus": 55,
+    "tiheys": 385,
+    "lampoarvo": 19.6,
+    "havikki": 8,
+    "hyotysuhde": 0.8
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 800,
+    "polttoaine": 989.2542332970226,
+    "kustannus": 18298.306681190992,
+    "hinta": 18.497071900522204,
+    "hyotysuhde": 0.8086899940106709,
+    "lampoHinta": 22.87288335148874,
+    "omaOsuus": 0.8173219660493828,
+    "vainOsto": 23529.411764705885,
+    "saasto": 5231.105083514893
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 653.8575728395062,
+     "polttoaine": 817.3219660493828,
+     "kaytetty": 500.0,
+     "kustannus": 14000.0,
+     "polttoaineHinta": 17.12911261601174,
+     "lampoHinta": 21.411390770014673
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 146.14242716049375,
+     "polttoaine": 171.93226724763971,
+     "kaytetty": 171.93226724763971,
+     "kustannus": 4298.306681190993,
+     "polttoaineHinta": 25,
+     "lampoHinta": 29.411764705882355
+    }
+   }
+  }
+ },
+ "ei_tarvetta": {
+  "syote": {
+   "lampo": 0,
+   "ostoHinta": 16,
+   "ostoHyotysuhde": 0.85,
+   "puu": {
+    "maara": 100
+   }
+  },
+  "tulos": {
+   "yhteensa": {
+    "lampo": 0,
+    "polttoaine": 0.0,
+    "kustannus": 0.0,
+    "hinta": 16,
+    "hyotysuhde": 0.85,
+    "lampoHinta": 18.823529411764707,
+    "omaOsuus": 0.0,
+    "vainOsto": 0.0,
+    "saasto": 0.0
+   },
+   "rivit": {
+    "puu": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 15.038491376738081,
+     "lampoHinta": 17.69234279616245
+    },
+    "olki": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 12.696093913476904,
+     "lampoHinta": 15.87011739184613
+    },
+    "vilja": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 2.804649173446517,
+     "lampoHinta": 3.5058114668081464
+    },
+    "osto": {
+     "lampo": 0.0,
+     "polttoaine": 0.0,
+     "kaytetty": 0.0,
+     "kustannus": 0.0,
+     "polttoaineHinta": 16,
+     "lampoHinta": 18.823529411764707
+    }
+   }
+  }
+ }
+}
