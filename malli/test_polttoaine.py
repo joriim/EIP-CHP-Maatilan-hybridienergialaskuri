@@ -2,7 +2,7 @@
 import json
 import unittest
 
-from polttoaine import KEYS, TAPAUKSET, TESTIT, aja, lampoarvo_saapumistilassa, laske
+from polttoaine import DEFAULTS, TAPAUKSET, TESTIT, aja, lampoarvo_saapumistilassa, laske, ominaisuudet
 
 
 class Polttoaine(unittest.TestCase):
@@ -10,37 +10,43 @@ class Polttoaine(unittest.TestCase):
         # tuore hake 50 %: 19,2 × 0,5 − 0,02443 × 50 = 8,3785 MJ/kg
         self.assertAlmostEqual(lampoarvo_saapumistilassa(19.2, 50) * 3.6, 8.3785, places=4)
 
-    def test_puu_kasin(self):
-        # 1 k-m³: 400 kg ka → 800 kg saapumistilassa → 0,8 t × 8,3785/3,6 MWh/t = 1,86189 MWh
-        r = laske(260, 16, 0.85, puu=dict(maara=100, kustannus=20))
-        puu = r['rivit'][0]
-        self.assertAlmostEqual(puu['mwhPerYksikko'], 1.861889, places=5)
-        self.assertAlmostEqual(puu['lampo'], 100 * 1.861889 * 0.85, places=3)
-        self.assertAlmostEqual(puu['kustannus'], 2000, places=6)
-        y = r['yhteensa']
-        self.assertAlmostEqual(y['kustannus'], 2000 + (260 - puu['lampo']) / 0.85 * 16, places=6)
-        self.assertAlmostEqual(y['hyotysuhde'], 0.85, places=12)
+    def test_ominaisuudet_kasin(self):
+        # Oma puu 50 %: 1 k-m³ = 400 kg ka = 0,8 t → 0,8 × 8,3785 / 3,6 = 1,86189 MWh; 0,4 k-m³/i-m³ → 0,74476 MWh/i-m³
+        o = ominaisuudet(DEFAULTS['oma'])
+        self.assertAlmostEqual(o['mwhPerKm3'], 1.861889, places=5)
+        self.assertAlmostEqual(o['mwhPerIm3'], 0.744756, places=5)
+        self.assertAlmostEqual(o['hintaMwh'], 28 / 1.861889, places=4)
+        self.assertAlmostEqual(o['hintaKm3'], 28, places=9)
+        # Ostohake 40 %: 19,2 × 0,6 − 0,9772 = 10,5428 MJ/kg; 0,6667 t/k-m³ → 1,95237 MWh/k-m³ → 0,78095 MWh/i-m³ (laskurin K35 ≈ 0,8)
+        b = ominaisuudet(DEFAULTS['osto'])
+        self.assertAlmostEqual(b['mwhPerIm3'], 0.780948, places=5)
+        self.assertAlmostEqual(b['hintaIm3'], 16 * 0.780948, places=4)
+
+    def test_hinnan_yksikot_vastaavat(self):
+        o = ominaisuudet(DEFAULTS['oma'])
+        for yks, hinta in (('mwh', o['hintaMwh']), ('km3', o['hintaKm3']), ('im3', o['hintaIm3'])):
+            r = laske(1300, oma=dict(maara=300, hinta=hinta, hintaYksikko=yks), osto=dict(hinta=30))
+            self.assertAlmostEqual(r['yhteensa']['kustannus'], 300 * 28 + r['rivit'][1]['polttoaine'] * 30, places=6, msg=yks)
 
     def test_taseet(self):
         for nimi, t in TAPAUKSET.items():
-            r = laske(t['lampo'], t['ostoHinta'], t['ostoHyotysuhde'], **{k: t.get(k) for k in KEYS})
+            r = laske(t['lampo'], t.get('oma'), t.get('osto'))
             y = r['yhteensa']
             self.assertAlmostEqual(sum(x['lampo'] for x in r['rivit']), t['lampo'], places=9, msg=nimi)
-            self.assertLessEqual(y['kustannus'], y['vainOsto'] + 1e-9, msg=nimi)   # oma jae ei koskaan nosta kustannusta
-            for x in r['rivit'][:-1]:
-                self.assertLessEqual(x['lampo'], x['lampoPotentiaali'] + 1e-9, msg=nimi)
-                self.assertLessEqual(x['lampo'], x['maxLampo'] + 1e-9, msg=nimi)
+            self.assertLessEqual(y['kustannus'], y['vainOsto'] + 1e-9, msg=nimi)   # oma puu ei koskaan nosta kustannusta
             if y['polttoaine'] > 0:
-                self.assertAlmostEqual(y['hinta'] * y['polttoaine'], y['kustannus'], places=6, msg=nimi)
-                # laskurin polttoainekustannus = lämpö / hyötysuhde × hinta
+                # laskurin polttoainekustannus = lämpö / hyötysuhde × hinta; tilavuus = polttoaine / energiatiheys
                 self.assertAlmostEqual(t['lampo'] / y['hyotysuhde'] * y['hinta'], y['kustannus'], places=6, msg=nimi)
+                self.assertAlmostEqual(y['polttoaine'] / y['energiatiheys'],
+                                       sum(x['polttoaine'] / x['mwhPerIm3'] for x in r['rivit']), places=6, msg=nimi)
 
     def test_rajoitteet(self):
-        r = laske(500, 30, 0.85, puu=dict(maara=1000, maxOsuus=40))
-        self.assertAlmostEqual(r['rivit'][0]['lampo'], 200, places=9)                # 40 % × 500 MWh
         r = aja(TAPAUKSET['oma_kalliimpi'])
-        self.assertEqual(r['rivit']['puu']['lampo'], 0)
+        self.assertEqual(r['rivit']['oma']['lampo'], 0)
         self.assertEqual(r['yhteensa']['saasto'], 0)
+        r = aja(TAPAUKSET['oma_riittaa'])
+        self.assertEqual(r['rivit']['osto']['lampo'], 0)
+        self.assertAlmostEqual(r['yhteensa']['omaOsuus'], 1)
 
     def test_yhteiset_tapaukset(self):
         tallennettu = json.loads(TESTIT.read_text(encoding='utf-8'))

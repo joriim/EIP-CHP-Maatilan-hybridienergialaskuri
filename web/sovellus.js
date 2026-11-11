@@ -112,8 +112,8 @@
       }
       fields.forEach(f => { html += row(f); });
       if (extra === 'ownFiles') html += `<div class="rh-open"><button type="button" id="rhOpen">Hae tila Rakennushaulla</button><span class="hint">Rakennukset kartalta, kulutus, säätiedot ja pörssihinnat suoraan laskuriin. <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/OMAT_RAKENNUSTIEDOT.md" target="_blank" rel="noopener">Ohje omien tietojen antamiseen</a>.</span></div><ul class="rh-sum hint" id="rhSum" hidden></ul><div class="file"><label for="fOwn">Oma kulutusdata tai Rakennushaun vienti (CSV, 8 760 h)</label><input type="file" id="fOwn" accept=".csv,.txt"><p class="hint" id="ownInfo">Esimerkkiprofiilit ovat synteettisiä. Rakennushaun tiedosto oma_kulutusdata_&lt;vuosi&gt;.csv tuo sähkön, lämmön, ulkolämpötilan ja hinnat kerralla.</p></div>`;
-      if (extra === 'fuel') html += '<div class="rh-open"><button type="button" id="paOpen">Laske oma polttopuu</button>' +
-        '<span class="hint" id="paInfo">Oma polttopuu (esim. harvennuspuu hakkeena): seoksen hinta ja hyötysuhde hakekattilalle.</span></div>';
+      if (extra === 'fuel') html += '<div class="rh-open"><button type="button" id="paOpen">Oma polttopuu ja ostopolttoaine</button>' +
+        '<span class="hint" id="paInfo">Oman polttopuun ja ostopolttoaineen hinnat ja ominaisuudet erikseen; seoksen arvot hakekattilalle.</span></div>';
       if (extra === 'priceFiles') html += `<div class="file"><label for="fPrice">Pörssihinnat (CSV €/MWh, alv 0)</label><input type="file" id="fPrice" accept=".csv,.txt" multiple>` +
         `<div class="row"><label for="fPriceYear">Vuosi, jos tiedostossa on yksi hintasarake</label><select id="fPriceYear"><option>2023</option><option>2024</option><option selected>2025</option><option>2026</option></select></div>` +
         `<p class="hint" id="priceInfo">Ei hintoja. Rakennushaun hintahistoria_2023-2026.csv tai scripts/hae_porssihinnat.py-tiedosto.</p><button type="button" class="ghost" id="fPriceClear">Tyhjennä hinnat</button></div>`;
@@ -602,85 +602,108 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
       msg(`Tallennettu ${name}.`);
     } catch (e) { msg('Lataus ei onnistunut tässä näkymässä. Avaa laskuri GitHub Pagesista tai omalta koneelta.'); }
   }
-  /* ------------------------------------------------------------------ oma polttoaine (web/polttoaine.js)
-   * Oma polttopuu + ostohake. Esikäsittely: seoksen hinta ja hyötysuhde → kohdan 4 kentät hake (C24) ja hyotysuhde (C26). */
+  /* ------------------------------------------------------------------ oma polttopuu ja ostopolttoaine (web/polttoaine.js)
+   * Esikäsittely: seoksen hinta, hyötysuhde ja energiatiheys → kohdan 4 kentät hake (C24), hyotysuhde (C26), hakeTiheys (K35). */
   const PA = window.Polttoaine, PA_STORE = 'hybridilaskuri.polttoaine';
-  // [avain, otsikko, yksikkö/jae, askel]; null = ei koske jaetta
+  // [avain, otsikko, yksikkö, askel, vain oma]
   const PA_ROWS = [
-    ['maara', 'Määrä vuodessa', { puu: 'k-m³' }, 1],
-    ['kosteus', 'Kosteus saapumistilassa', { puu: 'p-%' }, 1],
-    ['lampoarvo', 'Lämpöarvo kuiva-aineessa', { puu: 'MJ/kg' }, 0.1],
-    ['tiheys', 'Kuivatuoretiheys', { puu: 'kg/k-m³' }, 5],
-    ['kustannus', 'Kustannus käyttöpaikalla (korjuu, haketus, kuljetus)', { puu: '€/k-m³' }, 1],
-    ['havikki', 'Varastohävikki', { puu: '%' }, 1],
-    ['hyotysuhde', 'Kattilan hyötysuhde omalla puulla', { puu: 'osuus' }, 0.01],
+    ['maara', 'Saatavilla vuodessa', 'k-m³', 1, true],
+    ['hinta', 'Hinta käyttöpaikalla', null, 1],
+    ['kosteus', 'Kosteus saapumistilassa', 'p-%', 1],
+    ['lampoarvo', 'Lämpöarvo kuiva-aineessa', 'MJ/kg', 0.1],
+    ['tiheys', 'Kuivatuoretiheys', 'kg/k-m³', 5],
+    ['tiiviys', 'Hakkeen tiiviys', 'k-m³/i-m³', 0.01],
+    ['havikki', 'Varastohävikki', '%', 1],
+    ['hyotysuhde', 'Kattilan hyötysuhde', 'osuus', 0.01],
   ];
   let paState = null;
   function paDefaults() {
-    const s = { tarve: 'base', ostoHinta: null, ostoHyotysuhde: null };
-    PA.KEYS.forEach(k => { s[k] = {}; PA_ROWS.forEach(([key]) => { if (key in PA.DEFAULTS[k]) s[k][key] = PA.DEFAULTS[k][key]; }); });
+    const s = { tarve: 'base' };
+    PA.KEYS.forEach(k => { s[k] = Object.assign({}, PA.DEFAULTS[k]); delete s[k].nimi; });
+    s.osto.hinta = null; s.osto.hyotysuhde = null;   // haetaan laskurin kentistä ensimmäisellä avauksella
     return s;
   }
   function paLoad(obj) {
     const s = paDefaults();
-    if (obj && typeof obj === 'object') {
-      if (obj.tarve === 'hyb') s.tarve = 'hyb';
-      ['ostoHinta', 'ostoHyotysuhde'].forEach(k => { if (Number.isFinite(+obj[k]) && obj[k] !== null) s[k] = +obj[k]; });
-      PA.KEYS.forEach(k => Object.keys(s[k]).forEach(key => { const v = obj[k] && obj[k][key]; if (Number.isFinite(+v) && v !== null && v !== '') s[k][key] = +v; }));
-    }
+    if (!obj || typeof obj !== 'object') return s;
+    if (obj.tarve === 'hyb') s.tarve = 'hyb';
+    const numOk = v => v !== null && v !== '' && Number.isFinite(+v);
+    // aiempi tallennusmuoto: { puu: { maara, kustannus, ... }, ostoHinta, ostoHyotysuhde }
+    const src = { oma: obj.oma || (obj.puu ? Object.assign({}, obj.puu, { hinta: obj.puu.kustannus }) : {}),
+      osto: obj.osto || { hinta: obj.ostoHinta, hyotysuhde: obj.ostoHyotysuhde } };
+    PA.KEYS.forEach(k => Object.keys(s[k]).forEach(key => {
+      const v = src[k] && src[k][key];
+      if (key === 'hintaYksikko') { if (v in PA.YKSIKOT) s[k][key] = v; } else if (numOk(v)) s[k][key] = +v;
+    }));
     return s;
   }
   function paSave() { try { localStorage.setItem(PA_STORE, JSON.stringify(paState)); } catch (e) { /* storage unavailable */ } }
   function paBuild() {
+    const cell = (k, key, unit, step) => {
+      const lab = `${PA.DEFAULTS[k].nimi}: `;
+      if (key === 'hinta') return `<td><input type="number" id="pa_${k}_hinta" step="${step}" min="0" aria-label="${lab}hinta"> ` +
+        `<select id="pa_${k}_hintaYksikko" aria-label="${lab}hinnan yksikkö">${Object.entries(PA.YKSIKOT).map(([v, t]) => `<option value="${v}">${t}</option>`).join('')}</select></td>`;
+      return `<td><input type="number" id="pa_${k}_${key}" step="${step}" min="0" aria-label="${lab}${key}, ${unit}"> ${unit}</td>`;
+    };
     $('paIn').innerHTML = '<thead><tr><th>Lähtötieto</th>' + PA.KEYS.map(k => `<th>${PA.DEFAULTS[k].nimi}</th>`).join('') + '</tr></thead><tbody>' +
-      PA_ROWS.map(([key, label, units, step]) => `<tr><td>${label}</td>` + PA.KEYS.map(k => units[k]
-        ? `<td><input type="number" id="pa_${k}_${key}" step="${step}" min="0" aria-label="${PA.DEFAULTS[k].nimi}: ${label}, ${units[k]}"> ${units[k]}</td>`
-        : '<td class="na">–</td>').join('') + '</tr>').join('') + '</tbody>';
+      PA_ROWS.map(([key, label, unit, step, onlyOwn]) => `<tr><td>${label}</td>` + PA.KEYS.map(k =>
+        (onlyOwn && k !== 'oma' ? '<td class="na">tarpeen mukaan</td>' : cell(k, key, unit, step))).join('') + '</tr>').join('') + '</tbody>';
   }
+  const paFields = k => Object.keys(paState[k]);
   function paFill() {
-    $('paTarve').value = paState.tarve; $('paOsto').value = paState.ostoHinta; $('paOstoEta').value = paState.ostoHyotysuhde;
-    PA.KEYS.forEach(k => Object.keys(paState[k]).forEach(key => { $(`pa_${k}_${key}`).value = paState[k][key]; }));
+    $('paTarve').value = paState.tarve;
+    PA.KEYS.forEach(k => paFields(k).forEach(key => { $(`pa_${k}_${key}`).value = paState[k][key]; }));
   }
   function paRead() {
-    const num = (el, d) => { const v = parseFloat(el.value); return Number.isFinite(v) ? v : d; };
     paState.tarve = $('paTarve').value;
-    paState.ostoHinta = num($('paOsto'), paState.ostoHinta); paState.ostoHyotysuhde = num($('paOstoEta'), paState.ostoHyotysuhde);
-    PA.KEYS.forEach(k => Object.keys(paState[k]).forEach(key => { paState[k][key] = num($(`pa_${k}_${key}`), PA.DEFAULTS[k][key]); }));
+    PA.KEYS.forEach(k => paFields(k).forEach(key => {
+      const el = $(`pa_${k}_${key}`);
+      if (key === 'hintaYksikko') paState[k][key] = el.value;
+      else { const v = parseFloat(el.value); paState[k][key] = Number.isFinite(v) ? v : (paState[k][key] != null ? paState[k][key] : PA.DEFAULTS[k][key]); }
+    }));
   }
   function paCalc() {
     const e = last && last.energy;
-    const lampo = e ? (paState.tarve === 'hyb' ? e.mainHyb : e.mainBase) / 1000 : 0;
-    return PA.laske(Object.assign({ lampo, ostoHinta: paState.ostoHinta, ostoHyotysuhde: paState.ostoHyotysuhde },
-      Object.fromEntries(PA.KEYS.map(k => [k, paState[k]]))));
+    return PA.laske({ lampo: e ? (paState.tarve === 'hyb' ? e.mainHyb : e.mainBase) / 1000 : 0, oma: paState.oma, osto: paState.osto });
   }
   function paRender() {
     paRead(); paSave();
     const r = paCalc(), hake = $('lammitys').value === 'Hakekattila';
     $('paApply').disabled = !r.yhteensa || !hake;
-    if (!r.yhteensa) { $('paOut').innerHTML = ''; $('paSum').textContent = 'Tarkista: ' + r.virheet.join(', ') + '.'; return; }
-    const y = r.yhteensa;
-    table('paOut', ['Jae', 'Saatavilla', 'Käytetään', 'Polttoaine MWh', 'Lämpö MWh', 'Osuus', '€/MWh polttoaine', '€/MWh lämpö', 'Kustannus €/v', 'Rajoite'],
-      r.rivit.map(x => [x.nimi, x.key === 'osto' ? '–' : `${f1(x.maara)} ${x.yksikko}`, x.key === 'osto' ? `${f0(x.kaytetty)} MWh` : `${f1(x.kaytetty)} ${x.yksikko}`,
-        f0(x.polttoaine), f0(x.lampo), pct(x.osuus), f1(x.polttoaineHinta), f1(x.lampoHinta), f0(x.kustannus), x.raja])
-        .concat([['Yhteensä', '', '', f0(y.polttoaine), f0(y.lampo), pct(1), f2(y.hinta), f2(y.lampoHinta), f0(y.kustannus), '']]),
+    if (!r.yhteensa) { $('paProps').innerHTML = ''; $('paOut').innerHTML = ''; $('paSum').textContent = 'Tarkista: ' + r.virheet.join(', ') + '.'; return; }
+    const y = r.yhteensa, [oma, osto] = r.rivit;
+    table('paProps', ['Ominaisuus ja hinta', oma.nimi, osto.nimi], [
+      ['Lämpöarvo saapumistilassa, MWh/t', f2(oma.mwhPerT), f2(osto.mwhPerT)],
+      ['Energiatiheys, MWh/k-m³', f2(oma.mwhPerKm3), f2(osto.mwhPerKm3)],
+      ['Energiatiheys, MWh/i-m³', f2(oma.mwhPerIm3), f2(osto.mwhPerIm3)],
+      ['Hinta, €/MWh polttoainetta', f2(oma.hintaMwh), f2(osto.hintaMwh)],
+      ['Hinta, €/k-m³', f2(oma.hintaKm3), f2(osto.hintaKm3)],
+      ['Hinta, €/i-m³', f2(oma.hintaIm3), f2(osto.hintaIm3)],
+      ['Tuotetun lämmön hinta, €/MWh', f2(oma.lampoHinta), f2(osto.lampoHinta)],
+    ], [, , , , , , 'total']);
+    table('paOut', ['Polttoaine', 'Lämpö MWh', 'Osuus', 'Polttoaine MWh', 'k-m³', 'i-m³', 't', 'Kustannus €/v', 'Rajoite'],
+      r.rivit.map(x => [x.nimi, f0(x.lampo), pct(x.osuus), f0(x.polttoaine), f0(x.km3), f0(x.im3), f0(x.tonnit), f0(x.kustannus), x.raja])
+        .concat([['Yhteensä', f0(y.lampo), pct(1), f0(y.polttoaine), f0(oma.km3 + osto.km3), f0(oma.im3 + osto.im3), f0(oma.tonnit + osto.tonnit), f0(y.kustannus), '']]),
       [, , 'total']);
     $('paSum').textContent = y.lampo > 0
-      ? `Seoksen hinta ${f2(y.hinta)} €/MWh polttoainetta ja kattilan hyötysuhde ${nf3.format(y.hyotysuhde)}. Oma puu kattaa ${pct(y.omaOsuus)} lämmöstä; ` +
-        `säästö pelkkään ostohakkeeseen verrattuna ${f0(y.saasto)} €/v.` + (hake ? '' : ' Päälämmitys ei ole hakekattila, joten arvoja ei voi viedä laskuriin.')
+      ? `Seos: ${f2(y.hinta)} €/MWh polttoainetta, kattilan hyötysuhde ${nf3.format(y.hyotysuhde)}, energiatiheys ${f2(y.energiatiheys)} MWh/i-m³. ` +
+        `Oma puu kattaa ${pct(y.omaOsuus)} lämmöstä; säästö pelkkään ostopolttoaineeseen verrattuna ${f0(y.saasto)} €/v.` +
+        (hake ? '' : ' Päälämmitys ei ole hakekattila, joten arvoja ei voi viedä laskuriin.')
       : 'Kattilan lämmöntuotanto on nolla: laske ensin tilan tuntitase.';
   }
   function paOpen() {
-    if (paState.ostoHinta == null) paState.ostoHinta = +$('hake').value;
-    if (paState.ostoHyotysuhde == null) paState.ostoHyotysuhde = +$('hyotysuhde').value;
+    if (paState.osto.hinta == null) { paState.osto.hinta = +$('hake').value; paState.osto.hintaYksikko = 'mwh'; }
+    if (paState.osto.hyotysuhde == null) paState.osto.hyotysuhde = +$('hyotysuhde').value;
     paFill(); $('paMsg').textContent = ''; paRender();
     const d = $('paDialog'); if (d.showModal) d.showModal(); else d.setAttribute('open', '');
   }
   function paApply() {
     const r = paCalc(); if (!r.yhteensa) return;
-    $('hake').value = +r.yhteensa.hinta.toFixed(2); $('hyotysuhde').value = +r.yhteensa.hyotysuhde.toFixed(4);
+    const y = r.yhteensa;
+    $('hake').value = +y.hinta.toFixed(2); $('hyotysuhde').value = +y.hyotysuhde.toFixed(4); $('hakeTiheys').value = +y.energiatiheys.toFixed(3);
     render(); paRender();
-    const t = `Oma polttopuu käytössä: hake ${f2(r.yhteensa.hinta)} €/MWh, hyötysuhde ${nf3.format(r.yhteensa.hyotysuhde)} (oma osuus ${pct(r.yhteensa.omaOsuus)}).`;
-    $('paMsg').textContent = 'Viety laskuriin.'; $('paInfo').textContent = t;
+    $('paMsg').textContent = 'Viety laskuriin.';
+    $('paInfo').textContent = `Seos käytössä: ${f2(y.hinta)} €/MWh, hyötysuhde ${nf3.format(y.hyotysuhde)}, ${f2(y.energiatiheys)} MWh/i-m³ (oma puu ${pct(y.omaOsuus)} lämmöstä).`;
   }
 
   function msg(t) { $('tMsg').textContent = t; }
@@ -821,7 +844,7 @@ svg text{fill:var(--muted);font-size:12px;font-family:Arial,Helvetica,sans-serif
     $('paClose').addEventListener('click', () => $('paDialog').close());
     $('paDialog').addEventListener('input', paRender);
     $('paApply').addEventListener('click', paApply);
-    $('paReset').addEventListener('click', () => { paState = paLoad({ ostoHinta: paState.ostoHinta, ostoHyotysuhde: paState.ostoHyotysuhde }); paFill(); paRender(); });
+    $('paReset').addEventListener('click', () => { paState = paLoad(null); paState.osto.hinta = +$('hake').value; paState.osto.hyotysuhde = +$('hyotysuhde').value; paFill(); paRender(); });
     ['kaavio', 'kaavioL'].forEach(id => { const el = $(id); el.addEventListener('click', () => openBig('pv'));
       el.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); openBig('pv'); } }); });
     document.querySelectorAll('[data-big]').forEach(b => b.addEventListener('click', () => openBig(b.dataset.big)));

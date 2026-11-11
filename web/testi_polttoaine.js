@@ -15,7 +15,8 @@ for (const [name, c] of Object.entries(cases)) {
   }
 }
 // Virheelliset syötteet hylätään
-if (!P.laske({ lampo: 100, ostoHinta: 16, ostoHyotysuhde: 0.85, puu: { kosteus: 90 } }).virheet.length) { bad++; console.log('kosteus 90 % hyväksyttiin'); }
-if (!P.laske({ lampo: 100, ostoHinta: 16, ostoHyotysuhde: 0 }).virheet.length) { bad++; console.log('hyötysuhde 0 hyväksyttiin'); }
+if (!P.laske({ lampo: 100, oma: { kosteus: 90 } }).virheet.length) { bad++; console.log('kosteus 90 % hyväksyttiin'); }
+if (!P.laske({ lampo: 100, osto: { hyotysuhde: 0 } }).virheet.length) { bad++; console.log('hyötysuhde 0 hyväksyttiin'); }
+if (!P.laske({ lampo: 100, osto: { hintaYksikko: 'eur' } }).virheet.length) { bad++; console.log('tuntematon hinnan yksikkö hyväksyttiin'); }
 console.log(bad ? `${bad} virhettä` : `Polttoainemoduuli: ${Object.keys(cases).length} tapausta, ${n} arvoa täsmää Python-malliin.`);
 process.exit(bad ? 1 : 0);

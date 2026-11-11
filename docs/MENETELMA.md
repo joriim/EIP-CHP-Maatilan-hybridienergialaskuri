@@ -84,7 +84,7 @@ Siirrossa laskuriin sähkösarja on muu sähkö kuin nykyinen lämmityssähkö, 
 
 ## Oma polttopuu
 
-Polttoainemoduuli on esikäsittely, joka ei muuta tuntilaskentaa: se laskee oman polttopuun saatavuudesta oman puun ja ostohakkeen seoksen hinnan (C24) ja kattilan hyötysuhteen (C26). Lämpöarvo saapumistilassa q_ar = q_d (1 − M/100) − 0,02443 M [MJ/kg]; oma puu käytetään saatavuuden rajoissa, jos sen lämpö on ostohaketta halvempaa. Kaavat, oletukset ja rajaukset: [POLTTOAINE.md](POLTTOAINE.md).
+Polttoainemoduuli on esikäsittely, joka ei muuta tuntilaskentaa: oman polttopuun ja ostopolttoaineen hinnat ja ominaisuudet annetaan erikseen, ja moduuli laskee seoksen hinnan (C24), kattilan hyötysuhteen (C26) ja energiatiheyden (K35). Lämpöarvo saapumistilassa q_ar = q_d (1 − M/100) − 0,02443 M [MJ/kg]; oma puu käytetään saatavuuden rajoissa, jos sen lämpö on ostopolttoainetta halvempaa. Kaavat, oletukset ja rajaukset: [POLTTOAINE.md](POLTTOAINE.md).
 
 ## Kaksi toteutusta
 

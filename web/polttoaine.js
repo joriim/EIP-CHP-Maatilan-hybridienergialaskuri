@@ -1,115 +1,110 @@
-/* Polttoainemoduuli (kevyt versio) – oman polttopuun saatavuus ja seoksen hinta hakekattilalle.
+/* Polttoainemoduuli (kevyt versio) – oma polttopuu ja ostopolttoaine hakekattilalle.
  *
- * Esikäsittely laskurille: tuottaa vuoden painotetun polttoaineen hinnan (€/MWh polttoainetta) ja kattilan
- * hyötysuhteen, jotka syötetään laskurin kenttiin Hakkeen hinta (C24) ja Kattilan hyötysuhde (C26).
+ * Esikäsittely laskurille: oman puun ja ostopolttoaineen ominaisuudet ja hinnat annetaan erikseen, ja moduuli
+ * tuottaa seokselle vuoden painotetun hinnan (€/MWh polttoainetta), kattilan hyötysuhteen ja energiatiheyden
+ * (MWh/i-m³) laskurin kenttiin Hakkeen hinta (C24), Kattilan hyötysuhde (C26) ja Hakkeen energiatiheys (K35).
  * Sama laskenta: malli/polttoaine.py. Testit: web/testi_polttoaine.js ja malli/test_polttoaine.py
  * (yhteiset tapaukset data/polttoaine_testitapaukset.json).
  *
  * Lämpöarvo saapumistilassa (VTT Technology 258, kaava 2.5):
  *   q_ar = q_d × (1 − M/100) − 0,02443 × M   [MJ/kg], M = kosteus p-%.
- * Oma puu käytetään, jos sen lämpö on ostohaketta halvempaa (€/MWh tuotettua lämpöä); käyttöä rajoittaa saatavuus.
- * Loppu katetaan ostohakkeella.
+ * Oma puu käytetään saatavuuden rajoissa, jos sen lämpö on ostopolttoainetta halvempaa (€/MWh tuotettua lämpöä).
  */
 (function (root) {
   'use strict';
 
   const H2O = 0.02443; // MJ/kg per kosteusprosentti (veden höyrystymislämpö, VTT T258 kaava 2.5)
+  const YKSIKOT = { mwh: '€/MWh', km3: '€/k-m³', im3: '€/i-m³' };
 
-  /* Oletukset. Lämpöarvo, tiheys ja kosteus: VTT Technology 258 (Alakangas ym. 2016), ks. docs/POLTTOAINE.md.
-   * Kustannus, hävikki ja hyötysuhde ovat omia oletuksia ilman lähdettä: käyttäjä korvaa ne omilla tiedoillaan.
-   * Määrä on oletuksena nolla. */
+  /* Oletukset. Lämpöarvo, tiheys ja oman tuorehakkeen kosteus: VTT Technology 258 (Alakangas ym. 2016).
+   * Hinnat, hävikit, hyötysuhteet, hakkeen tiiviys ja ostohakkeen kosteus ovat omia oletuksia: ks. docs/POLTTOAINE.md.
+   * Ostopolttoaineen hinta ja hyötysuhde tulevat laskurin kentistä, jos niitä ei anneta. */
   const DEFAULTS = {
-    puu: { nimi: 'Oma polttopuu (tuorehake)', yksikko: 'k-m³', maara: 0, tiheys: 400, kosteus: 50, lampoarvo: 19.2,
-      kustannus: 28, havikki: 0, maxOsuus: 100, hyotysuhde: 0.85 },
+    oma: { nimi: 'Oma polttopuu', maara: 0, kosteus: 50, lampoarvo: 19.2, tiheys: 400, tiiviys: 0.4,
+      hinta: 28, hintaYksikko: 'km3', havikki: 0, hyotysuhde: 0.85 },
+    osto: { nimi: 'Ostopolttoaine', kosteus: 40, lampoarvo: 19.2, tiheys: 400, tiiviys: 0.4,
+      hinta: 16, hintaYksikko: 'mwh', havikki: 0, hyotysuhde: 0.85 },
   };
-  const KEYS = ['puu'];
+  const KEYS = ['oma', 'osto'];
 
   /** Tehollinen lämpöarvo saapumistilassa, MWh/t. lampoarvo = MJ/kg kuiva-aineessa, kosteus = p-%. */
   function lampoarvoSaapumistilassa(lampoarvo, kosteus) {
     return (lampoarvo * (1 - kosteus / 100) - H2O * kosteus) / 3.6;
   }
 
-  /** Puun määrä (k-m³) ja energiasisältö MWh/k-m³ saapumistilassa. */
-  function jae(key, f) {
-    // 1 k-m³: kuiva-ainetta tiheys kg, saapumistilassa tiheys / (1 − M/100) kg
-    const tPerM3 = f.tiheys / (1 - f.kosteus / 100) / 1000;
-    return { maara: f.maara, mwhPerYksikko: lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus) * tPerM3, tPerYksikko: tPerM3 };
+  /** Polttoaineen ominaisuudet ja hinta kaikissa yksiköissä (hinta sisältää varastohävikin). */
+  function ominaisuudet(f) {
+    const mwhPerT = lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus);
+    const tPerKm3 = f.tiheys / (1 - f.kosteus / 100) / 1000;   // 1 k-m³: kuiva-ainetta tiheys kg
+    const mwhPerKm3 = mwhPerT * tPerKm3, mwhPerIm3 = mwhPerKm3 * f.tiiviys;
+    const perMwh = f.hintaYksikko === 'km3' ? f.hinta / mwhPerKm3 : f.hintaYksikko === 'im3' ? f.hinta / mwhPerIm3 : f.hinta;
+    const hintaMwh = perMwh / (1 - f.havikki / 100);          // €/MWh poltettua polttoainetta
+    return { mwhPerT, tPerKm3, mwhPerKm3, mwhPerIm3, hintaMwh, hintaKm3: hintaMwh * mwhPerKm3, hintaIm3: hintaMwh * mwhPerIm3,
+      lampoHinta: hintaMwh / f.hyotysuhde };
   }
 
   function validoi(inp) {
     const bad = [];
     const chk = (ok, msg) => { if (!ok) bad.push(msg); };
     chk(inp.lampo >= 0, 'lämmöntarve');
-    chk(inp.ostoHinta >= 0, 'ostohakkeen hinta');
-    chk(inp.ostoHyotysuhde > 0 && inp.ostoHyotysuhde <= 1, 'ostohakkeen hyötysuhde');
     KEYS.forEach(k => {
       const f = inp[k], n = DEFAULTS[k].nimi;
       chk(f.kosteus >= 0 && f.kosteus < 80, n + ': kosteus');
       chk(f.lampoarvo > 0, n + ': lämpöarvo');
-      chk(f.kustannus >= 0, n + ': kustannus');
-      chk(f.havikki >= 0 && f.havikki < 100, n + ': hävikki');
-      chk(f.maxOsuus >= 0 && f.maxOsuus <= 100, n + ': enimmäisosuus');
-      chk(f.hyotysuhde > 0 && f.hyotysuhde <= 1, n + ': hyötysuhde');
-      chk(jae(k, f).maara >= 0, n + ': määrä');
       chk(f.tiheys > 0, n + ': tiheys');
+      chk(f.tiiviys > 0 && f.tiiviys <= 1, n + ': tiiviys');
+      chk(f.hinta >= 0, n + ': hinta');
+      chk(f.hintaYksikko in YKSIKOT, n + ': hinnan yksikkö');
+      chk(f.havikki >= 0 && f.havikki < 100, n + ': hävikki');
+      chk(f.hyotysuhde > 0 && f.hyotysuhde <= 1, n + ': hyötysuhde');
       chk(lampoarvoSaapumistilassa(f.lampoarvo, f.kosteus) > 0, n + ': lämpöarvo saapumistilassa');
     });
+    chk(inp.oma.maara >= 0, DEFAULTS.oma.nimi + ': määrä');
     return bad;
   }
 
   /**
-   * inp = { lampo: kattilan tuottama lämpö MWh/v, ostoHinta: €/MWh polttoainetta, ostoHyotysuhde, puu }.
-   * Palauttaa { virheet, rivit[], yhteensa{...} }.
+   * input = { lampo: kattilan tuottama lämpö MWh/v, oma: {...}, osto: {...} }; puuttuvat kentät oletuksista.
+   * Palauttaa { virheet, rivit: [oma, osto], yhteensa }.
    */
   function laske(input) {
-    const inp = { lampo: input.lampo, ostoHinta: input.ostoHinta, ostoHyotysuhde: input.ostoHyotysuhde };
+    const inp = { lampo: input.lampo };
     KEYS.forEach(k => { inp[k] = Object.assign({}, DEFAULTS[k], input[k] || {}); });
     const virheet = validoi(inp);
     if (virheet.length) return { virheet, rivit: [], yhteensa: null };
 
-    const Q = inp.lampo, ostoLampoHinta = inp.ostoHinta / inp.ostoHyotysuhde; // €/MWh lämpöä
+    const Q = inp.lampo;
     const rivit = KEYS.map(k => {
-      const f = inp[k], j = jae(k, f);
-      const kaytettavissa = j.maara * (1 - f.havikki / 100);              // yksikköä hävikin jälkeen
-      const energia = kaytettavissa * j.mwhPerYksikko;                     // MWh polttoainetta
-      // Kustannus kohdistuu koko hankittuun määrään, hävikki nostaa yksikköhintaa.
-      const polttoaineHinta = f.kustannus / (j.mwhPerYksikko * (1 - f.havikki / 100)); // €/MWh polttoainetta
-      return { key: k, nimi: DEFAULTS[k].nimi, yksikko: DEFAULTS[k].yksikko, maara: j.maara, mwhPerYksikko: j.mwhPerYksikko,
-        tPerYksikko: j.tPerYksikko, energia, lampoPotentiaali: energia * f.hyotysuhde, polttoaineHinta,
-        lampoHinta: polttoaineHinta / f.hyotysuhde, hyotysuhde: f.hyotysuhde, maxLampo: f.maxOsuus / 100 * Q,
-        kustannusYksikko: f.kustannus, havikki: f.havikki, lampo: 0, polttoaine: 0, kaytetty: 0, kustannus: 0, raja: '' };
+      const f = inp[k], o = ominaisuudet(f);
+      return Object.assign({ key: k, nimi: DEFAULTS[k].nimi, hyotysuhde: f.hyotysuhde, havikki: f.havikki,
+        saatavilla: k === 'oma' ? f.maara : null, lampo: 0, polttoaine: 0, km3: 0, im3: 0, tonnit: 0, kustannus: 0, raja: '' }, o);
     });
-
-    // Halvin lämpö ensin; ostohaketta kalliimpaa omaa jaetta ei käytetä.
-    let jaljella = Q;
-    rivit.slice().sort((a, b) => a.lampoHinta - b.lampoHinta || KEYS.indexOf(a.key) - KEYS.indexOf(b.key)).forEach(r => {
-      if (r.lampoPotentiaali <= 0) { r.raja = 'ei määrää'; return; }
-      if (r.lampoHinta >= ostoLampoHinta) { r.raja = 'ostohaketta kalliimpi'; return; }
-      const lampo = Math.max(0, Math.min(r.lampoPotentiaali, r.maxLampo, jaljella));
-      r.lampo = lampo; r.polttoaine = lampo / r.hyotysuhde;
-      r.kaytetty = r.polttoaine / (r.mwhPerYksikko * (1 - r.havikki / 100)); // hankittava määrä, sis. hävikin
-      r.kustannus = r.kaytetty * r.kustannusYksikko;
-      r.raja = lampo >= jaljella - 1e-9 ? 'kattaa tarpeen' : lampo >= r.lampoPotentiaali - 1e-9 ? 'saatavuus' : 'enimmäisosuus';
-      jaljella -= lampo;
+    const [oma, osto] = rivit;
+    // Oma puu: poltettavissa oleva energia hävikin jälkeen
+    const omaLampoMax = oma.saatavilla * (1 - oma.havikki / 100) * oma.mwhPerKm3 * oma.hyotysuhde;
+    if (omaLampoMax <= 0) oma.raja = 'ei määrää';
+    else if (oma.lampoHinta >= osto.lampoHinta) oma.raja = 'ostopolttoainetta kalliimpi';
+    else { oma.lampo = Math.min(omaLampoMax, Q); oma.raja = oma.lampo >= Q - 1e-9 ? 'kattaa tarpeen' : 'saatavuus'; }
+    osto.lampo = Math.max(0, Q - oma.lampo); osto.raja = osto.lampo > 0 ? 'loppu tarpeesta' : 'ei tarvita';
+    rivit.forEach(r => {
+      r.polttoaine = r.lampo / r.hyotysuhde;                          // MWh poltettua polttoainetta
+      r.km3 = r.polttoaine / r.mwhPerKm3 / (1 - r.havikki / 100);     // hankittava määrä, sis. hävikin
+      r.im3 = r.km3 / inp[r.key].tiiviys; r.tonnit = r.km3 * r.tPerKm3;
+      r.kustannus = r.polttoaine * r.hintaMwh; r.osuus = Q > 0 ? r.lampo / Q : 0;
     });
-    const ostoLampo = Math.max(0, jaljella), ostoPolttoaine = ostoLampo / inp.ostoHyotysuhde;
-    rivit.push({ key: 'osto', nimi: 'Ostohake', yksikko: 'MWh', maara: null, mwhPerYksikko: 1, tPerYksikko: null, energia: null,
-      lampoPotentiaali: null, polttoaineHinta: inp.ostoHinta, lampoHinta: ostoLampoHinta, hyotysuhde: inp.ostoHyotysuhde, maxLampo: null,
-      kustannusYksikko: inp.ostoHinta, havikki: 0, lampo: ostoLampo, polttoaine: ostoPolttoaine, kaytetty: ostoPolttoaine,
-      kustannus: ostoPolttoaine * inp.ostoHinta, raja: ostoLampo > 0 ? 'loppu tarpeesta' : 'ei tarvita' });
-
-    const polttoaine = rivit.reduce((a, r) => a + r.polttoaine, 0), kustannus = rivit.reduce((a, r) => a + r.kustannus, 0);
-    rivit.forEach(r => { r.osuus = Q > 0 ? r.lampo / Q : 0; });
-    const vainOsto = Q / inp.ostoHyotysuhde * inp.ostoHinta;
+    const polttoaine = oma.polttoaine + osto.polttoaine, kustannus = oma.kustannus + osto.kustannus;
+    const poltettuIm3 = oma.polttoaine / oma.mwhPerIm3 + osto.polttoaine / osto.mwhPerIm3;
+    const vainOsto = Q / osto.hyotysuhde * osto.hintaMwh;
     return { virheet: [], rivit, yhteensa: {
       lampo: Q, polttoaine, kustannus,
-      hinta: polttoaine > 0 ? kustannus / polttoaine : inp.ostoHinta,       // €/MWh polttoainetta → laskurin C24
-      hyotysuhde: polttoaine > 0 ? Q / polttoaine : inp.ostoHyotysuhde,      // → laskurin C26
-      lampoHinta: Q > 0 ? kustannus / Q : ostoLampoHinta,                    // €/MWh lämpöä
-      omaOsuus: Q > 0 ? 1 - ostoLampo / Q : 0, vainOsto, saasto: vainOsto - kustannus,
+      hinta: polttoaine > 0 ? kustannus / polttoaine : osto.hintaMwh,                 // €/MWh → laskurin C24
+      hyotysuhde: polttoaine > 0 ? Q / polttoaine : osto.hyotysuhde,                  // → laskurin C26
+      energiatiheys: polttoaine > 0 ? polttoaine / poltettuIm3 : osto.mwhPerIm3,      // MWh/i-m³ → laskurin K35
+      lampoHinta: Q > 0 ? kustannus / Q : osto.lampoHinta,
+      omaOsuus: Q > 0 ? oma.lampo / Q : 0, vainOsto, saasto: vainOsto - kustannus,
     } };
   }
 
-  const api = { DEFAULTS, KEYS, laske, lampoarvoSaapumistilassa };
+  const api = { DEFAULTS, KEYS, YKSIKOT, laske, ominaisuudet, lampoarvoSaapumistilassa };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.Polttoaine = api;
 })(typeof self !== 'undefined' ? self : this);
