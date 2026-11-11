@@ -36,6 +36,8 @@ body { background: var(--bg); color: var(--ink); font-family: var(--body); font-
 .stripe { height: 6px; background: var(--keltainen); margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) }
 header.top { max-width: 1320px; margin: 0 auto; padding-block: 20px 12px; display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: end; justify-content: space-between }
 h1 { font-family: var(--display); font-weight: 700; font-size: clamp(1.45rem, 6.2vw, 2.1rem); letter-spacing: .02em; text-transform: uppercase; overflow-wrap: anywhere; hyphens: auto; margin: 0; color: var(--pelto); text-wrap: balance }
+.vastuu { max-width: 1320px; margin: 0 auto 12px; padding: 8px 12px; border-left: 4px solid var(--keltainen); background: var(--olki-soft); border-radius: 0 4px 4px 0; font-size: .88rem }
+.vastuu a { color: var(--energia) }
 .lead { margin: 4px 0 0; color: var(--muted); max-width: 70ch }
 .ver { font-size: .85rem; color: var(--muted) }
 main { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: minmax(300px, 400px) minmax(0, 1fr); gap: 20px; align-items: start }
@@ -152,6 +154,15 @@ dialog.big .big-body .ctl button, dialog.big .big-body .ctl select { color: var(
   </div>
   <div class="ver">Versio 0.13.0 · selainversio<br>SEAMK, Maatalous ja energia -tutkimusryhmä</div>
 </header>
+<aside class="vastuu" role="note" aria-label="Vastuunrajoitus">
+  <strong>Avoin työkalu, käyttö omalla vastuulla.</strong>
+  Sovellus, laskentamalli ja lähteet ovat avoimia:
+  <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri" target="_blank" rel="noopener">lähdekoodi</a>,
+  <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/MENETELMA.md" target="_blank" rel="noopener">menetelmä</a> ja
+  <a href="https://github.com/joriim/EIP-CHP-Maatilan-hybridienergialaskuri/blob/main/docs/LAHTEET.md" target="_blank" rel="noopener">lähteet</a>.
+  Käyttäjä vastaa itse syöttämiensä ja käyttämiensä tietojen oikeellisuudesta, käyttöoikeudesta ja soveltuvuudesta omaan käyttötarkoitukseensa.
+  Tulokset ovat suuntaa-antavia eivätkä ole investointi-, rahoitus- tai verosuositus; tekijät eivät vastaa laskurin käytöstä aiheutuvista vahingoista.
+</aside>
 <div class="toolbar" role="toolbar" aria-label="Tallennus ja jakaminen">
   <button type="button" id="tSave">Tallenna lähtötiedot</button>
   <label class="ghost-file"><button type="button" class="ghost" id="tOpenBtn">Avaa lähtötiedot</button><input type="file" id="tOpen" accept=".json" hidden></label>
