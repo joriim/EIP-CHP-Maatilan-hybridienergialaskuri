@@ -8,7 +8,7 @@
 
 Laskurista on myös selainversio samalla laskennalla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/. Tilan oman kulutusprofiilin voi tehdä Rakennushaulla: https://joriim.github.io/EIP-CHP-Maatilan-hybridienergialaskuri/rakennushaku.html
 
-**Käyttäjän vastuu.** Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista. Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan.
+**Käyttäjän vastuu.** Käyttäjä vastaa syöttämistään lähtötiedoista sekä investointi- ja käyttökustannuksista. Käyttäjä vastaa myös siitä, mihin historialliseen tai skenaarioituun sähkön, lämmön tai polttoaineen hintaan tai hintaennusteeseen hän perustaa tällä työkalulla tekemänsä teknis-taloudellisen mallinnuksen tai ennusteen. Laskuri ei ennusta hintoja: valittu hintavuosi tai skenaario toistetaan koko pitoajan. Kannattavuus mallinnetaan menneiden vuosien markkina- ja säätiedoilla, eikä mallinnettu kannattavuus ole tae tulevasta kannattavuudesta: sähkön, lämmön ja polttoaineiden hinnat sekä sää voivat poiketa merkittävästi laskennassa käytetyistä.
 
 ## 1. Mihin laskuria käytetään?
 
